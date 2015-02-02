@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "WOZLLA.js is aim to provide completed solution for making HTML5 mobile game.",
   "main": "WOZLLA.js",
+  "typescript": {
+    "definition": "WOZLLA.d.ts"
+  },
   "dependencies": {
     "hammerjs": "^2.0.4"
   },
