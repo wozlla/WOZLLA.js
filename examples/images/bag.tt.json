@@ -1,0 +1,356 @@
+{"frames": {
+
+"Lv.png":
+{
+	"frame": {"x":472,"y":26,"w":26,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":26,"h":16},
+	"sourceSize": {"w":26,"h":16}
+},
+"close.png":
+{
+	"frame": {"x":0,"y":330,"w":61,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
+	"sourceSize": {"w":61,"h":61}
+},
+"close_h.png":
+{
+	"frame": {"x":192,"y":171,"w":61,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
+	"sourceSize": {"w":61,"h":61}
+},
+"人民币数字.png":
+{
+	"frame": {"x":0,"y":0,"w":240,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":22},
+	"sourceSize": {"w":242,"h":22}
+},
+"人物框.png":
+{
+	"frame": {"x":349,"y":88,"w":78,"h":78},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":3,"w":78,"h":78},
+	"sourceSize": {"w":84,"h":84}
+},
+"人物框_h.png":
+{
+	"frame": {"x":427,"y":142,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"人物等级.png":
+{
+	"frame": {"x":0,"y":22,"w":174,"h":16},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":1,"w":174,"h":16},
+	"sourceSize": {"w":180,"h":18}
+},
+"全部标签.png":
+{
+	"frame": {"x":96,"y":171,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"全部标签_h.png":
+{
+	"frame": {"x":253,"y":130,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"列表人像背景5.png":
+{
+	"frame": {"x":173,"y":232,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"宠物按钮.png":
+{
+	"frame": {"x":336,"y":312,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"宠物按钮_d.png":
+{
+	"frame": {"x":253,"y":262,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"宠物按钮_h.png":
+{
+	"frame": {"x":90,"y":213,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"幸运.png":
+{
+	"frame": {"x":0,"y":424,"w":66,"h":20},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":66,"h":20},
+	"sourceSize": {"w":70,"h":22}
+},
+"攻击.png":
+{
+	"frame": {"x":0,"y":402,"w":64,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":0,"w":64,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"整理背包.png":
+{
+	"frame": {"x":310,"y":44,"w":118,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":118,"h":44},
+	"sourceSize": {"w":118,"h":44}
+},
+"时装宠物框_h.png":
+{
+	"frame": {"x":150,"y":60,"w":103,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":103,"h":111},
+	"sourceSize": {"w":103,"h":111}
+},
+"时装按钮.png":
+{
+	"frame": {"x":419,"y":226,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"时装按钮_d.png":
+{
+	"frame": {"x":336,"y":222,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"时装按钮_h.png":
+{
+	"frame": {"x":253,"y":172,"w":83,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":83,"h":90},
+	"sourceSize": {"w":83,"h":90}
+},
+"暴击.png":
+{
+	"frame": {"x":0,"y":308,"w":66,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":66,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"格挡.png":
+{
+	"frame": {"x":78,"y":303,"w":68,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":0,"w":68,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"消耗标签.png":
+{
+	"frame": {"x":253,"y":88,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"消耗标签_h.png":
+{
+	"frame": {"x":0,"y":154,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"游戏币.png":
+{
+	"frame": {"x":240,"y":0,"w":238,"h":20},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":1,"y":1,"w":238,"h":20},
+	"sourceSize": {"w":242,"h":22}
+},
+"灵识数字.png":
+{
+	"frame": {"x":240,"y":20,"w":232,"h":24},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":232,"h":24},
+	"sourceSize": {"w":234,"h":24}
+},
+"物品数量.png":
+{
+	"frame": {"x":0,"y":38,"w":160,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":160,"h":16},
+	"sourceSize": {"w":160,"h":16}
+},
+"物品数量背景.png":
+{
+	"frame": {"x":478,"y":0,"w":26,"h":26},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":26,"h":26},
+	"sourceSize": {"w":26,"h":26}
+},
+"生命.png":
+{
+	"frame": {"x":174,"y":22,"w":66,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":66,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"碎片标签.png":
+{
+	"frame": {"x":0,"y":112,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"碎片标签_h.png":
+{
+	"frame": {"x":0,"y":70,"w":96,"h":42},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":0,"w":96,"h":42},
+	"sourceSize": {"w":116,"h":42}
+},
+"经验数字.png":
+{
+	"frame": {"x":0,"y":54,"w":150,"h":16},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":150,"h":16},
+	"sourceSize": {"w":154,"h":16}
+},
+"背包头部背景_中.png":
+{
+	"frame": {"x":0,"y":196,"w":90,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":90,"h":56},
+	"sourceSize": {"w":90,"h":56}
+},
+"背包头部背景_右.png":
+{
+	"frame": {"x":0,"y":252,"w":78,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":56},
+	"sourceSize": {"w":78,"h":56}
+},
+"背包头部背景_左.png":
+{
+	"frame": {"x":349,"y":166,"w":78,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":78,"h":56},
+	"sourceSize": {"w":78,"h":56}
+},
+"能量数字.png":
+{
+	"frame": {"x":160,"y":44,"w":150,"h":16},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":0,"w":150,"h":16},
+	"sourceSize": {"w":154,"h":16}
+},
+"equipment_frame.png":
+{
+	"frame": {"x":419,"y":386,"w":70,"h":70},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":7,"y":7,"w":70,"h":70},
+	"sourceSize": {"w":84,"h":84}
+},
+"装备框_h.png":
+{
+	"frame": {"x":428,"y":58,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"装备框未开启.png":
+{
+	"frame": {"x":419,"y":316,"w":70,"h":70},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":7,"y":7,"w":70,"h":70},
+	"sourceSize": {"w":84,"h":84}
+},
+"速度.png":
+{
+	"frame": {"x":0,"y":478,"w":64,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":0,"w":64,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"防御.png":
+{
+	"frame": {"x":0,"y":456,"w":64,"h":22},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":0,"w":64,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"页码.png":
+{
+	"frame": {"x":488,"y":42,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16}
+},
+"页码_h.png":
+{
+	"frame": {"x":472,"y":42,"w":16,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+	"sourceSize": {"w":16,"h":16}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "bag.tt.png",
+	"format": "RGBA4444",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cf293f297be13ffd48fd6635481ee38e:1/1$"
+}
+}

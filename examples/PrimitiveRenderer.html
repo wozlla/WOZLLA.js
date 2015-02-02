@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PrimitiveRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    var rectRenderer = new WOZLLA.component.RectRenderer();
+    rectRenderer.rect = new WOZLLA.math.Rectangle(20, 20, 100, 100);
+    rectRenderer.primitiveStyle.strokeWidth = 20;
+    rectRenderer.primitiveStyle.fill = true;
+    rectRenderer.primitiveStyle.fillColor = 'blue';
+    gameObj.addComponent(rectRenderer);
+    gameObj.transform.setPosition(0, 0);
+
+    var circleObj = new WOZLLA.GameObject();
+    var circleRenderer = new WOZLLA.component.CircleRenderer();
+    circleRenderer.circle = new WOZLLA.math.Circle(0, 0, 40);
+    circleRenderer.primitiveStyle.strokeWidth = 4;
+    circleRenderer.primitiveStyle.fill = true;
+    circleRenderer.primitiveStyle.fillColor = 'yellow';
+    circleObj.addComponent(circleRenderer);
+    circleObj.transform.setPosition(200, 200);
+    gameObj.addChild(circleObj);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+</script>
+</body>
+</html>

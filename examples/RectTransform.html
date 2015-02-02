@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RectTransform | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var useRectTransform = true;
+
+    var gameObj = new WOZLLA.GameObject(useRectTransform);
+    var spriteRenderer = new WOZLLA.component.SpriteRenderer();
+    spriteRenderer.spriteAtlasSrc = 'images/panda.png';
+    gameObj.rectTransform.anchorMode = WOZLLA.RectTransform.ANCHOR_LEFT | WOZLLA.RectTransform.ANCHOR_MIDDLE;
+    gameObj.rectTransform.width = 245; // width of panda.png
+    gameObj.rectTransform.height = 263; // height of panda.png
+    gameObj.addComponent(spriteRenderer);
+
+    // RectTransform default anchor mode is ANCHOR_CENTER | ANCHOR_MIDDLE
+    var child = new WOZLLA.GameObject(true);
+    var spriteRenderer2 = new WOZLLA.component.SpriteRenderer();
+    spriteRenderer2.spriteAtlasSrc = 'images/bag.tt.json';
+    spriteRenderer2.spriteName = 'close.png';
+    spriteRenderer2.spriteOffset = {x: 0.5, y: 0.5};
+    child.addComponent(spriteRenderer2);
+
+    gameObj.addChild(child);
+
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+</script>
+</body>
+</html>

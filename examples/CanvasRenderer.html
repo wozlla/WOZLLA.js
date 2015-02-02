@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CanvasRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var flag = 0;
+    var gameObj = new WOZLLA.GameObject();
+    var canvasRenderer = new WOZLLA.component.CanvasRenderer();
+    canvasRenderer.canvasSize = new WOZLLA.math.Size(200, 200);
+    canvasRenderer.draw = function(ctx) {
+        ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        ctx.fillStyle = flag % 2 ? 'blue' : 'red';
+        ctx.fillRect(20, 20, 50, 50);
+    };
+    gameObj.addComponent(canvasRenderer);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+
+    director.scheduler.scheduleInterval(function() {
+        flag ++;
+        canvasRenderer.dirty = true;
+    }, 500);
+</script>
+</body>
+</html>

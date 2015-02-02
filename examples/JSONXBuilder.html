@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSONXBuilder | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var json = {
+        root: {
+            name: 'test',
+            active : true,
+            visible: true,
+            touchable: false,
+            transform: {
+                x: 0,
+                y: 0
+            },
+            components: [{
+                name: 'SpriteRenderer',
+                properties: {
+                    spriteAtlasSrc: 'images/bag.tt.json',
+                    spriteName: 'close.png',
+                    color: 0xFFFFFF
+                }
+            }],
+            children: []
+        }
+    };
+
+    var jsonXBuilder = WOZLLA.jsonx.JSONXBuilder.create();
+    jsonXBuilder
+        .instantiateWithJSON(json)
+        .load()
+        .init()
+        .build(function(err, root) {
+            director.stage.addChild(root);
+        });
+</script>
+</body>
+</html>

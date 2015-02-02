@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    var button = new WOZLLA.ui.Button();
+    button.spriteAtlasSrc = 'images/bag.tt.json';
+    button.normalSpriteName = 'close.png';
+    button.pressedSpriteName = 'close_h.png';
+    gameObj.addComponent(button);
+
+    var collider = new WOZLLA.component.RectCollider();
+    collider.region = new WOZLLA.math.Rectangle(0, 0, 100, 100);
+    gameObj.addComponent(collider);
+    gameObj.touchable = true;
+
+    gameObj.addListener('tap', function() {
+        console.log('tap');
+    });
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+</script>
+</body>
+</html>

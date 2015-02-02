@@ -1,0 +1,5 @@
+node_modules
+.idea
+src/**/*.js
+.DS_Store
+examples/test.html

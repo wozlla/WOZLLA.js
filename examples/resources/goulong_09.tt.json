@@ -1,0 +1,268 @@
+{
+  "frames": [
+    {
+      "filename": "Stand_00.png",
+      "frame": {
+        "x": 142,
+        "y": 252,
+        "w": 68,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -33.75,
+        "y": -72.75,
+        "w": 68,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_01.png",
+      "frame": {
+        "x": 74,
+        "y": 86,
+        "w": 70,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -35.75,
+        "y": -72.75,
+        "w": 70,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_02.png",
+      "frame": {
+        "x": 74,
+        "y": 0,
+        "w": 72,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -37.75,
+        "y": -72.75,
+        "w": 72,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_03.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 72,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -37.75,
+        "y": -72.75,
+        "w": 72,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_04.png",
+      "frame": {
+        "x": 148,
+        "y": 0,
+        "w": 72,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -39.75,
+        "y": -70.75,
+        "w": 72,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_05.png",
+      "frame": {
+        "x": 0,
+        "y": 86,
+        "w": 72,
+        "h": 80
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -40.75,
+        "y": -68.75,
+        "w": 72,
+        "h": 80
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_06.png",
+      "frame": {
+        "x": 148,
+        "y": 84,
+        "w": 72,
+        "h": 80
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -40.75,
+        "y": -68.75,
+        "w": 72,
+        "h": 80
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_07.png",
+      "frame": {
+        "x": 0,
+        "y": 168,
+        "w": 70,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -38.75,
+        "y": -70.75,
+        "w": 70,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_08.png",
+      "frame": {
+        "x": 70,
+        "y": 258,
+        "w": 68,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -36.75,
+        "y": -70.75,
+        "w": 68,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_09.png",
+      "frame": {
+        "x": 0,
+        "y": 252,
+        "w": 68,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -35.75,
+        "y": -72.75,
+        "w": 68,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_10.png",
+      "frame": {
+        "x": 72,
+        "y": 172,
+        "w": 68,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -34.75,
+        "y": -72.75,
+        "w": 68,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    },
+    {
+      "filename": "Stand_11.png",
+      "frame": {
+        "x": 146,
+        "y": 166,
+        "w": 68,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": -33.75,
+        "y": -72.75,
+        "w": 68,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 188,
+        "h": 188
+      }
+    }
+  ],
+  "meta": {
+    "app": "http://www.codeandweb.com/texturepacker ",
+    "version": "1.0",
+    "image": "goulong_09.tt.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 256,
+      "h": 512
+    },
+    "scale": "0.375",
+    "smartupdate": "$TexturePacker:SmartUpdate:83f6093ad87d864693844a0ace65cfe9:1/1$"
+  }
+}

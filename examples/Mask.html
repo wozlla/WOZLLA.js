@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mask | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="margin-top: 100px; border: 1px solid #999;"></canvas>
+<script src="../libs/stats.min.js"></script>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    var spriteRenderer = new WOZLLA.component.SpriteRenderer();
+    spriteRenderer.spriteAtlasSrc = 'images/panda.png';
+    gameObj.addComponent(spriteRenderer);
+
+    // new a RectMask
+    var rectMask = new WOZLLA.component.RectMask();
+    // set mask region
+    rectMask.region = new WOZLLA.math.Rectangle(0, 0, 100, 100);
+    // set mask globalZ range
+    rectMask.setMaskRange(0, 1);
+    gameObj.addComponent(rectMask);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+
+</script>
+</body>
+</html>

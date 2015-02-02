@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ScrollRect | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var container = new WOZLLA.GameObject(true);
+    container.rectTransform.px = 100;
+    container.rectTransform.py = 100;
+    container.rectTransform.width = 300;
+    container.rectTransform.height = 300;
+    container.rectTransform.anchorMode = WOZLLA.RectTransform.ANCHOR_LEFT | WOZLLA.RectTransform.ANCHOR_TOP;
+    var scrollRect = new WOZLLA.ui.ScrollRect();
+    scrollRect.content = 'Content';
+    scrollRect.direction = WOZLLA.ui.ScrollRect.BOTH;
+    container.addComponent(scrollRect);
+    var rectMask = new WOZLLA.component.RectMask();
+    rectMask.setMaskRange(0, 100);
+    rectMask.region = new WOZLLA.math.Rectangle(0, 0, 300, 300);
+    container.addComponent(rectMask);
+    var rectCollider = new WOZLLA.component.RectCollider();
+    rectCollider.region = new WOZLLA.math.Rectangle(0, 0, 300, 300);
+    container.addComponent(rectCollider);
+    container.touchable = true;
+    var rectRenderer = new WOZLLA.component.RectRenderer();
+    rectRenderer.rect = new WOZLLA.math.Rectangle(0, 0, 300, 300);
+    rectRenderer.setQuadGlobalZ(101);
+    container.addComponent(rectRenderer);
+
+    var contentObj = new WOZLLA.GameObject(true);
+    contentObj.name = 'Content';
+    var spriteRenderer = new WOZLLA.component.SpriteRenderer();
+    spriteRenderer.imageSrc = 'images/bag.tt.png';
+    contentObj.addComponent(spriteRenderer);
+    contentObj.rectTransform.anchorMode = WOZLLA.RectTransform.ANCHOR_LEFT | WOZLLA.RectTransform.ANCHOR_TOP;
+    contentObj.rectTransform.width = 2048;
+    contentObj.rectTransform.height = 2048;
+    var contentBorder = new WOZLLA.component.RectRenderer();
+    contentBorder.rect = new WOZLLA.math.Rectangle(0, 0, 2046, 2046);
+    contentBorder.primitiveStyle.strokeColor = 'blue';
+    var borderObj = new WOZLLA.GameObject();
+    borderObj.addComponent(contentBorder);
+    contentObj.addChild(borderObj);
+
+    container.addChild(contentObj);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    container.loadAssets(function() {
+        container.init();
+        director.stage.addChild(container);
+    });
+</script>
+<script type="text/javascript">
+    document.ontouchmove = function(event){
+        event.preventDefault();
+    };
+</script>
+</body>
+</html>

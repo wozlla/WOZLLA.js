@@ -1,0 +1,23 @@
+{
+  "name": "wozlla.js",
+  "version": "1.0.0",
+  "description": "WOZLLA.js is aim to provide completed solution for making HTML5 mobile game.",
+  "main": "WOZLLA.js",
+  "dependencies": {
+    "hammerjs": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wozlla/WOZLLA.js"
+  },
+  "author": "xiaoming@wozlla.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wozlla/WOZLLA.js/issues"
+  },
+  "homepage": "https://github.com/wozlla/WOZLLA.js"
+}

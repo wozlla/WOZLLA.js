@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>NinePatchRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999; display: block;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    var ninePatchRenderer = new WOZLLA.component.NinePatchRenderer();
+    ninePatchRenderer.spriteAtlasSrc = 'images/bag.tt.json';
+    ninePatchRenderer.spriteName = 'equipment_frame.png';
+    // set patch devided by a rectangle
+    ninePatchRenderer.patch = new WOZLLA.math.Rectangle(30, 30, 10, 10);
+    // set x,y and width,height
+    ninePatchRenderer.renderRegion = new WOZLLA.math.Rectangle(0, 0, 200, 200);
+    // add to gameObj
+    gameObj.addComponent(ninePatchRenderer);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+
+
+</script>
+</body>
+</html>

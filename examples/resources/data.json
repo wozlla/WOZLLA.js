@@ -1,0 +1,20 @@
+{
+  "root": {
+    "name": "test2",
+    "active": true,
+    "visible": true,
+    "touchable": false,
+    "transform": {
+      "x": 0,
+      "y": 0
+    },
+    "components": [
+      {
+        "name": "SpriteRenderer",
+        "property": {
+          "sprite": "images/bag.tt.json#close.png"
+        }
+      }
+    ]
+  }
+}
