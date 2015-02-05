@@ -15,6 +15,16 @@ module WOZLLA.assets {
         get glTexture() { return this._glTexture; }
         _glTexture:WOZLLA.renderer.ITexture;
 
+        unload() {
+            if(!this._glTexture) return;
+            var renderer:WOZLLA.renderer.IRenderer = Director.getInstance().renderer;
+            if(!renderer) {
+                throw new Error("Director not initialized");
+            }
+            renderer.textureManager.deleteTexture(this._glTexture);
+            super.unload();
+        }
+
         _generateTexture(image:HTMLImageElement):void {
             var renderer:WOZLLA.renderer.IRenderer = Director.getInstance().renderer;
             if(!renderer) {
