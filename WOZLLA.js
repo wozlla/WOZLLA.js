@@ -4384,6 +4384,16 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            GLTextureAsset.prototype.unload = function () {
+                if (!this._glTexture)
+                    return;
+                var renderer = WOZLLA.Director.getInstance().renderer;
+                if (!renderer) {
+                    throw new Error("Director not initialized");
+                }
+                renderer.textureManager.deleteTexture(this._glTexture);
+                _super.prototype.unload.call(this);
+            };
             GLTextureAsset.prototype._generateTexture = function (image) {
                 var renderer = WOZLLA.Director.getInstance().renderer;
                 if (!renderer) {
@@ -5130,8 +5140,83 @@ var WOZLLA;
         math.Rectangle = Rectangle;
     })(math = WOZLLA.math || (WOZLLA.math = {}));
 })(WOZLLA || (WOZLLA = {}));
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var PropertyConverter = (function () {
+            function PropertyConverter() {
+            }
+            PropertyConverter.array2point = function (arr) {
+                return new WOZLLA.math.Point(arr[0], arr[1]);
+            };
+            PropertyConverter.array2rect = function (arr) {
+                return new WOZLLA.math.Rectangle(arr[0], arr[1], arr[2], arr[3]);
+            };
+            PropertyConverter.array2circle = function (arr) {
+                return new WOZLLA.math.Circle(arr[0], arr[1], arr[2]);
+            };
+            PropertyConverter.json2TextStyle = function (json) {
+                var style = new component.TextStyle();
+                for (var i in json) {
+                    style[i] = json[i];
+                }
+                return style;
+            };
+            PropertyConverter.array2Padding = function (arr) {
+                return new WOZLLA.layout.Padding(arr[0], arr[1], arr[2], arr[3]);
+            };
+            PropertyConverter.array2Margin = function (arr) {
+                return new WOZLLA.layout.Margin(arr[0], arr[1], arr[2], arr[3]);
+            };
+            return PropertyConverter;
+        })();
+        component.PropertyConverter = PropertyConverter;
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="PropertyConverter.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var PropertySnip = (function () {
+            function PropertySnip() {
+            }
+            PropertySnip.createRect = function (propertyName) {
+                return {
+                    name: propertyName,
+                    type: 'rect',
+                    convert: component.PropertyConverter.array2rect,
+                    defaultValue: [0, 0, 100, 100]
+                };
+            };
+            PropertySnip.createCircle = function (propertyName) {
+                return {
+                    name: propertyName,
+                    type: 'circle',
+                    convert: component.PropertyConverter.array2circle,
+                    defaultValue: [0, 0, 50]
+                };
+            };
+            PropertySnip.createSpriteFrame = function (propertName, fromSpriteAtlas) {
+                if (fromSpriteAtlas === void 0) { fromSpriteAtlas = 'spriteAtlasSrc'; }
+                return {
+                    name: propertName,
+                    type: 'spriteFrame',
+                    defaultValue: '',
+                    data: {
+                        fromSpriteAtlas: fromSpriteAtlas
+                    }
+                };
+            };
+            return PropertySnip;
+        })();
+        component.PropertySnip = PropertySnip;
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
 /// <reference path="../../core/Collider.ts"/>
 /// <reference path="../../math/Rectangle.ts"/>
+/// <reference path="../PropertySnip.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
     var component;
@@ -5155,11 +5240,9 @@ var WOZLLA;
         component.CircleCollider = CircleCollider;
         WOZLLA.Component.register(CircleCollider, {
             name: 'CircleCollider',
-            properties: [{
-                name: 'region',
-                type: 'circle',
-                defaultValue: [0, 0, 50]
-            }]
+            properties: [
+                component.PropertySnip.createCircle('region')
+            ]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
@@ -5194,6 +5277,7 @@ var WOZLLA;
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../../core/Collider.ts"/>
 /// <reference path="../../math/Rectangle.ts"/>
+/// <reference path="../PropertySnip.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
     var component;
@@ -5224,12 +5308,9 @@ var WOZLLA;
         component.RectCollider = RectCollider;
         WOZLLA.Component.register(RectCollider, {
             name: 'RectCollider',
-            properties: [{
-                name: 'region',
-                type: 'rect',
-                convert: component.PropertyConverter.array2rect,
-                defaultValue: [0, 0, 100, 100]
-            }]
+            properties: [
+                component.PropertySnip.createRect('region')
+            ]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
@@ -6245,45 +6326,6 @@ var WOZLLA;
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
-var WOZLLA;
-(function (WOZLLA) {
-    var component;
-    (function (component) {
-        var PropertySnip = (function () {
-            function PropertySnip() {
-            }
-            PropertySnip.createRect = function (propertyName) {
-                return {
-                    name: propertyName,
-                    type: 'rect',
-                    convert: component.PropertyConverter.array2rect,
-                    defaultValue: [0, 0, 100, 100]
-                };
-            };
-            PropertySnip.createCircle = function (propertyName) {
-                return {
-                    name: propertyName,
-                    type: 'circle',
-                    convert: component.PropertyConverter.array2circle,
-                    defaultValue: [0, 0, 50]
-                };
-            };
-            PropertySnip.createSpriteFrame = function (propertName, fromSpriteAtlas) {
-                if (fromSpriteAtlas === void 0) { fromSpriteAtlas = 'spriteAtlasSrc'; }
-                return {
-                    name: propertName,
-                    type: 'spriteFrame',
-                    defaultValue: '',
-                    data: {
-                        fromSpriteAtlas: fromSpriteAtlas
-                    }
-                };
-            };
-            return PropertySnip;
-        })();
-        component.PropertySnip = PropertySnip;
-    })(component = WOZLLA.component || (WOZLLA.component = {}));
-})(WOZLLA || (WOZLLA = {}));
 /// <reference path="PrimitiveRenderer.ts"/>
 /// <reference path="../PropertySnip.ts"/>
 var WOZLLA;
@@ -6417,40 +6459,6 @@ var WOZLLA;
                 component.PropertySnip.createRect('rect')
             ]
         });
-    })(component = WOZLLA.component || (WOZLLA.component = {}));
-})(WOZLLA || (WOZLLA = {}));
-var WOZLLA;
-(function (WOZLLA) {
-    var component;
-    (function (component) {
-        var PropertyConverter = (function () {
-            function PropertyConverter() {
-            }
-            PropertyConverter.array2point = function (arr) {
-                return new WOZLLA.math.Point(arr[0], arr[1]);
-            };
-            PropertyConverter.array2rect = function (arr) {
-                return new WOZLLA.math.Rectangle(arr[0], arr[1], arr[2], arr[3]);
-            };
-            PropertyConverter.array2circle = function (arr) {
-                return new WOZLLA.math.Circle(arr[0], arr[1], arr[2]);
-            };
-            PropertyConverter.json2TextStyle = function (json) {
-                var style = new component.TextStyle();
-                for (var i in json) {
-                    style[i] = json[i];
-                }
-                return style;
-            };
-            PropertyConverter.array2Padding = function (arr) {
-                return new WOZLLA.layout.Padding(arr[0], arr[1], arr[2], arr[3]);
-            };
-            PropertyConverter.array2Margin = function (arr) {
-                return new WOZLLA.layout.Margin(arr[0], arr[1], arr[2], arr[3]);
-            };
-            return PropertyConverter;
-        })();
-        component.PropertyConverter = PropertyConverter;
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="QuadRenderer.ts"/>
@@ -6632,7 +6640,8 @@ var WOZLLA;
             }, {
                 name: 'imageSrc',
                 type: 'string',
-                defaultValue: ''
+                defaultValue: '',
+                editor: 'imageSrc'
             }, {
                 name: 'spriteOffset',
                 type: 'spriteOffset',
@@ -7086,6 +7095,25 @@ var WOZLLA;
                 }
             ]
         });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="../renderer/SpriteRenderer.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var QuadCommand = WOZLLA.renderer.QuadCommand;
+        /**
+         * @class WOZLLA.component.SpriteFrameText
+         */
+        var SpriteFrameText = (function (_super) {
+            __extends(SpriteFrameText, _super);
+            function SpriteFrameText() {
+                _super.apply(this, arguments);
+            }
+            return SpriteFrameText;
+        })(component.SpriteRenderer);
+        component.SpriteFrameText = SpriteFrameText;
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../renderer/CanvasRenderer.ts"/>

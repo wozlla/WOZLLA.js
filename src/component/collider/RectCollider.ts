@@ -1,5 +1,6 @@
 /// <reference path="../../core/Collider.ts"/>
 /// <reference path="../../math/Rectangle.ts"/>
+/// <reference path="../PropertySnip.ts"/>
 module WOZLLA.component {
 
     /**
@@ -29,12 +30,9 @@ module WOZLLA.component {
 
     Component.register(RectCollider, {
         name: 'RectCollider',
-        properties: [{
-            name: 'region',
-            type: 'rect',
-            convert: PropertyConverter.array2rect,
-            defaultValue: [0, 0, 100, 100]
-        }]
+        properties: [
+            PropertySnip.createRect('region')
+        ]
     });
 
 }

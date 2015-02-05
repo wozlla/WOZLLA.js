@@ -1,5 +1,6 @@
 /// <reference path="../../core/Collider.ts"/>
 /// <reference path="../../math/Rectangle.ts"/>
+/// <reference path="../PropertySnip.ts"/>
 module WOZLLA.component {
 
     /**
@@ -21,11 +22,9 @@ module WOZLLA.component {
 
     Component.register(CircleCollider, {
         name: 'CircleCollider',
-        properties: [{
-            name: 'region',
-            type: 'circle',
-            defaultValue: [0, 0, 50]
-        }]
+        properties: [
+            PropertySnip.createCircle('region')
+        ]
     });
 
 }

@@ -1,3 +1,4 @@
+/// <reference path="PropertyConverter.ts"/>
 module WOZLLA.component {
 
     export class PropertySnip {

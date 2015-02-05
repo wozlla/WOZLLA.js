@@ -1539,6 +1539,7 @@ declare module WOZLLA.assets {
     class GLTextureAsset extends Asset {
         glTexture: renderer.ITexture;
         _glTexture: WOZLLA.renderer.ITexture;
+        unload(): void;
         _generateTexture(image: HTMLImageElement): void;
         _generatePVRTexture(pvrSource: any): void;
     }
@@ -1771,6 +1772,40 @@ declare module WOZLLA.math {
          * @returns {string}
          */
         toString(): string;
+    }
+}
+declare module WOZLLA.component {
+    class PropertyConverter {
+        static array2point(arr: Array<number>): WOZLLA.math.Point;
+        static array2rect(arr: Array<number>): WOZLLA.math.Rectangle;
+        static array2circle(arr: Array<number>): WOZLLA.math.Circle;
+        static json2TextStyle(json: any): TextStyle;
+        static array2Padding(arr: Array<number>): WOZLLA.layout.Padding;
+        static array2Margin(arr: Array<number>): WOZLLA.layout.Margin;
+    }
+}
+declare module WOZLLA.component {
+    class PropertySnip {
+        static createRect(propertyName: any): {
+            name: any;
+            type: string;
+            convert: (arr: number[]) => math.Rectangle;
+            defaultValue: number[];
+        };
+        static createCircle(propertyName: any): {
+            name: any;
+            type: string;
+            convert: (arr: number[]) => math.Circle;
+            defaultValue: number[];
+        };
+        static createSpriteFrame(propertName: any, fromSpriteAtlas?: string): {
+            name: any;
+            type: string;
+            defaultValue: string;
+            data: {
+                fromSpriteAtlas: string;
+            };
+        };
     }
 }
 declare module WOZLLA.component {
@@ -2050,30 +2085,6 @@ declare module WOZLLA.component {
     }
 }
 declare module WOZLLA.component {
-    class PropertySnip {
-        static createRect(propertyName: any): {
-            name: any;
-            type: string;
-            convert: (arr: number[]) => math.Rectangle;
-            defaultValue: number[];
-        };
-        static createCircle(propertyName: any): {
-            name: any;
-            type: string;
-            convert: (arr: number[]) => math.Circle;
-            defaultValue: number[];
-        };
-        static createSpriteFrame(propertName: any, fromSpriteAtlas?: string): {
-            name: any;
-            type: string;
-            defaultValue: string;
-            data: {
-                fromSpriteAtlas: string;
-            };
-        };
-    }
-}
-declare module WOZLLA.component {
     class CircleRenderer extends PrimitiveRenderer {
         circle: WOZLLA.math.Circle;
         _circle: WOZLLA.math.Circle;
@@ -2089,16 +2100,6 @@ declare module WOZLLA.component {
         drawPrimitive(context: any): void;
         protected measurePrimitiveSize(): any;
         protected generateCanvasTexture(renderer: renderer.IRenderer): void;
-    }
-}
-declare module WOZLLA.component {
-    class PropertyConverter {
-        static array2point(arr: Array<number>): WOZLLA.math.Point;
-        static array2rect(arr: Array<number>): WOZLLA.math.Rectangle;
-        static array2circle(arr: Array<number>): WOZLLA.math.Circle;
-        static json2TextStyle(json: any): TextStyle;
-        static array2Padding(arr: Array<number>): WOZLLA.layout.Padding;
-        static array2Margin(arr: Array<number>): WOZLLA.layout.Margin;
     }
 }
 declare module WOZLLA.component {
@@ -2165,6 +2166,15 @@ declare module WOZLLA.component {
         _updateNinePatchQuadAlpha(): void;
         _updateNinePatchQuadColor(): void;
         render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
+    }
+}
+declare module WOZLLA.component {
+    /**
+     * @class WOZLLA.component.SpriteFrameText
+     */
+    class SpriteFrameText extends SpriteRenderer {
+        _textSample: string;
+        _text: string;
     }
 }
 declare module WOZLLA.component {

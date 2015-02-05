@@ -116,7 +116,8 @@ module WOZLLA.component {
         }, {
             name: 'imageSrc',
             type: 'string',
-            defaultValue: ''
+            defaultValue: '',
+            editor: 'imageSrc'
         }, {
             name: 'spriteOffset',
             type: 'spriteOffset',
