@@ -6440,10 +6440,17 @@ var WOZLLA;
                 defaultValue: 1
             }, {
                 name: 'spriteAtlasSrc',
-                type: 'string'
+                type: 'string',
+                editor: 'spriteAtlas',
+                defaultValue: ''
             }, {
                 name: 'spriteName',
-                type: 'string'
+                type: 'string',
+                defaultValue: '',
+                editor: 'spriteFrame',
+                data: {
+                    fromSpriteAtlas: 'spriteAtlasSrc'
+                }
             }, {
                 name: 'imageSrc',
                 type: 'string'
