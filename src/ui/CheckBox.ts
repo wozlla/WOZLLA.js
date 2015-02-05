@@ -1,5 +1,6 @@
 /// <reference path="StateWidget.ts"/>
 /// <reference path="../component/renderer/SpriteRenderer.ts"/>
+/// <reference path="../component/PropertySnip.ts"/>
 module WOZLLA.ui {
 
     /**
@@ -59,5 +60,15 @@ module WOZLLA.ui {
             }
         }
     }
+
+    Component.register(CheckBox, {
+        name: "CheckBox",
+        properties: [
+            Component.extendConfig(StateWidget),
+            WOZLLA.component.PropertySnip.createSpriteFrame('disabledSpriteName'),
+            WOZLLA.component.PropertySnip.createSpriteFrame('uncheckedSpriteName'),
+            WOZLLA.component.PropertySnip.createSpriteFrame('checkedSpriteName')
+        ]
+    });
 
 }

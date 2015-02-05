@@ -19,4 +19,13 @@ module WOZLLA.component {
 
     }
 
+    Component.register(CircleCollider, {
+        name: 'CircleCollider',
+        properties: [{
+            name: 'region',
+            type: 'circle',
+            defaultValue: [0, 0, 50]
+        }]
+    });
+
 }

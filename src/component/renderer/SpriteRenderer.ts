@@ -45,6 +45,7 @@ module WOZLLA.component {
 
         get imageSrc():string { return this._spriteAtlasSrc; }
         set imageSrc(value:string) {
+            if(this.spriteAtlasSrc && !value) return;
             this.spriteAtlasSrc = value;
             this.spriteName = null;
         }
@@ -114,7 +115,13 @@ module WOZLLA.component {
             }
         }, {
             name: 'imageSrc',
-            type: 'string'
+            type: 'string',
+            defaultValue: ''
+        }, {
+            name: 'spriteOffset',
+            type: 'spriteOffset',
+            convert: PropertyConverter.array2point,
+            defaultValue: [0, 0]
         }]
     });
 

@@ -710,7 +710,7 @@ declare module WOZLLA {
          */
         static create(name: string): WOZLLA.Component;
         static getConfig(name: any): any;
-        static extendConfig(Type: Function): any;
+        static extendConfig(Type: any, filter?: any): any;
     }
 }
 declare module WOZLLA {
@@ -1584,6 +1584,7 @@ declare module WOZLLA.utils {
          * @readonly
          */
         static ERROR_SERVER: number;
+        static ERROR_PARSE: number;
         /**
          * send a request with options
          * @param {object} options
@@ -1835,6 +1836,9 @@ declare module WOZLLA {
      */
     class Mask extends Component {
         reverse: boolean;
+        startGlobalZ: number;
+        endGlobalZ: number;
+        layer: string;
         _startGlobalZ: number;
         _endGlobalZ: number;
         _maskLayer: string;
@@ -2046,6 +2050,30 @@ declare module WOZLLA.component {
     }
 }
 declare module WOZLLA.component {
+    class PropertySnip {
+        static createRect(propertyName: any): {
+            name: any;
+            type: string;
+            convert: (arr: number[]) => math.Rectangle;
+            defaultValue: number[];
+        };
+        static createCircle(propertyName: any): {
+            name: any;
+            type: string;
+            convert: (arr: number[]) => math.Circle;
+            defaultValue: number[];
+        };
+        static createSpriteFrame(propertName: any, fromSpriteAtlas?: string): {
+            name: any;
+            type: string;
+            defaultValue: string;
+            data: {
+                fromSpriteAtlas: string;
+            };
+        };
+    }
+}
+declare module WOZLLA.component {
     class CircleRenderer extends PrimitiveRenderer {
         circle: WOZLLA.math.Circle;
         _circle: WOZLLA.math.Circle;
@@ -2065,6 +2093,7 @@ declare module WOZLLA.component {
 }
 declare module WOZLLA.component {
     class PropertyConverter {
+        static array2point(arr: Array<number>): WOZLLA.math.Point;
         static array2rect(arr: Array<number>): WOZLLA.math.Rectangle;
         static array2circle(arr: Array<number>): WOZLLA.math.Circle;
         static json2TextStyle(json: any): TextStyle;
@@ -2364,6 +2393,29 @@ declare module WOZLLA.math {
     module MathUtils {
         function rectIntersect(a: any, b: any): boolean;
         function rectIntersect2(ax: any, ay: any, aw: any, ah: any, bx: any, by: any, bw: any, bh: any): boolean;
+    }
+}
+declare module WOZLLA.math {
+    /**
+     * @class WOZLLA.math.Point
+     * a util class contains x and y properties
+     */
+    class Point {
+        x: number;
+        y: number;
+        /**
+         * @method constructor
+         * create a new instance of Point
+         * @member WOZLLA.math.Point
+         * @param {number} x
+         * @param {number} y
+         */
+        constructor(x: number, y: number);
+        /**
+         * get simple description of this object
+         * @returns {string}
+         */
+        toString(): string;
     }
 }
 declare module WOZLLA.renderer {

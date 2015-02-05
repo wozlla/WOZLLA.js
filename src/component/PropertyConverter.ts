@@ -2,6 +2,10 @@ module WOZLLA.component {
 
     export class PropertyConverter {
 
+        public static array2point(arr:Array<number>):WOZLLA.math.Point {
+            return new WOZLLA.math.Point(arr[0], arr[1]);
+        }
+
         public static array2rect(arr:Array<number>):WOZLLA.math.Rectangle {
             return new WOZLLA.math.Rectangle(arr[0], arr[1], arr[2], arr[3]);
         }

@@ -1,6 +1,7 @@
 /// <reference path="../core/Component.ts"/>
 /// <reference path="../utils/StateMachine.ts"/>
 /// <reference path="../component/renderer/SpriteRenderer.ts"/>
+/// <reference path="../component/PropertySnip.ts"/>
 module WOZLLA.ui {
 
     var StateMachine = WOZLLA.utils.StateMachine;
@@ -41,5 +42,16 @@ module WOZLLA.ui {
         }
 
     }
+
+    Component.register(StateWidget, {
+        name: "StateWidget",
+        abstractComponent: true,
+        properties: [
+            Component.extendConfig(WOZLLA.component.SpriteRenderer, function(name) {
+                return name !== 'spriteFrame' &&
+                    name !== 'imageSrc';
+            })
+        ]
+    });
 
 }

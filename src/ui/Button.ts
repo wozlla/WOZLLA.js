@@ -1,5 +1,6 @@
 /// <reference path="StateWidget.ts"/>
 /// <reference path="../component/renderer/SpriteRenderer.ts"/>
+/// <reference path="../component/PropertySnip.ts"/>
 module WOZLLA.ui {
 
     /**
@@ -67,5 +68,15 @@ module WOZLLA.ui {
 
 
     }
+
+    Component.register(Button, {
+        name: "Button",
+        properties: [
+            Component.extendConfig(StateWidget),
+            WOZLLA.component.PropertySnip.createSpriteFrame('disabledSpriteName'),
+            WOZLLA.component.PropertySnip.createSpriteFrame('normalSpriteName'),
+            WOZLLA.component.PropertySnip.createSpriteFrame('pressedSpriteName')
+        ]
+    });
 
 }

@@ -20,7 +20,7 @@ module WOZLLA.renderer {
          * @static
          * @member WOZLLA.renderer.IMaterial
          */
-        export var DEFAULT = 'Builtin_default';
+        export var DEFAULT = 'builtin_default_layer';
     }
 
 }

@@ -52,4 +52,12 @@ module WOZLLA.component {
 
     }
 
+    Component.register(RectRenderer, {
+        name: 'RectRenderer',
+        properties: [
+            Component.extendConfig(PrimitiveRenderer),
+            PropertySnip.createRect('rect')
+        ]
+    });
+
 }

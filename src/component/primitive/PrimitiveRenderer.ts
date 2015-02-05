@@ -16,6 +16,9 @@ module WOZLLA.component {
 
         render(renderer: renderer.IRenderer, flags: number): void {
             var size;
+            if(!this._primitiveStyle) {
+                return;
+            }
             if(this._graphicsDirty || this._primitiveStyle.dirty) {
                 size = this.measurePrimitiveSize();
                 this.canvasWidth = size.width;
@@ -101,5 +104,21 @@ module WOZLLA.component {
 
 
     }
+
+    Component.register(PrimitiveRenderer, {
+        name: 'PrimitiveRenderer',
+        abstractComponent: true,
+        properties: [{
+            name: 'primitiveStyle',
+            type: 'primitiveStyle',
+            defaultValue: {
+                stroke: true,
+                fill: false,
+                strokeColor: '#000000',
+                strokeWidth: 1,
+                fillColor: '#FFFFFF'
+            }
+        }]
+    });
 
 }

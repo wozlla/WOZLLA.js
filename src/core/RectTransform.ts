@@ -235,7 +235,7 @@ module WOZLLA {
             this._right = rectTransform.right || 0;
             this._bottom = rectTransform.bottom || 0;
             this._px = rectTransform.px || 0;
-            this._px = rectTransform.py || 0;
+            this._py = rectTransform.py || 0;
             this.dirty = true;
         }
 

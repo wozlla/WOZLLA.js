@@ -13,6 +13,27 @@ module WOZLLA {
 
         reverse:boolean = false;
 
+        get startGlobalZ():number {
+            return this._startGlobalZ;
+        }
+        set startGlobalZ(value:number) {
+            this._startGlobalZ = value;
+        }
+
+        get endGlobalZ():number {
+            return this._endGlobalZ;
+        }
+        set endGlobalZ(value:number) {
+            this._endGlobalZ = value;
+        }
+
+        get layer():string {
+            return this._maskLayer;
+        }
+        set layer(value:string) {
+            this._maskLayer = value;
+        }
+
         _startGlobalZ:number = 0;
         _endGlobalZ:number = 0;
         _maskLayer:string = WOZLLA.renderer.ILayerManager.DEFAULT;
@@ -98,5 +119,27 @@ module WOZLLA {
         }
 
     }
+
+    Component.register(Mask, {
+        name: 'Mask',
+        abstractComponent: true,
+        properties: [{
+            name: 'startGlobalZ',
+            type: 'int',
+            defaultValue: 0
+        }, {
+            name: 'endGlobalZ',
+            type: 'int',
+            defaultValue: 1
+        }, {
+            name: 'layer',
+            type: 'string',
+            defaultValue: WOZLLA.renderer.ILayerManager.DEFAULT
+        }, {
+            name: 'reverse',
+            type: 'boolean',
+            defaultValue: false
+        }]
+    });
 
 }

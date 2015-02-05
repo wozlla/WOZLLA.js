@@ -1,4 +1,5 @@
 /// <reference path="PrimitiveRenderer.ts"/>
+/// <reference path="../PropertySnip.ts"/>
 module WOZLLA.component {
 
     export class CircleRenderer extends PrimitiveRenderer {
@@ -53,4 +54,11 @@ module WOZLLA.component {
 
     }
 
+    Component.register(CircleRenderer, {
+        name: 'CircleRenderer',
+        properties: [
+            Component.extendConfig(PrimitiveRenderer),
+            PropertySnip.createCircle('circle')
+        ]
+    });
 }

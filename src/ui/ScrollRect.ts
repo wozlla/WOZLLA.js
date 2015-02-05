@@ -295,7 +295,7 @@ module WOZLLA.ui {
     }
 
     Component.register(ScrollRect, {
-        name: 'UI.ScrollRect',
+        name: 'ScrollRect',
         properties: [{
             name: 'enabeld',
             type: 'boolean',

@@ -118,6 +118,25 @@ module WOZLLA.component {
 
     }
 
-
+    Component.register(AnimationRenderer, {
+        name: "AnimationRenderer",
+        properties: [
+            Component.extendConfig(SpriteRenderer, function(name) {
+                return name !== 'spriteFrame' &&
+                    name !== 'spriteOffset' &&
+                    name !== 'imageSrc';
+            }),
+            {
+                name: 'patch',
+                type: 'rect',
+                defaultValue: [0, 0, 0, 0],
+                convert: PropertyConverter.array2rect
+            }, {
+                name: 'renderRegion',
+                type: 'rect',
+                defaultValue: [0, 0, 0, 0],
+                convert: PropertyConverter.array2rect
+            }]
+    });
 
 }

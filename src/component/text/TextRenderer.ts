@@ -243,12 +243,24 @@ module WOZLLA.component {
         name: 'TextRenderer',
         properties: [{
             name: 'text',
-            type: 'string'
+            type: 'string',
+            defaultValue: ''
         }, {
             name: 'style',
-            type: 'object',
+            type: 'textStyle',
             convert: PropertyConverter.json2TextStyle,
-            editor: 'textStyle'
+            defaultValue: {
+                font: 'normal 24px Arial',
+                color: '#000000',
+                shadow: false,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                stroke: false,
+                strokeColor: '#000000',
+                strokeWidth: 0,
+                align: TextStyle.START,
+                baseline: TextStyle.TOP
+            }
         }]
     });
 

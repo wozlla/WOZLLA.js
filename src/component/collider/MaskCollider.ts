@@ -17,4 +17,9 @@ module WOZLLA.component {
 
     }
 
+    Component.register(MaskCollider, {
+        name: 'MaskCollider',
+        properties: []
+    });
+
 }

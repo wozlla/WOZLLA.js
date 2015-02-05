@@ -51,4 +51,16 @@ module WOZLLA.component {
 
     }
 
+    Component.register(RectMask, {
+        name: 'RectMask',
+        properties: [
+        Component.extendConfig(Mask),
+        {
+            name: 'region',
+            type: 'rect',
+            convert: PropertyConverter.array2rect,
+            defaultValue: [0, 0, 100, 100]
+        }]
+    });
+
 }

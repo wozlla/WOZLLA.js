@@ -41,6 +41,8 @@ module WOZLLA.utils {
          */
         public static ERROR_SERVER = 2;
 
+        public static ERROR_PARSE = 3;
+
         /**
          * send a request with options
          * @param {object} options
@@ -70,6 +72,7 @@ module WOZLLA.utils {
             xhr = new XMLHttpRequest();
             xhr.responseType = options.responseType;
             xhr.onreadystatechange = () => {
+                var data;
                 var parser;
                 if (xhr.readyState === 4) {
                     xhr.onreadystatechange = empty;
@@ -77,7 +80,16 @@ module WOZLLA.utils {
                     parser = contentParser[options.dataType] || function() {
                         return xhr.responseText;
                     };
-                    options.success(parser(xhr));
+                    try {
+                        data = parser(xhr);
+                    } catch(e) {
+                        options.error({
+                            code: Ajax.ERROR_PARSE,
+                            message: e.message
+                        });
+                        return;
+                    }
+                    options.success(data);
                 }
             };
             xhr.open(options.method, options.url, options.async);

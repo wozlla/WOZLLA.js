@@ -27,4 +27,14 @@ module WOZLLA.component {
 
     }
 
+    Component.register(RectCollider, {
+        name: 'RectCollider',
+        properties: [{
+            name: 'region',
+            type: 'rect',
+            convert: PropertyConverter.array2rect,
+            defaultValue: [0, 0, 100, 100]
+        }]
+    });
+
 }
