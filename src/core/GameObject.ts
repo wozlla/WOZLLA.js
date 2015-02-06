@@ -239,6 +239,36 @@ module WOZLLA {
         }
 
         /**
+         * get active in tree
+         * @method isActive
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        isActive():boolean {
+            var active;
+            var o = this;
+            while(active = o._active) {
+                o = o._parent;
+            }
+            return active;
+        }
+
+        /**
+         * get visible in tree
+         * @method isVisible
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        isVisible():boolean {
+            var visible;
+            var o = this;
+            while(visible = o._visible) {
+                o = o._parent;
+            }
+            return visible;
+        }
+
+        /**
          * set z order
          * @param value
          * @param sort true is set to resort children
