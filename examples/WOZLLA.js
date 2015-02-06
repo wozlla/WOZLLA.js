@@ -2356,6 +2356,34 @@ var WOZLLA;
             configurable: true
         });
         /**
+         * get active in tree
+         * @method isActive
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        GameObject.prototype.isActive = function () {
+            var active;
+            var o = this;
+            while (active = o._active) {
+                o = o._parent;
+            }
+            return active;
+        };
+        /**
+         * get visible in tree
+         * @method isVisible
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        GameObject.prototype.isVisible = function () {
+            var visible;
+            var o = this;
+            while (visible = o._visible) {
+                o = o._parent;
+            }
+            return visible;
+        };
+        /**
          * set z order
          * @param value
          * @param sort true is set to resort children
@@ -3188,20 +3216,30 @@ var WOZLLA;
             me.canvas = canvas;
             me.canvasOffset = getCanvasOffset(canvas);
             me.touchScale = touchScale;
-            me.hammer = new Hammer(canvas, {
-                transform: false,
-                doubletap: false,
-                hold: false,
-                rotate: false,
-                pinch: false
-            });
-            me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function (e) {
-                if (e.type === 'release' || me.enabled) {
-                    WOZLLA.Scheduler.getInstance().scheduleFrame(function () {
-                        me.onGestureEvent(e);
-                    });
-                }
-            });
+            if (window['Hammer']) {
+                me.hammer = new Hammer(canvas, {
+                    transform: false,
+                    doubletap: false,
+                    hold: false,
+                    rotate: false,
+                    pinch: false
+                });
+                me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function (e) {
+                    if (e.type === 'release' || me.enabled) {
+                        WOZLLA.Scheduler.getInstance().scheduleFrame(function () {
+                            me.onGestureEvent(e);
+                        });
+                    }
+                });
+            }
+            else {
+                me.canvas.addEventListener('touchstart', function () {
+                    console.error('please import hammer.js');
+                });
+                me.canvas.addEventListener('mousedown', function () {
+                    console.error('please import hammer.js');
+                });
+            }
         }
         Touch.setEanbledGestures = function (gestures) {
             this.enabledGestures = gestures;
@@ -7436,7 +7474,7 @@ var WOZLLA;
                 type: 'string',
                 defaultValue: ''
             }, {
-                name: 'style',
+                name: 'textStyle',
                 type: 'textStyle',
                 convert: component.PropertyConverter.json2TextStyle,
                 defaultValue: {

@@ -903,6 +903,20 @@ declare module WOZLLA {
          */
         constructor(useRectTransform?: boolean);
         /**
+         * get active in tree
+         * @method isActive
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        isActive(): boolean;
+        /**
+         * get visible in tree
+         * @method isVisible
+         * @member WOZLLA.GameObject
+         * @return {boolean}
+         */
+        isVisible(): boolean;
+        /**
          * set z order
          * @param value
          * @param sort true is set to resort children
