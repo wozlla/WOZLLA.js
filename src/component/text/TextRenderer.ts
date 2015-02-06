@@ -246,7 +246,7 @@ module WOZLLA.component {
             type: 'string',
             defaultValue: ''
         }, {
-            name: 'style',
+            name: 'textStyle',
             type: 'textStyle',
             convert: PropertyConverter.json2TextStyle,
             defaultValue: {

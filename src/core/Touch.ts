@@ -71,21 +71,30 @@ module WOZLLA {
             me.canvasOffset = getCanvasOffset(canvas);
             me.touchScale = touchScale;
 
-            me.hammer = new Hammer(canvas, {
-                transform : false,
-                doubletap : false,
-                hold : false,
-                rotate : false,
-                pinch : false
-            });
+            if(window['Hammer']) {
+                me.hammer = new Hammer(canvas, {
+                    transform: false,
+                    doubletap: false,
+                    hold: false,
+                    rotate: false,
+                    pinch: false
+                });
 
-            me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function(e) {
-                if(e.type === 'release' || me.enabled) {
-                    Scheduler.getInstance().scheduleFrame(function() {
-                        me.onGestureEvent(e);
-                    });
-                }
-            });
+                me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function (e) {
+                    if (e.type === 'release' || me.enabled) {
+                        Scheduler.getInstance().scheduleFrame(function () {
+                            me.onGestureEvent(e);
+                        });
+                    }
+                });
+            } else {
+                me.canvas.addEventListener('touchstart', function() {
+                    console.error('please import hammer.js');
+                });
+                me.canvas.addEventListener('mousedown', function() {
+                    console.error('please import hammer.js');
+                });
+            }
         }
 
         onGestureEvent(e) {
