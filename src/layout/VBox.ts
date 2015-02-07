@@ -42,6 +42,8 @@ module WOZLLA.layout {
                 }
                 y += this._itemMargin + this.measureChildHeight(child, idx);
             });
+            y += padding.bottom;
+            this.gameObject.rectTransform.height = y;
         }
 
         protected measureChildHeight(child:GameObject, idx:number):number {
