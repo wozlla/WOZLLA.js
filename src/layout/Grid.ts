@@ -1,11 +1,16 @@
 /// <reference path="LayoutBase.ts"/>
 /// <reference path="../math/Size.ts"/>
+/// <reference path="Margin.ts"/>
 /// <reference path="../component/PropertyConverter.ts"/>
 module WOZLLA.layout {
 
     var helpSize = new WOZLLA.math.Size(0, 0);
 
     export class Grid extends LayoutBase {
+
+        public static CONSTRAINT_HORIZONTAL:string = "Horizontal";
+        public static CONSTRAINT_VERTICAL:String = "Vertical";
+        public static CONSTRAINT_BOTH:string = "Both";
 
         listRequiredComponents():Array<Function> {
             return [RectTransform];
@@ -26,7 +31,6 @@ module WOZLLA.layout {
         }
 
         set itemMargin(margin:Margin) {
-            if(this._itemMargin && this._itemMargin.equals(margin)) return;
             this._itemMargin = margin;
             this.requestLayout();
         }
@@ -41,6 +45,7 @@ module WOZLLA.layout {
 
             var col = 0;
             var row = 0;
+            var totalHeight = padding.top + padding.bottom;
             var rowHeight = 0;
             var x = padding.left;
             var y = padding.top;
@@ -61,6 +66,7 @@ module WOZLLA.layout {
                     y += margin.bottom;
                     y += helpSize.height;
                     x = padding.left + margin.left;
+                    totalHeight += margin.top + margin.bottom + rowHeight;
                 }
 
                 // apply position
@@ -81,6 +87,8 @@ module WOZLLA.layout {
                 x += margin.right + helpSize.width;
                 col++;
             }
+
+            rect.height = totalHeight + rowHeight;
         }
 
         protected measureChildSize(child:GameObject, idx:number, size:WOZLLA.math.Size) {
@@ -98,6 +106,12 @@ module WOZLLA.layout {
     Component.register(Grid, {
         name: 'Grid',
         properties: [{
+            name: 'constraint',
+            type: 'string',
+            editor: 'combobox',
+            data: [Grid.CONSTRAINT_HORIZONTAL],
+            defaultValue: Grid.CONSTRAINT_HORIZONTAL
+        }, {
             name: 'padding',
             type: 'Padding',
             convert: component.PropertyConverter.array2Padding,
