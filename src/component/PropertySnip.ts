@@ -32,6 +32,15 @@ module WOZLLA.component {
             };
         }
 
+        public static createMargin(propertyName) {
+            return {
+                name: propertyName,
+                type: 'Margin',
+                convert: component.PropertyConverter.array2Margin,
+                defaultValue: [0, 0, 0, 0]
+            };
+        }
+
     }
 
 }
