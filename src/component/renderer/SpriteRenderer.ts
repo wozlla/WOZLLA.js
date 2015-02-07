@@ -123,6 +123,15 @@ module WOZLLA.component {
             type: 'spriteOffset',
             convert: PropertyConverter.array2point,
             defaultValue: [0, 0]
+        }, {
+            name: 'renderLayer',
+            type: 'string',
+            editor: "renderLayer",
+            defaultValue: renderer.ILayerManager.DEFAULT
+        }, {
+            name: 'renderOrder',
+            type: 'int',
+            defaultValue: 0
         }]
     });
 

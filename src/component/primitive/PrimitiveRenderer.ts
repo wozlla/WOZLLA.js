@@ -117,7 +117,9 @@ module WOZLLA.component {
     Component.register(PrimitiveRenderer, {
         name: 'PrimitiveRenderer',
         abstractComponent: true,
-        properties: [{
+        properties: [
+            Component.extendConfig(CanvasRenderer),
+            {
             name: 'primitiveStyle',
             type: 'primitiveStyle',
             defaultValue: {

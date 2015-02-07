@@ -8,8 +8,8 @@ module WOZLLA.renderer {
      */
     export class CustomCommand extends RenderCommandBase {
 
-        constructor(globalZ:number, layer:string) {
-            super(globalZ, layer);
+        constructor(globalZ:number, layer:string, flags?:string) {
+            super(globalZ, layer, flags);
         }
 
         execute(renderer:IRenderer):void {

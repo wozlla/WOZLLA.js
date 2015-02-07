@@ -241,7 +241,9 @@ module WOZLLA.component {
 
     Component.register(TextRenderer, {
         name: 'TextRenderer',
-        properties: [{
+        properties: [
+            Component.extendConfig(CanvasRenderer),
+            {
             name: 'text',
             type: 'string',
             defaultValue: ''

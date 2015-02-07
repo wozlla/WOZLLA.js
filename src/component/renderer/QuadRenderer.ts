@@ -100,7 +100,8 @@ module WOZLLA.component {
                 this._quadLayer,
                 this._texture,
                 this._quadMaterialId,
-                this._quad));
+                this._quad,
+                this._gameObject.name + '[quad]'));
         }
 
         _initQuad():void {

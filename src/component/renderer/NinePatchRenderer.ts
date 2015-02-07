@@ -2,6 +2,7 @@
 module WOZLLA.component {
 
     var QuadCommand = WOZLLA.renderer.QuadCommand;
+    var helperRect = new WOZLLA.math.Rectangle(0, 0, 0, 0);
 
     /**
      * @class WOZLLA.component.NinePatchRenderer
@@ -15,16 +16,16 @@ module WOZLLA.component {
             this._renderRegion = value;
         }
 
-        get patch():WOZLLA.math.Rectangle {
+        get patch():WOZLLA.layout.Padding {
             return this._patch;
         }
 
-        set patch(value:WOZLLA.math.Rectangle) {
+        set patch(value:WOZLLA.layout.Padding) {
             this._patch = value;
             this._quadVertexDirty = true;
         }
 
-        _patch:WOZLLA.math.Rectangle;
+        _patch:WOZLLA.layout.Padding;
         _renderRegion:WOZLLA.math.Rectangle;
 
         _initQuad() {
@@ -39,12 +40,21 @@ module WOZLLA.component {
         }
 
         _updateNinePatchQuadVertices() {
-            var transform = new WOZLLA.Transform();
+            var transform = sharedHelpTransform;
             var frame = this._getTextureFrame();
             var patchUVS:any;
             var patchOffset = { x:0, y: 0 };
-            var patch = this._patch || new WOZLLA.math.Rectangle(0, 0, frame.width, frame.height);
-            var region = this._renderRegion || patch;
+            var paddingPatch:WOZLLA.layout.Padding = this._patch || new WOZLLA.layout.Padding(0, 0, 0, 0);
+            var region = this._renderRegion || new WOZLLA.math.Rectangle(0, 0, frame.width, frame.height);
+
+            var patch:WOZLLA.math.Rectangle = helperRect;
+            patch.x = paddingPatch.left;
+            patch.y = paddingPatch.top;
+            patch.width = frame.width - paddingPatch.left - paddingPatch.right;
+            patch.height = frame.height - paddingPatch.top - paddingPatch.bottom;
+
+            var patchSideW = frame.width - patch.width;
+            var patchSideH = frame.height - patch.height;
 
             function getPatchUVS(patchFrame, texture) {
                 var tw = texture.descriptor.width;
@@ -90,7 +100,7 @@ module WOZLLA.component {
                     y: region.y
                 },
                 size : {
-                    width: (region.width - (patch.right-patch.width)) / patch.width,
+                    width: (region.width - patchSideW) / patch.width,
                     height: 1
                 }
             }, {
@@ -102,7 +112,7 @@ module WOZLLA.component {
                     height: patch.top
                 },
                 pos: {
-                    x : region.right,
+                    x : region.right - paddingPatch.right,
                     y : region.y
                 },
                 size : {
@@ -123,7 +133,7 @@ module WOZLLA.component {
                 },
                 size : {
                     width: 1,
-                    height: (region.height - (patch.bottom - patch.height)) / patch.height
+                    height: (region.height - patchSideH) / patch.height
                 }
             }, {
                 // center middle
@@ -138,8 +148,8 @@ module WOZLLA.component {
                     y : region.y + patch.top
                 },
                 size : {
-                    width: (region.width - (patch.right - patch.width)) / patch.width,
-                    height: (region.height - (patch.bottom - patch.height)) / patch.height
+                    width: (region.width - patchSideW) / patch.width,
+                    height: (region.height - patchSideH) / patch.height
                 }
             }, {
                 // right middle
@@ -150,12 +160,12 @@ module WOZLLA.component {
                     height: patch.height
                 },
                 pos: {
-                    x : region.right,
+                    x : region.right - paddingPatch.right,
                     y : region.y + patch.top
                 },
                 size : {
                     width: 1,
-                    height: (region.height - (patch.bottom - patch.height)) / patch.height
+                    height: (region.height - patchSideH) / patch.height
                 }
             }, {
                 // left bottom
@@ -167,7 +177,7 @@ module WOZLLA.component {
                 },
                 pos: {
                     x : region.x,
-                    y : region.bottom
+                    y : region.bottom - paddingPatch.bottom
                 },
                 size : {
                     width: 1,
@@ -183,10 +193,10 @@ module WOZLLA.component {
                 },
                 pos: {
                     x : region.x + patch.left,
-                    y : region.bottom
+                    y : region.bottom - paddingPatch.bottom
                 },
                 size : {
-                    width: (region.width - (patch.right - patch.width)) / patch.width,
+                    width: (region.width - patchSideW) / patch.width,
                     height: 1
                 }
             }, {
@@ -198,8 +208,8 @@ module WOZLLA.component {
                     height: frame.height - patch.bottom
                 },
                 pos: {
-                    x : region.right,
-                    y : region.bottom
+                    x : region.right - paddingPatch.right,
+                    y : region.bottom - paddingPatch.bottom
                 },
                 size : {
                     width: 1,
@@ -251,7 +261,6 @@ module WOZLLA.component {
             }
             if (this._quadVertexDirty) {
                 this._updateNinePatchQuadVertices();
-                this._quadVertexDirty = false;
             }
             if (this._quadAlphaDirty) {
                 this._updateNinePatchQuadAlpha();
@@ -264,7 +273,8 @@ module WOZLLA.component {
                 this._quadLayer,
                 this._texture,
                 this._quadMaterialId,
-                this._quad));
+                this._quad,
+                this._gameObject.name + '[9patch]'));
         }
 
     }
@@ -275,9 +285,9 @@ module WOZLLA.component {
         Component.extendConfig(SpriteRenderer),
         {
             name: 'patch',
-            type: 'rect',
+            type: 'padding',
             defaultValue: [0, 0, 0, 0],
-            convert: PropertyConverter.array2rect
+            convert: PropertyConverter.array2Padding
         }, {
             name: 'renderRegion',
             type: 'rect',

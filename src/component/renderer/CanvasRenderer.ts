@@ -22,6 +22,12 @@ module WOZLLA.component {
             this._sizeDirty = true;
         }
 
+        get renderLayer():string { return this._quadLayer; }
+        set renderLayer(value:string) { this.setQuadLayer(value); }
+
+        get renderOrder():number { return this._quadGlobalZ; }
+        set renderOrder(value:number) { this.setQuadGlobalZ(value); }
+
         _canvas;
         _context;
         _canvasSize:WOZLLA.math.Size = new WOZLLA.math.Size(0, 0);
@@ -106,5 +112,20 @@ module WOZLLA.component {
         }
 
     }
+
+    Component.register(CanvasRenderer, {
+        name: 'CanvasRenderer',
+        abstractComponent: true,
+        properties: [{
+            name: 'renderLayer',
+            type: 'string',
+            editor: "renderLayer",
+            defaultValue: renderer.ILayerManager.DEFAULT
+        }, {
+            name: 'renderOrder',
+            type: 'int',
+            defaultValue: 0
+        }]
+    });
 
 }

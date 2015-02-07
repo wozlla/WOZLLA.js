@@ -32,6 +32,15 @@ module WOZLLA.renderer {
 
         _uniforms:any = {};
 
+        debug = {
+            renderSequence: [],
+            printRenderSequence: function() {
+                this.renderSequence.forEach(function(seq) {
+                   console.log(seq);
+                });
+            }
+        };
+
         private _quadBatch:QuadBatch;
 
         constructor(gl, viewport) {
@@ -107,6 +116,10 @@ module WOZLLA.renderer {
                 this._usingMaterial = currentMaterial = this._materialManager.getMaterial(command.materialId);
                 this._usingTexture = currentTexture  = command.texture;
                 lastCommand = command;
+
+                if(IRenderer.debugEnabled) {
+                    this.debug.renderSequence.push(command.layer + ':' + command.flags);
+                }
             });
             if(lastCommand) {
                 this.flush();

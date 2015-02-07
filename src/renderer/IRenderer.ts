@@ -32,6 +32,9 @@ module WOZLLA.renderer {
          * @member WOZLLA.renderer.IRenderer
          */
         export var DOC = 'DOC';
+
+
+        export var debugEnabled:boolean = true;
     }
 
 }

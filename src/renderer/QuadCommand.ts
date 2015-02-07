@@ -13,9 +13,9 @@ module WOZLLA.renderer {
      */
     export class QuadCommand extends RenderCommandBase implements WOZLLA.utils.Poolable {
 
-        public static init(globalZ:number, layer:string, texture:ITexture, materialId:string, quad:Quad):QuadCommand {
+        public static init(globalZ:number, layer:string, texture:ITexture, materialId:string, quad:Quad, flags?:string):QuadCommand {
             var quadCommand = quadCommandPool.retain();
-            quadCommand.initWith(globalZ, layer, texture, materialId, quad);
+            quadCommand.initWith(globalZ, layer, texture, materialId, quad, flags);
             return quadCommand;
         }
 
@@ -29,15 +29,16 @@ module WOZLLA.renderer {
         _quad:Quad;
 
         constructor(globalZ:number, layer:string) {
-            super(globalZ, layer);
+            super(globalZ, layer, null);
         }
 
-        initWith(globalZ:number, layer:string, texture:ITexture, materialId:string, quad):void {
+        initWith(globalZ:number, layer:string, texture:ITexture, materialId:string, quad, flags?:string):void {
             this._globalZ = globalZ;
             this._layer = layer;
             this._texture = texture;
             this._materialId = materialId;
             this._quad = quad;
+            this._flags = flags;
         }
 
         release() {
