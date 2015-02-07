@@ -222,7 +222,7 @@ module WOZLLA {
          * set rect transform
          * @param {WOZLLA.RectTransform} rectTransform
          */
-        set(rectTransform:RectTransform) {
+        set(rectTransform:any) {
             var anchorMode:any = rectTransform.anchorMode;
             if(typeof anchorMode === 'string') {
                 anchorMode = RectTransform.getMode(anchorMode);
@@ -237,6 +237,10 @@ module WOZLLA {
             this._px = rectTransform.px || 0;
             this._py = rectTransform.py || 0;
             this.dirty = true;
+        }
+
+        superSet(transform:Transform) {
+            super.set(transform);
         }
 
         /**
