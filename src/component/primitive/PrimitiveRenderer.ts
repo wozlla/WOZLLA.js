@@ -44,6 +44,7 @@ module WOZLLA.component {
             if(this._primitiveStyle.fill) {
                 context.fillStyle = this._primitiveStyle.fillColor;
             }
+            context.globalAlpha = this._primitiveStyle.alpha;
         }
 
         protected drawPrimitive(context):void {
@@ -59,6 +60,12 @@ module WOZLLA.component {
     export class PrimitiveStyle {
 
         dirty:boolean = true;
+
+        get alpha():number { return this._alpha; }
+        set alpha(value:number) {
+            this._alpha = value;
+            this.dirty = true;
+        }
 
         get stroke():boolean { return this._stroke; }
         set stroke(value:boolean) {
@@ -95,6 +102,8 @@ module WOZLLA.component {
             this.dirty = true;
         }
 
+        _alpha:number = 1;
+
         _stroke:boolean = true;
         _fill:boolean = false;
 
@@ -112,6 +121,7 @@ module WOZLLA.component {
             name: 'primitiveStyle',
             type: 'primitiveStyle',
             defaultValue: {
+                alpha: 1,
                 stroke: true,
                 fill: false,
                 strokeColor: '#000000',
