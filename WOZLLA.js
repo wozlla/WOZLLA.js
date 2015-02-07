@@ -3227,9 +3227,6 @@ var WOZLLA;
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
                         return;
                     }
-                    if (e.type.indexOf('pan') === 0) {
-                        console.log(e.type, e.velocityX, e.velocityY);
-                    }
                     if (e.isFinal || me.enabled) {
                         if (me.inSchedule) {
                             WOZLLA.Scheduler.getInstance().scheduleFrame(function () {
