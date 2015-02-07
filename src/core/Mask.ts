@@ -56,10 +56,10 @@ module WOZLLA {
          * @param flags
          */
         render(renderer:WOZLLA.renderer.IRenderer, flags:number):void {
-            renderer.addCommand(new EnableMaskCommand(this._startGlobalZ, this._maskLayer));
+            renderer.addCommand(new EnableMaskCommand(this._startGlobalZ, this._maskLayer, this._gameObject.name + '[EnableMask]'));
             this.renderMask(renderer, flags);
-            renderer.addCommand(new EndMaskCommand(this._startGlobalZ, this._maskLayer, this.reverse));
-            renderer.addCommand(new DisableMaskCommand(this._endGlobalZ, this._maskLayer));
+            renderer.addCommand(new EndMaskCommand(this._startGlobalZ, this._maskLayer, this.reverse, this._gameObject.name + '[EndMask]'));
+            renderer.addCommand(new DisableMaskCommand(this._endGlobalZ, this._maskLayer, this._gameObject.name + '[DisableMask]'));
         }
 
         /**
@@ -74,10 +74,6 @@ module WOZLLA {
 
 
     class EnableMaskCommand extends WOZLLA.renderer.CustomCommand {
-
-        constructor(globalZ:number, layer:string) {
-            super(globalZ, layer);
-        }
 
         execute(renderer:WOZLLA.renderer.IRenderer) {
             var gl = renderer.gl;
@@ -94,8 +90,8 @@ module WOZLLA {
 
         private reverse:boolean;
 
-        constructor(globalZ:number, layer:string, reverse:boolean) {
-            super(globalZ, layer);
+        constructor(globalZ:number, layer:string, reverse:boolean, flags?:string) {
+            super(globalZ, layer, flags);
             this.reverse = reverse;
         }
 
@@ -109,10 +105,6 @@ module WOZLLA {
     }
 
     class DisableMaskCommand extends WOZLLA.renderer.CustomCommand {
-
-        constructor(globalZ:number, layer:string) {
-            super(globalZ, layer);
-        }
 
         execute(renderer:WOZLLA.renderer.IRenderer) {
             renderer.gl.disable(renderer.gl.STENCIL_TEST);

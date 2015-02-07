@@ -45,8 +45,11 @@ module WOZLLA.component {
             var texture = renderer.textureManager.generateTexture(descriptor);
             this._maskQuadRenderer = new WOZLLA.component.QuadRenderer();
             this._maskQuadRenderer.setTexture(texture);
+            this._maskQuadRenderer.renderLayer = this._maskLayer;
+            this._maskQuadRenderer.renderOrder = this._startGlobalZ;
             this._helperGameObject.addComponent(this._maskQuadRenderer);
             this._helperGameObject.init();
+            this._helperGameObject.name = this._gameObject.name;
         }
 
     }
