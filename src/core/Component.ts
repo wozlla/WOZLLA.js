@@ -2,6 +2,8 @@
 /// <reference path="../utils/Assert.ts"/>
 module WOZLLA {
 
+    export var sharedHelpTransform = new Transform();
+
     /**
      * Top class of all components
      * @class WOZLLA.Component
