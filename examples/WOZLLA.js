@@ -2419,6 +2419,7 @@ var WOZLLA;
                 this._children.sort(comparator);
             }
             child._parent = this;
+            child.setBubbleParent(this);
             child._transform.dirty = true;
             child.dispatchEvent(new WOZLLA.CoreEvent('add', false));
             this.dispatchEvent(new WOZLLA.CoreEvent('childadd', false, {
@@ -2437,6 +2438,7 @@ var WOZLLA;
                 child.dispatchEvent(new WOZLLA.CoreEvent('beforeremove', false));
                 this._children.splice(idx, 1);
                 child._parent = null;
+                child.setBubbleParent(null);
                 child.dispatchEvent(new WOZLLA.CoreEvent('remove', false, {
                     parent: this
                 }));
@@ -3208,27 +3210,35 @@ var WOZLLA;
              * @property {boolean} enabled
              */
             this.enabled = true;
+            this.inSchedule = true;
             this.canvas = null;
             this.canvasOffset = null;
             this.channelMap = {};
             var me = this;
-            var nav = window.navigator;
+            //var nav:any = window.navigator;
             me.canvas = canvas;
-            me.canvasOffset = getCanvasOffset(canvas);
             me.touchScale = touchScale;
+            me.updateCanvasOffset();
             if (window['Hammer']) {
-                me.hammer = new Hammer(canvas, {
-                    transform: false,
-                    doubletap: false,
-                    hold: false,
-                    rotate: false,
-                    pinch: false
-                });
-                me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function (e) {
-                    if (e.type === 'release' || me.enabled) {
-                        WOZLLA.Scheduler.getInstance().scheduleFrame(function () {
+                me.hammer = new Hammer.Manager(canvas);
+                me.hammer.add(new Hammer.Tap());
+                me.hammer.add(new Hammer.Pan({ threshold: 2 }));
+                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
+                    if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
+                        return;
+                    }
+                    if (e.type.indexOf('pan') === 0) {
+                        console.log(e.type, e.velocityX, e.velocityY);
+                    }
+                    if (e.isFinal || me.enabled) {
+                        if (me.inSchedule) {
+                            WOZLLA.Scheduler.getInstance().scheduleFrame(function () {
+                                me.onGestureEvent(e);
+                            });
+                        }
+                        else {
                             me.onGestureEvent(e);
-                        });
+                        }
                     }
                 });
             }
@@ -3244,15 +3254,26 @@ var WOZLLA;
         Touch.setEanbledGestures = function (gestures) {
             this.enabledGestures = gestures;
         };
+        Touch.prototype.updateCanvasOffset = function () {
+            this.canvasOffset = getCanvasOffset(this.canvas);
+        };
         Touch.prototype.onGestureEvent = function (e) {
             var x, y, i, len, touch, identifier, channel, changedTouches, target, type = e.type, stage = WOZLLA.Director.getInstance().stage;
             var me = this;
             var canvasScale = this.touchScale || 1;
-            changedTouches = e.gesture.srcEvent.changedTouches;
+            if (type === 'hammer.input') {
+                if (e.isFirst) {
+                    type = 'touch';
+                }
+                else if (e.isFinal) {
+                    type = 'release';
+                }
+            }
+            changedTouches = e.srcEvent.changedTouches;
             if (!changedTouches) {
                 identifier = 1;
-                x = e.gesture.srcEvent.pageX - me.canvasOffset.x;
-                y = e.gesture.srcEvent.pageY - me.canvasOffset.y;
+                x = e.srcEvent.pageX - me.canvasOffset.x;
+                y = e.srcEvent.pageY - me.canvasOffset.y;
                 x *= canvasScale;
                 y *= canvasScale;
                 if (type === 'touch') {
@@ -3293,14 +3314,22 @@ var WOZLLA;
             return {
                 onGestureEvent: function (e, target, x, y, identifier) {
                     var touchEvent, type = e.type, stage = WOZLLA.Director.getInstance().stage;
+                    if (type === 'hammer.input') {
+                        if (e.isFirst) {
+                            type = 'touch';
+                        }
+                        else if (e.isFinal) {
+                            type = 'release';
+                        }
+                    }
                     switch (type) {
-                        case 'drag':
+                        case 'panmove':
                             if (!touchMoveDetection) {
                                 target = touchTarget;
                                 break;
                             }
-                        case 'tap':
                         case 'release':
+                        case 'tap':
                             target = stage.getUnderPoint(x, y, true);
                             break;
                     }
@@ -3313,7 +3342,7 @@ var WOZLLA;
                         type: type,
                         bubbles: true,
                         touch: target,
-                        gesture: e.gesture,
+                        gesture: e,
                         identifier: identifier,
                         touchMoveDetection: false
                     });
@@ -6260,6 +6289,7 @@ var WOZLLA;
                 if (this._primitiveStyle.fill) {
                     context.fillStyle = this._primitiveStyle.fillColor;
                 }
+                context.globalAlpha = this._primitiveStyle.alpha;
             };
             PrimitiveRenderer.prototype.drawPrimitive = function (context) {
                 throw new Error('abstract method');
@@ -6273,12 +6303,24 @@ var WOZLLA;
         var PrimitiveStyle = (function () {
             function PrimitiveStyle() {
                 this.dirty = true;
+                this._alpha = 1;
                 this._stroke = true;
                 this._fill = false;
                 this._strokeColor = '#000000';
                 this._strokeWidth = 1;
                 this._fillColor = '#FFFFFF';
             }
+            Object.defineProperty(PrimitiveStyle.prototype, "alpha", {
+                get: function () {
+                    return this._alpha;
+                },
+                set: function (value) {
+                    this._alpha = value;
+                    this.dirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(PrimitiveStyle.prototype, "stroke", {
                 get: function () {
                     return this._stroke;
@@ -6354,6 +6396,7 @@ var WOZLLA;
                 name: 'primitiveStyle',
                 type: 'primitiveStyle',
                 defaultValue: {
+                    alpha: 1,
                     stroke: true,
                     fill: false,
                     strokeColor: '#000000',
@@ -8769,15 +8812,15 @@ var WOZLLA;
                 if (this._content) {
                     this._contentGameObject = this.gameObject.query(this._content);
                 }
-                this.gameObject.addListenerScope('dragstart', this.onDragStart, this);
-                this.gameObject.addListenerScope('drag', this.onDrag, this);
-                this.gameObject.addListenerScope('dragend', this.onDragEnd, this);
+                this.gameObject.addListenerScope('panstart', this.onDragStart, this);
+                this.gameObject.addListenerScope('panmove', this.onDrag, this);
+                this.gameObject.addListenerScope('panend', this.onDragEnd, this);
                 _super.prototype.init.call(this);
             };
             ScrollRect.prototype.destroy = function () {
-                this.gameObject.removeListenerScope('dragstart', this.onDragStart, this);
-                this.gameObject.removeListenerScope('drag', this.onDrag, this);
-                this.gameObject.removeListenerScope('dragend', this.onDragEnd, this);
+                this.gameObject.removeListenerScope('panstart', this.onDragStart, this);
+                this.gameObject.removeListenerScope('panmove', this.onDrag, this);
+                this.gameObject.removeListenerScope('panend', this.onDragEnd, this);
                 _super.prototype.destroy.call(this);
             };
             ScrollRect.prototype.update = function () {
@@ -8904,7 +8947,7 @@ var WOZLLA;
                 if (this._direction === ScrollRect.BOTH || this._direction === ScrollRect.HORIZONTAL) {
                     if (!this.tryBufferBackX()) {
                         if (this._momentumEnabled) {
-                            this._values.velocityX = e.gesture.velocityX * (e.gesture.deltaX >= 0 ? 1 : -1);
+                            this._values.velocityX = -e.gesture.velocityX;
                             if (this._values.momentumXTween) {
                                 this._values.momentumXTween.setPaused(true);
                             }
@@ -8921,7 +8964,7 @@ var WOZLLA;
                 if (this._direction === ScrollRect.BOTH || this._direction === ScrollRect.VERTICAL) {
                     if (!this.tryBufferBackY()) {
                         if (this._momentumEnabled) {
-                            this._values.velocityY = e.gesture.velocityY * (e.gesture.deltaY >= 0 ? 1 : -1);
+                            this._values.velocityY = -e.gesture.velocityY;
                             if (this._values.momentumYTween) {
                                 this._values.momentumYTween.setPaused(true);
                             }

@@ -57,6 +57,7 @@ module WOZLLA {
          * @property {boolean} enabled
          */
         enabled:boolean = true;
+        inSchedule:boolean = true;
         canvas:HTMLCanvasElement = null;
         canvasOffset:any = null;
         touchScale:number;
@@ -66,25 +67,30 @@ module WOZLLA {
 
         constructor(canvas:HTMLCanvasElement, touchScale:number=1) {
             var me = this;
-            var nav:any = window.navigator;
+            //var nav:any = window.navigator;
             me.canvas = canvas;
-            me.canvasOffset = getCanvasOffset(canvas);
             me.touchScale = touchScale;
+            me.updateCanvasOffset();
 
             if(window['Hammer']) {
-                me.hammer = new Hammer(canvas, {
-                    transform: false,
-                    doubletap: false,
-                    hold: false,
-                    rotate: false,
-                    pinch: false
-                });
-
-                me.hammer.on(Touch.enabledGestures || 'touch release tap swipe drag dragstart dragend', function (e) {
-                    if (e.type === 'release' || me.enabled) {
-                        Scheduler.getInstance().scheduleFrame(function () {
+                me.hammer = new Hammer.Manager(canvas);
+                me.hammer.add(new Hammer.Tap());
+                me.hammer.add(new Hammer.Pan({ threshold: 2 }));
+                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
+                    if(e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
+                        return;
+                    }
+                    if(e.type.indexOf('pan') === 0) {
+                        console.log(e.type, e.velocityX, e.velocityY);
+                    }
+                    if (e.isFinal || me.enabled) {
+                        if(me.inSchedule) {
+                            Scheduler.getInstance().scheduleFrame(function () {
+                                me.onGestureEvent(e);
+                            });
+                        } else {
                             me.onGestureEvent(e);
-                        });
+                        }
                     }
                 });
             } else {
@@ -95,6 +101,10 @@ module WOZLLA {
                     console.error('please import hammer.js');
                 });
             }
+        }
+
+        updateCanvasOffset() {
+            this.canvasOffset = getCanvasOffset(this.canvas);
         }
 
         onGestureEvent(e) {
@@ -111,12 +121,21 @@ module WOZLLA {
             var me = this;
             var canvasScale = this.touchScale || 1;
 
-            changedTouches = e.gesture.srcEvent.changedTouches;
+            if(type === 'hammer.input') {
+                if (e.isFirst) {
+                    type = 'touch';
+                }
+                else if (e.isFinal) {
+                    type = 'release';
+                }
+            }
+
+            changedTouches = e.srcEvent.changedTouches;
 
             if (!changedTouches) {
                 identifier = 1;
-                x = e.gesture.srcEvent.pageX - me.canvasOffset.x;
-                y = e.gesture.srcEvent.pageY - me.canvasOffset.y;
+                x = e.srcEvent.pageX - me.canvasOffset.x;
+                y = e.srcEvent.pageY - me.canvasOffset.y;
 
                 x *= canvasScale;
                 y *= canvasScale;
@@ -165,14 +184,23 @@ module WOZLLA {
                         type = e.type,
                         stage = Director.getInstance().stage;
 
-                    switch(type) {
-                        case 'drag':
-                            if(!touchMoveDetection) {
+                    if(type === 'hammer.input') {
+                        if(e.isFirst) {
+                            type = 'touch';
+                        }
+                        else if(e.isFinal) {
+                            type = 'release';
+                        }
+                    }
+
+                    switch (type) {
+                        case 'panmove':
+                            if (!touchMoveDetection) {
                                 target = touchTarget;
                                 break;
                             }
-                        case 'tap':
                         case 'release':
+                        case 'tap':
                             target = stage.getUnderPoint(x, y, true);
                             break;
                     }
@@ -187,7 +215,7 @@ module WOZLLA {
                         type: type,
                         bubbles: true,
                         touch: target,
-                        gesture : e.gesture,
+                        gesture : e,
                         identifier : identifier,
                         touchMoveDetection : false
                     });

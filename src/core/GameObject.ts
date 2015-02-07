@@ -302,6 +302,7 @@ module WOZLLA {
                 this._children.sort(comparator);
             }
             child._parent = this;
+            child.setBubbleParent(this);
             child._transform.dirty = true;
             child.dispatchEvent(new CoreEvent('add', false));
             this.dispatchEvent(new CoreEvent('childadd', false, {
@@ -321,6 +322,7 @@ module WOZLLA {
                 child.dispatchEvent(new CoreEvent('beforeremove', false));
                 this._children.splice(idx, 1);
                 child._parent = null;
+                child.setBubbleParent(null);
                 child.dispatchEvent(new CoreEvent('remove', false, {
                     parent: this
                 }));

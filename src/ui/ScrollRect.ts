@@ -64,16 +64,16 @@ module WOZLLA.ui {
             if(this._content) {
                 this._contentGameObject = this.gameObject.query(this._content);
             }
-            this.gameObject.addListenerScope('dragstart', this.onDragStart, this);
-            this.gameObject.addListenerScope('drag', this.onDrag, this);
-            this.gameObject.addListenerScope('dragend', this.onDragEnd, this);
+            this.gameObject.addListenerScope('panstart', this.onDragStart, this);
+            this.gameObject.addListenerScope('panmove', this.onDrag, this);
+            this.gameObject.addListenerScope('panend', this.onDragEnd, this);
             super.init();
         }
 
         destroy():void {
-            this.gameObject.removeListenerScope('dragstart', this.onDragStart, this);
-            this.gameObject.removeListenerScope('drag', this.onDrag, this);
-            this.gameObject.removeListenerScope('dragend', this.onDragEnd, this);
+            this.gameObject.removeListenerScope('panstart', this.onDragStart, this);
+            this.gameObject.removeListenerScope('panmove', this.onDrag, this);
+            this.gameObject.removeListenerScope('panend', this.onDragEnd, this);
             super.destroy();
         }
 
@@ -207,7 +207,7 @@ module WOZLLA.ui {
             if(this._direction === ScrollRect.BOTH || this._direction === ScrollRect.HORIZONTAL) {
                 if(!this.tryBufferBackX()) {
                     if(this._momentumEnabled) {
-                        this._values.velocityX = e.gesture.velocityX * (e.gesture.deltaX >= 0 ? 1 : -1);
+                        this._values.velocityX = -e.gesture.velocityX;
                         if (this._values.momentumXTween) {
                             this._values.momentumXTween.setPaused(true);
                         }
@@ -223,7 +223,7 @@ module WOZLLA.ui {
             if(this._direction === ScrollRect.BOTH || this._direction === ScrollRect.VERTICAL) {
                 if(!this.tryBufferBackY()) {
                     if(this._momentumEnabled) {
-                        this._values.velocityY = e.gesture.velocityY * (e.gesture.deltaY >= 0 ? 1 : -1);
+                        this._values.velocityY = -e.gesture.velocityY;
                         if (this._values.momentumYTween) {
                             this._values.momentumYTween.setPaused(true);
                         }

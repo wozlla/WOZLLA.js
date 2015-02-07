@@ -1,6 +1,6 @@
 {
   "name": "wozlla.js",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "WOZLLA.js is aim to provide completed solution for making HTML5 mobile game.",
   "main": "WOZLLA.js",
   "typescript": {

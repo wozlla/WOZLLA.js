@@ -1193,12 +1193,14 @@ declare module WOZLLA {
          * @property {boolean} enabled
          */
         enabled: boolean;
+        inSchedule: boolean;
         canvas: HTMLCanvasElement;
         canvasOffset: any;
         touchScale: number;
         hammer: HammerManager;
         channelMap: {};
         constructor(canvas: HTMLCanvasElement, touchScale?: number);
+        updateCanvasOffset(): void;
         onGestureEvent(e: any): void;
         createDispatchChanel(touchTarget: any): {
             onGestureEvent: (e: any, target: any, x: any, y: any, identifier: any) => void;
@@ -2086,11 +2088,13 @@ declare module WOZLLA.component {
     }
     class PrimitiveStyle {
         dirty: boolean;
+        alpha: number;
         stroke: boolean;
         strokeColor: string;
         strokeWidth: number;
         fill: boolean;
         fillColor: string;
+        _alpha: number;
         _stroke: boolean;
         _fill: boolean;
         _strokeColor: string;

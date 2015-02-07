@@ -5,6 +5,7 @@
 </head>
 <body>
 <canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="../hammer.js"></script>
 <script type="text/javascript" src="WOZLLA.js"></script>
 <script type="text/javascript">
 
@@ -28,6 +29,10 @@
     // add tap listener
     gameObj.addListener('tap', function(e) {
         alert("tap game object");
+    });
+
+    director.stage.addListener('tap', function(e) {
+        alert('yes bubble here');
     });
 
     // this would automatically load all assets of gameObj, children and children's children.
