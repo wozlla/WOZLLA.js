@@ -648,6 +648,7 @@ var WOZLLA;
              * @member WOZLLA.renderer.IRenderer
              */
             IRenderer.DOC = 'DOC';
+            IRenderer.debugEnabled = true;
         })(IRenderer = renderer.IRenderer || (renderer.IRenderer = {}));
     })(renderer = WOZLLA.renderer || (WOZLLA.renderer = {}));
 })(WOZLLA || (WOZLLA = {}));
@@ -1731,6 +1732,9 @@ var WOZLLA;
             this._py = rectTransform.py || 0;
             this.dirty = true;
         };
+        RectTransform.prototype.superSet = function (transform) {
+            _super.prototype.set.call(this, transform);
+        };
         /**
          * transform with parent transform
          * @param {WOZLLA.Transform} parentTransform
@@ -1892,6 +1896,7 @@ var WOZLLA;
 /// <reference path="../utils/Assert.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
+    WOZLLA.sharedHelpTransform = new WOZLLA.Transform();
     /**
      * Top class of all components
      * @class WOZLLA.Component
@@ -3930,6 +3935,14 @@ var WOZLLA;
                 this._commandQueueMap = {};
                 this._blendModes = {};
                 this._uniforms = {};
+                this.debug = {
+                    renderSequence: [],
+                    printRenderSequence: function () {
+                        this.renderSequence.forEach(function (seq) {
+                            console.log(seq);
+                        });
+                    }
+                };
                 this._gl = gl;
                 this._viewport = viewport;
                 this._blendModes[renderer.BlendType.NORMAL] = new renderer.BlendType(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -4043,6 +4056,9 @@ var WOZLLA;
                     _this._usingMaterial = currentMaterial = _this._materialManager.getMaterial(command.materialId);
                     _this._usingTexture = currentTexture = command.texture;
                     lastCommand = command;
+                    if (renderer.IRenderer.debugEnabled) {
+                        _this.debug.renderSequence.push(command.layer + ':' + command.flags);
+                    }
                 });
                 if (lastCommand) {
                     this.flush();
@@ -5273,6 +5289,14 @@ var WOZLLA;
                     }
                 };
             };
+            PropertySnip.createMargin = function (propertyName) {
+                return {
+                    name: propertyName,
+                    type: 'Margin',
+                    convert: component.PropertyConverter.array2Margin,
+                    defaultValue: [0, 0, 0, 0]
+                };
+            };
             return PropertySnip;
         })();
         component.PropertySnip = PropertySnip;
@@ -5387,9 +5411,10 @@ var WOZLLA;
          * @abstract
          */
         var RenderCommandBase = (function () {
-            function RenderCommandBase(globalZ, layer) {
+            function RenderCommandBase(globalZ, layer, flags) {
                 this._globalZ = globalZ;
                 this._layer = layer;
+                this._flags = flags;
             }
             Object.defineProperty(RenderCommandBase.prototype, "globalZ", {
                 get: function () {
@@ -5401,6 +5426,13 @@ var WOZLLA;
             Object.defineProperty(RenderCommandBase.prototype, "layer", {
                 get: function () {
                     return this._layer;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(RenderCommandBase.prototype, "flags", {
+                get: function () {
+                    return this._flags;
                 },
                 enumerable: true,
                 configurable: true
@@ -5422,8 +5454,8 @@ var WOZLLA;
          */
         var CustomCommand = (function (_super) {
             __extends(CustomCommand, _super);
-            function CustomCommand(globalZ, layer) {
-                _super.call(this, globalZ, layer);
+            function CustomCommand(globalZ, layer, flags) {
+                _super.call(this, globalZ, layer, flags);
             }
             CustomCommand.prototype.execute = function (renderer) {
                 throw new Error('abstract method');
@@ -5501,10 +5533,10 @@ var WOZLLA;
          * @param flags
          */
         Mask.prototype.render = function (renderer, flags) {
-            renderer.addCommand(new EnableMaskCommand(this._startGlobalZ, this._maskLayer));
+            renderer.addCommand(new EnableMaskCommand(this._startGlobalZ, this._maskLayer, this._gameObject.name + '[EnableMask]'));
             this.renderMask(renderer, flags);
-            renderer.addCommand(new EndMaskCommand(this._startGlobalZ, this._maskLayer, this.reverse));
-            renderer.addCommand(new DisableMaskCommand(this._endGlobalZ, this._maskLayer));
+            renderer.addCommand(new EndMaskCommand(this._startGlobalZ, this._maskLayer, this.reverse, this._gameObject.name + '[EndMask]'));
+            renderer.addCommand(new DisableMaskCommand(this._endGlobalZ, this._maskLayer, this._gameObject.name + '[DisableMask]'));
         };
         /**
          * do render mask graphics
@@ -5518,8 +5550,8 @@ var WOZLLA;
     WOZLLA.Mask = Mask;
     var EnableMaskCommand = (function (_super) {
         __extends(EnableMaskCommand, _super);
-        function EnableMaskCommand(globalZ, layer) {
-            _super.call(this, globalZ, layer);
+        function EnableMaskCommand() {
+            _super.apply(this, arguments);
         }
         EnableMaskCommand.prototype.execute = function (renderer) {
             var gl = renderer.gl;
@@ -5533,8 +5565,8 @@ var WOZLLA;
     })(WOZLLA.renderer.CustomCommand);
     var EndMaskCommand = (function (_super) {
         __extends(EndMaskCommand, _super);
-        function EndMaskCommand(globalZ, layer, reverse) {
-            _super.call(this, globalZ, layer);
+        function EndMaskCommand(globalZ, layer, reverse, flags) {
+            _super.call(this, globalZ, layer, flags);
             this.reverse = reverse;
         }
         EndMaskCommand.prototype.execute = function (renderer) {
@@ -5547,8 +5579,8 @@ var WOZLLA;
     })(WOZLLA.renderer.CustomCommand);
     var DisableMaskCommand = (function (_super) {
         __extends(DisableMaskCommand, _super);
-        function DisableMaskCommand(globalZ, layer) {
-            _super.call(this, globalZ, layer);
+        function DisableMaskCommand() {
+            _super.apply(this, arguments);
         }
         DisableMaskCommand.prototype.execute = function (renderer) {
             renderer.gl.disable(renderer.gl.STENCIL_TEST);
@@ -5813,12 +5845,12 @@ var WOZLLA;
         var QuadCommand = (function (_super) {
             __extends(QuadCommand, _super);
             function QuadCommand(globalZ, layer) {
-                _super.call(this, globalZ, layer);
+                _super.call(this, globalZ, layer, null);
                 this.isPoolable = true;
             }
-            QuadCommand.init = function (globalZ, layer, texture, materialId, quad) {
+            QuadCommand.init = function (globalZ, layer, texture, materialId, quad, flags) {
                 var quadCommand = quadCommandPool.retain();
-                quadCommand.initWith(globalZ, layer, texture, materialId, quad);
+                quadCommand.initWith(globalZ, layer, texture, materialId, quad, flags);
                 return quadCommand;
             };
             Object.defineProperty(QuadCommand.prototype, "texture", {
@@ -5842,12 +5874,13 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
-            QuadCommand.prototype.initWith = function (globalZ, layer, texture, materialId, quad) {
+            QuadCommand.prototype.initWith = function (globalZ, layer, texture, materialId, quad, flags) {
                 this._globalZ = globalZ;
                 this._layer = layer;
                 this._texture = texture;
                 this._materialId = materialId;
                 this._quad = quad;
+                this._flags = flags;
             };
             QuadCommand.prototype.release = function () {
                 quadCommandPool.release(this);
@@ -5945,7 +5978,7 @@ var WOZLLA;
                 if (this._quadColorDirty) {
                     this._updateQuadColor();
                 }
-                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad));
+                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad, this._gameObject.name + '[quad]'));
             };
             QuadRenderer.prototype._initQuad = function () {
                 this._quad = new WOZLLA.renderer.Quad(1);
@@ -6098,8 +6131,11 @@ var WOZLLA;
                 var texture = renderer.textureManager.generateTexture(descriptor);
                 this._maskQuadRenderer = new WOZLLA.component.QuadRenderer();
                 this._maskQuadRenderer.setTexture(texture);
+                this._maskQuadRenderer.renderLayer = this._maskLayer;
+                this._maskQuadRenderer.renderOrder = this._startGlobalZ;
                 this._helperGameObject.addComponent(this._maskQuadRenderer);
                 this._helperGameObject.init();
+                this._helperGameObject.name = this._gameObject.name;
             };
             return RectMask;
         })(WOZLLA.Mask);
@@ -6161,6 +6197,26 @@ var WOZLLA;
                 set: function (value) {
                     this._canvasSize.height = value;
                     this._sizeDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CanvasRenderer.prototype, "renderLayer", {
+                get: function () {
+                    return this._quadLayer;
+                },
+                set: function (value) {
+                    this.setQuadLayer(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(CanvasRenderer.prototype, "renderOrder", {
+                get: function () {
+                    return this._quadGlobalZ;
+                },
+                set: function (value) {
+                    this.setQuadGlobalZ(value);
                 },
                 enumerable: true,
                 configurable: true
@@ -6234,6 +6290,20 @@ var WOZLLA;
             return CanvasRenderer;
         })(component.QuadRenderer);
         component.CanvasRenderer = CanvasRenderer;
+        WOZLLA.Component.register(CanvasRenderer, {
+            name: 'CanvasRenderer',
+            abstractComponent: true,
+            properties: [{
+                name: 'renderLayer',
+                type: 'string',
+                editor: "renderLayer",
+                defaultValue: WOZLLA.renderer.ILayerManager.DEFAULT
+            }, {
+                name: 'renderOrder',
+                type: 'int',
+                defaultValue: 0
+            }]
+        });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../renderer/CanvasRenderer.ts"/>
@@ -6389,18 +6459,21 @@ var WOZLLA;
         WOZLLA.Component.register(PrimitiveRenderer, {
             name: 'PrimitiveRenderer',
             abstractComponent: true,
-            properties: [{
-                name: 'primitiveStyle',
-                type: 'primitiveStyle',
-                defaultValue: {
-                    alpha: 1,
-                    stroke: true,
-                    fill: false,
-                    strokeColor: '#000000',
-                    strokeWidth: 1,
-                    fillColor: '#FFFFFF'
+            properties: [
+                WOZLLA.Component.extendConfig(component.CanvasRenderer),
+                {
+                    name: 'primitiveStyle',
+                    type: 'primitiveStyle',
+                    defaultValue: {
+                        alpha: 1,
+                        stroke: true,
+                        fill: false,
+                        strokeColor: '#000000',
+                        strokeWidth: 1,
+                        fillColor: '#FFFFFF'
+                    }
                 }
-            }]
+            ]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
@@ -6725,6 +6798,15 @@ var WOZLLA;
                 type: 'spriteOffset',
                 convert: component.PropertyConverter.array2point,
                 defaultValue: [0, 0]
+            }, {
+                name: 'renderLayer',
+                type: 'string',
+                editor: "renderLayer",
+                defaultValue: WOZLLA.renderer.ILayerManager.DEFAULT
+            }, {
+                name: 'renderOrder',
+                type: 'int',
+                defaultValue: 0
             }]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
@@ -6897,6 +6979,7 @@ var WOZLLA;
     var component;
     (function (component) {
         var QuadCommand = WOZLLA.renderer.QuadCommand;
+        var helperRect = new WOZLLA.math.Rectangle(0, 0, 0, 0);
         /**
          * @class WOZLLA.component.NinePatchRenderer
          */
@@ -6936,12 +7019,19 @@ var WOZLLA;
                 this._textureUpdated = false;
             };
             NinePatchRenderer.prototype._updateNinePatchQuadVertices = function () {
-                var transform = new WOZLLA.Transform();
+                var transform = WOZLLA.sharedHelpTransform;
                 var frame = this._getTextureFrame();
                 var patchUVS;
                 var patchOffset = { x: 0, y: 0 };
-                var patch = this._patch || new WOZLLA.math.Rectangle(0, 0, frame.width, frame.height);
-                var region = this._renderRegion || patch;
+                var paddingPatch = this._patch || new WOZLLA.layout.Padding(0, 0, 0, 0);
+                var region = this._renderRegion || new WOZLLA.math.Rectangle(0, 0, frame.width, frame.height);
+                var patch = helperRect;
+                patch.x = paddingPatch.left;
+                patch.y = paddingPatch.top;
+                patch.width = frame.width - paddingPatch.left - paddingPatch.right;
+                patch.height = frame.height - paddingPatch.top - paddingPatch.bottom;
+                var patchSideW = frame.width - patch.width;
+                var patchSideH = frame.height - patch.height;
                 function getPatchUVS(patchFrame, texture) {
                     var tw = texture.descriptor.width;
                     var th = texture.descriptor.height;
@@ -6985,7 +7075,7 @@ var WOZLLA;
                         y: region.y
                     },
                     size: {
-                        width: (region.width - (patch.right - patch.width)) / patch.width,
+                        width: (region.width - patchSideW) / patch.width,
                         height: 1
                     }
                 }, {
@@ -6997,7 +7087,7 @@ var WOZLLA;
                         height: patch.top
                     },
                     pos: {
-                        x: region.right,
+                        x: region.right - paddingPatch.right,
                         y: region.y
                     },
                     size: {
@@ -7018,7 +7108,7 @@ var WOZLLA;
                     },
                     size: {
                         width: 1,
-                        height: (region.height - (patch.bottom - patch.height)) / patch.height
+                        height: (region.height - patchSideH) / patch.height
                     }
                 }, {
                     // center middle
@@ -7033,8 +7123,8 @@ var WOZLLA;
                         y: region.y + patch.top
                     },
                     size: {
-                        width: (region.width - (patch.right - patch.width)) / patch.width,
-                        height: (region.height - (patch.bottom - patch.height)) / patch.height
+                        width: (region.width - patchSideW) / patch.width,
+                        height: (region.height - patchSideH) / patch.height
                     }
                 }, {
                     // right middle
@@ -7045,12 +7135,12 @@ var WOZLLA;
                         height: patch.height
                     },
                     pos: {
-                        x: region.right,
+                        x: region.right - paddingPatch.right,
                         y: region.y + patch.top
                     },
                     size: {
                         width: 1,
-                        height: (region.height - (patch.bottom - patch.height)) / patch.height
+                        height: (region.height - patchSideH) / patch.height
                     }
                 }, {
                     // left bottom
@@ -7062,7 +7152,7 @@ var WOZLLA;
                     },
                     pos: {
                         x: region.x,
-                        y: region.bottom
+                        y: region.bottom - paddingPatch.bottom
                     },
                     size: {
                         width: 1,
@@ -7078,10 +7168,10 @@ var WOZLLA;
                     },
                     pos: {
                         x: region.x + patch.left,
-                        y: region.bottom
+                        y: region.bottom - paddingPatch.bottom
                     },
                     size: {
-                        width: (region.width - (patch.right - patch.width)) / patch.width,
+                        width: (region.width - patchSideW) / patch.width,
                         height: 1
                     }
                 }, {
@@ -7093,8 +7183,8 @@ var WOZLLA;
                         height: frame.height - patch.bottom
                     },
                     pos: {
-                        x: region.right,
-                        y: region.bottom
+                        x: region.right - paddingPatch.right,
+                        y: region.bottom - paddingPatch.bottom
                     },
                     size: {
                         width: 1,
@@ -7142,7 +7232,6 @@ var WOZLLA;
                 }
                 if (this._quadVertexDirty) {
                     this._updateNinePatchQuadVertices();
-                    this._quadVertexDirty = false;
                 }
                 if (this._quadAlphaDirty) {
                     this._updateNinePatchQuadAlpha();
@@ -7150,7 +7239,7 @@ var WOZLLA;
                 if (this._quadColorDirty) {
                     this._updateNinePatchQuadColor();
                 }
-                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad));
+                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad, this._gameObject.name + '[9patch]'));
             };
             return NinePatchRenderer;
         })(component.SpriteRenderer);
@@ -7161,9 +7250,9 @@ var WOZLLA;
                 WOZLLA.Component.extendConfig(component.SpriteRenderer),
                 {
                     name: 'patch',
-                    type: 'rect',
+                    type: 'padding',
                     defaultValue: [0, 0, 0, 0],
-                    convert: component.PropertyConverter.array2rect
+                    convert: component.PropertyConverter.array2Padding
                 },
                 {
                     name: 'renderRegion',
@@ -7171,6 +7260,124 @@ var WOZLLA;
                     defaultValue: [0, 0, 0, 0],
                     convert: component.PropertyConverter.array2rect
                 }
+            ]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="SpriteRenderer.ts"/>
+/// <reference path="../PropertySnip.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var QuadCommand = WOZLLA.renderer.QuadCommand;
+        /**
+         * @class WOZLLA.component.TilingSpriteRenderer
+         */
+        var TilingSpriteRenderer = (function (_super) {
+            __extends(TilingSpriteRenderer, _super);
+            function TilingSpriteRenderer() {
+                _super.apply(this, arguments);
+                this._tileMargin = new WOZLLA.layout.Margin(0, 0, 0, 0);
+            }
+            Object.defineProperty(TilingSpriteRenderer.prototype, "renderRegion", {
+                get: function () {
+                    return this._renderRegion;
+                },
+                set: function (value) {
+                    this._renderRegion = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TilingSpriteRenderer.prototype, "tileMargin", {
+                get: function () {
+                    return this._tileMargin;
+                },
+                set: function (value) {
+                    this._tileMargin = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TilingSpriteRenderer.prototype._initQuad = function () {
+                if (this._renderRegion && this._sprite) {
+                    var frame = this._sprite.frame;
+                    var count = Math.ceil(this._renderRegion.width / frame.width) * Math.ceil(this._renderRegion.height / frame.height);
+                    this._quad = new WOZLLA.renderer.Quad(count);
+                }
+            };
+            TilingSpriteRenderer.prototype._updateTilingQuads = function () {
+                this._updateTilingQuadVertices();
+                this._updateTilingQuadAlpha();
+                this._updateTilingQuadColor();
+                this._textureUpdated = false;
+            };
+            TilingSpriteRenderer.prototype._updateTilingQuadVertices = function () {
+                var frame = this._getTextureFrame();
+                var textureOffset = this._getTextureOffset();
+                var normalUVS = this._getTextureUVS();
+                var colNum = Math.ceil(this._renderRegion.width / frame.width);
+                var rowNum = Math.ceil(this._renderRegion.height / frame.height);
+                var thisTrans = this.gameObject.transform;
+                var margin = this._tileMargin;
+                var posX, posY;
+                for (var i = 0; i < rowNum; i++) {
+                    for (var j = 0; j < colNum; j++) {
+                        WOZLLA.sharedHelpTransform.reset();
+                        posX = (margin.left + margin.right + frame.width) * j + margin.left + this._renderRegion.x;
+                        posY = (margin.top + margin.bottom + frame.height) * i + margin.top + this._renderRegion.y;
+                        WOZLLA.sharedHelpTransform.x += posX;
+                        WOZLLA.sharedHelpTransform.y += posY;
+                        WOZLLA.sharedHelpTransform.transform(thisTrans);
+                        this._updateQuadVerticesByArgs(normalUVS, frame, textureOffset, WOZLLA.sharedHelpTransform.worldMatrix, i * colNum + j);
+                    }
+                }
+                this._quadVertexDirty = false;
+            };
+            TilingSpriteRenderer.prototype._updateTilingQuadAlpha = function () {
+                for (var i = 0; i < this._quad.count; i++) {
+                    this._updateQuadAlpha(i);
+                }
+                this._quadAlphaDirty = false;
+            };
+            TilingSpriteRenderer.prototype._updateTilingQuadColor = function () {
+                for (var i = 0; i < this._quad.count; i++) {
+                    this._updateQuadColor(i);
+                }
+                this._quadColorDirty = false;
+            };
+            TilingSpriteRenderer.prototype.render = function (renderer, flags) {
+                if (!this._texture || !this._quad) {
+                    return;
+                }
+                if ((flags & WOZLLA.GameObject.MASK_TRANSFORM_DIRTY) === WOZLLA.GameObject.MASK_TRANSFORM_DIRTY) {
+                    this._quadVertexDirty = true;
+                }
+                if (this._textureUpdated) {
+                    this._updateTilingQuads();
+                }
+                if (this._quadVertexDirty) {
+                    this._updateTilingQuadVertices();
+                }
+                if (this._quadAlphaDirty) {
+                    this._updateTilingQuadAlpha();
+                }
+                if (this._quadColorDirty) {
+                    this._updateTilingQuadColor();
+                }
+                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad, this._gameObject.name + '[tiling]'));
+            };
+            return TilingSpriteRenderer;
+        })(component.SpriteRenderer);
+        component.TilingSpriteRenderer = TilingSpriteRenderer;
+        WOZLLA.Component.register(TilingSpriteRenderer, {
+            name: "TilingSpriteRenderer",
+            properties: [
+                WOZLLA.Component.extendConfig(component.SpriteRenderer),
+                component.PropertySnip.createRect('renderRegion'),
+                component.PropertySnip.createMargin('tileMargin')
             ]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
@@ -7509,27 +7716,31 @@ var WOZLLA;
         component.TextStyle = TextStyle;
         WOZLLA.Component.register(TextRenderer, {
             name: 'TextRenderer',
-            properties: [{
-                name: 'text',
-                type: 'string',
-                defaultValue: ''
-            }, {
-                name: 'textStyle',
-                type: 'textStyle',
-                convert: component.PropertyConverter.json2TextStyle,
-                defaultValue: {
-                    font: 'normal 24px Arial',
-                    color: '#000000',
-                    shadow: false,
-                    shadowOffsetX: 0,
-                    shadowOffsetY: 0,
-                    stroke: false,
-                    strokeColor: '#000000',
-                    strokeWidth: 0,
-                    align: TextStyle.START,
-                    baseline: TextStyle.TOP
+            properties: [
+                WOZLLA.Component.extendConfig(component.CanvasRenderer),
+                {
+                    name: 'text',
+                    type: 'string',
+                    defaultValue: ''
+                },
+                {
+                    name: 'textStyle',
+                    type: 'textStyle',
+                    convert: component.PropertyConverter.json2TextStyle,
+                    defaultValue: {
+                        font: 'normal 24px Arial',
+                        color: '#000000',
+                        shadow: false,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        stroke: false,
+                        strokeColor: '#000000',
+                        strokeWidth: 0,
+                        align: TextStyle.START,
+                        baseline: TextStyle.TOP
+                    }
                 }
-            }]
+            ]
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
@@ -7682,8 +7893,9 @@ var WOZLLA;
             JSONXBuilder.prototype._loadJSONData = function (callback) {
                 var _this = this;
                 if (this.src && !this.data) {
+                    var baseDir = WOZLLA.Director.getInstance().assetLoader.getBaseDir();
                     WOZLLA.utils.Ajax.request({
-                        url: WOZLLA.Director.getInstance().assetLoader.getBaseDir() + '/' + this.src,
+                        url: baseDir ? baseDir + '/' + this.src : this.src,
                         dataType: 'json',
                         async: this.async,
                         withCredentials: true,
@@ -7714,6 +7926,7 @@ var WOZLLA;
                 gameObj._uuid = data.uuid;
                 this.uuidMap[data.uuid] = gameObj;
                 gameObj.id = data.id;
+                gameObj.z = data.z;
                 gameObj.name = data.name;
                 gameObj.active = data.active;
                 gameObj.visible = data.visible;
@@ -7760,18 +7973,28 @@ var WOZLLA;
                 builder.instantiateWithSrc(data.reference).build(function (err, root) {
                     if (err) {
                         _this.err = err;
+                        console.log('fail to load reference: ' + data.reference);
                     }
                     else if (root) {
-                        root._uuid = data.uuid;
-                        _this.uuidMap[data.uuid] = root;
-                        root.name = data.name;
-                        root.id = data.id;
-                        root.active = data.active;
-                        root.visible = data.visible;
-                        root.touchable = data.touchable;
-                        root.transform.set(data.transform);
+                        var refObj;
+                        if (root.rectTransform) {
+                            refObj = new WOZLLA.GameObject(true);
+                        }
+                        else {
+                            refObj = new WOZLLA.GameObject();
+                        }
+                        refObj._uuid = data.uuid;
+                        _this.uuidMap[data.uuid] = refObj;
+                        refObj.name = data.name;
+                        refObj.id = data.id;
+                        refObj.z = data.z;
+                        refObj.active = data.active;
+                        refObj.visible = data.visible;
+                        refObj.touchable = data.touchable;
+                        refObj.transform.set(data.transform);
+                        refObj.addChild(root);
                     }
-                    callback(root);
+                    callback(refObj);
                 });
             };
             JSONXBuilder.prototype._newComponent = function (compData, gameObj) {
@@ -7904,8 +8127,28 @@ var WOZLLA;
         math.Size = Size;
     })(math = WOZLLA.math || (WOZLLA.math = {}));
 })(WOZLLA || (WOZLLA = {}));
+var WOZLLA;
+(function (WOZLLA) {
+    var layout;
+    (function (layout) {
+        var Margin = (function () {
+            function Margin(top, left, bottom, right) {
+                this.top = top;
+                this.left = left;
+                this.bottom = bottom;
+                this.right = right;
+            }
+            Margin.prototype.equals = function (padding) {
+                return this.top === padding.top && this.bottom === padding.bottom && this.right === padding.right && this.left === padding.left;
+            };
+            return Margin;
+        })();
+        layout.Margin = Margin;
+    })(layout = WOZLLA.layout || (WOZLLA.layout = {}));
+})(WOZLLA || (WOZLLA = {}));
 /// <reference path="LayoutBase.ts"/>
 /// <reference path="../math/Size.ts"/>
+/// <reference path="Margin.ts"/>
 /// <reference path="../component/PropertyConverter.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
@@ -7938,8 +8181,6 @@ var WOZLLA;
                     return this._itemMargin;
                 },
                 set: function (margin) {
-                    if (this._itemMargin && this._itemMargin.equals(margin))
-                        return;
                     this._itemMargin = margin;
                     this.requestLayout();
                 },
@@ -7952,6 +8193,7 @@ var WOZLLA;
                 var children = this.gameObject.rawChildren;
                 var col = 0;
                 var row = 0;
+                var totalHeight = padding.top + padding.bottom;
                 var rowHeight = 0;
                 var x = padding.left;
                 var y = padding.top;
@@ -7970,6 +8212,7 @@ var WOZLLA;
                         y += margin.bottom;
                         y += helpSize.height;
                         x = padding.left + margin.left;
+                        totalHeight += margin.top + margin.bottom + rowHeight;
                     }
                     // apply position
                     if (child.rectTransform) {
@@ -7988,6 +8231,7 @@ var WOZLLA;
                     x += margin.right + helpSize.width;
                     col++;
                 }
+                rect.height = totalHeight + rowHeight;
             };
             Grid.prototype.measureChildSize = function (child, idx, size) {
                 var rectTransform = child.rectTransform;
@@ -7999,12 +8243,21 @@ var WOZLLA;
                     size.height = rectTransform.height;
                 }
             };
+            Grid.CONSTRAINT_HORIZONTAL = "Horizontal";
+            Grid.CONSTRAINT_VERTICAL = "Vertical";
+            Grid.CONSTRAINT_BOTH = "Both";
             return Grid;
         })(layout.LayoutBase);
         layout.Grid = Grid;
         WOZLLA.Component.register(Grid, {
             name: 'Grid',
             properties: [{
+                name: 'constraint',
+                type: 'string',
+                editor: 'combobox',
+                data: [Grid.CONSTRAINT_HORIZONTAL],
+                defaultValue: Grid.CONSTRAINT_HORIZONTAL
+            }, {
                 name: 'padding',
                 type: 'Padding',
                 convert: WOZLLA.component.PropertyConverter.array2Padding,
@@ -8022,32 +8275,31 @@ var WOZLLA;
 (function (WOZLLA) {
     var layout;
     (function (layout) {
-        var Margin = (function () {
-            function Margin(top, left, bottom, right) {
-                this.top = top;
-                this.left = left;
-                this.bottom = bottom;
-                this.right = right;
-            }
-            Margin.prototype.equals = function (padding) {
-                return this.top === padding.top && this.bottom === padding.bottom && this.right === padding.right && this.left === padding.left;
-            };
-            return Margin;
-        })();
-        layout.Margin = Margin;
-    })(layout = WOZLLA.layout || (WOZLLA.layout = {}));
-})(WOZLLA || (WOZLLA = {}));
-var WOZLLA;
-(function (WOZLLA) {
-    var layout;
-    (function (layout) {
         var Padding = (function () {
-            function Padding(top, left, bottom, right) {
+            function Padding(top, left, bottom, right, boxWidth, boxHeight) {
+                if (boxWidth === void 0) { boxWidth = 0; }
+                if (boxHeight === void 0) { boxHeight = 0; }
                 this.top = top;
                 this.left = left;
                 this.bottom = bottom;
                 this.right = right;
+                this.boxWidth = boxWidth;
+                this.boxHeight = boxHeight;
             }
+            Object.defineProperty(Padding.prototype, "width", {
+                get: function () {
+                    return this.boxWidth - this.left - this.right;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Padding.prototype, "height", {
+                get: function () {
+                    return this.boxHeight - this.top - this.bottom;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Padding.prototype.equals = function (padding) {
                 return this.top === padding.top && this.bottom === padding.bottom && this.right === padding.right && this.left === padding.left;
             };
@@ -8110,6 +8362,8 @@ var WOZLLA;
                     }
                     y += _this._itemMargin + _this.measureChildHeight(child, idx);
                 });
+                y += padding.bottom;
+                this.gameObject.rectTransform.height = y;
             };
             VBox.prototype.measureChildHeight = function (child, idx) {
                 var rectTransform = child.rectTransform;

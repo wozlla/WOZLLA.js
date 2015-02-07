@@ -1,0 +1,916 @@
+{"frames": {
+
+"Lv.png":
+{
+	"frame": {"x":880,"y":138,"w":26,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":26,"h":16},
+	"sourceSize": {"w":26,"h":16}
+},
+"arrow.png":
+{
+	"frame": {"x":696,"y":594,"w":39,"h":27},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":39,"h":27},
+	"sourceSize": {"w":39,"h":27}
+},
+"choose.png":
+{
+	"frame": {"x":992,"y":579,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":30},
+	"sourceSize": {"w":30,"h":30}
+},
+"choose_bg.png":
+{
+	"frame": {"x":992,"y":547,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":30},
+	"sourceSize": {"w":30,"h":30}
+},
+"close.png":
+{
+	"frame": {"x":500,"y":911,"w":61,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
+	"sourceSize": {"w":61,"h":61}
+},
+"close_h.png":
+{
+	"frame": {"x":362,"y":935,"w":61,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
+	"sourceSize": {"w":61,"h":61}
+},
+"headcut_bg.png":
+{
+	"frame": {"x":883,"y":2,"w":134,"h":134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":134,"h":134},
+	"sourceSize": {"w":134,"h":134}
+},
+"talk_bg.png":
+{
+	"frame": {"x":500,"y":6,"w":10,"h":176},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":176},
+	"sourceSize": {"w":10,"h":176}
+},
+"talk_line.png":
+{
+	"frame": {"x":502,"y":394,"w":253,"h":2},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":253,"h":2},
+	"sourceSize": {"w":253,"h":2}
+},
+"warehouse_new.png":
+{
+	"frame": {"x":696,"y":515,"w":51,"h":29},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":51,"h":29},
+	"sourceSize": {"w":51,"h":29}
+},
+"yes.png":
+{
+	"frame": {"x":956,"y":880,"w":66,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":66},
+	"sourceSize": {"w":66,"h":66}
+},
+"人民币.png":
+{
+	"frame": {"x":364,"y":278,"w":117,"h":47},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":117,"h":47},
+	"sourceSize": {"w":117,"h":47}
+},
+"人民币数字.png":
+{
+	"frame": {"x":752,"y":459,"w":242,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":242,"h":22},
+	"sourceSize": {"w":242,"h":22}
+},
+"人物任务_h.png":
+{
+	"frame": {"x":996,"y":435,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+	"sourceSize": {"w":20,"h":20}
+},
+"人物星级.png":
+{
+	"frame": {"x":696,"y":623,"w":32,"h":31},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":31},
+	"sourceSize": {"w":32,"h":31}
+},
+"人物星级_h.png":
+{
+	"frame": {"x":846,"y":123,"w":32,"h":31},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":31},
+	"sourceSize": {"w":32,"h":31}
+},
+"人物星级小.png":
+{
+	"frame": {"x":482,"y":357,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+	"sourceSize": {"w":20,"h":20}
+},
+"人物框.png":
+{
+	"frame": {"x":580,"y":869,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"人物框_h.png":
+{
+	"frame": {"x":862,"y":898,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"人物等级.png":
+{
+	"frame": {"x":765,"y":358,"w":180,"h":18},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":180,"h":18},
+	"sourceSize": {"w":180,"h":18}
+},
+"人物经验条.png":
+{
+	"frame": {"x":364,"y":6,"w":134,"h":23},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":134,"h":23},
+	"sourceSize": {"w":134,"h":23}
+},
+"人物经验条背景.png":
+{
+	"frame": {"x":242,"y":416,"w":200,"h":35},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":35},
+	"sourceSize": {"w":200,"h":35}
+},
+"任务列表背景.png":
+{
+	"frame": {"x":482,"y":335,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+	"sourceSize": {"w":20,"h":20}
+},
+"任务进度条.png":
+{
+	"frame": {"x":846,"y":250,"w":100,"h":7},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":100,"h":7},
+	"sourceSize": {"w":100,"h":7}
+},
+"任务进度背景.png":
+{
+	"frame": {"x":908,"y":138,"w":106,"h":11},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":106,"h":11},
+	"sourceSize": {"w":106,"h":11}
+},
+"使用.png":
+{
+	"frame": {"x":780,"y":812,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"使用_d.png":
+{
+	"frame": {"x":92,"y":946,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"使用_h.png":
+{
+	"frame": {"x":2,"y":946,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"充值按钮.png":
+{
+	"frame": {"x":696,"y":546,"w":46,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":46,"h":46},
+	"sourceSize": {"w":46,"h":46}
+},
+"充值按钮_h.png":
+{
+	"frame": {"x":454,"y":379,"w":46,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":46,"h":46},
+	"sourceSize": {"w":46,"h":46}
+},
+"列表人像背景0.png":
+{
+	"frame": {"x":912,"y":996,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"卸下.png":
+{
+	"frame": {"x":272,"y":908,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"卸下_d.png":
+{
+	"frame": {"x":182,"y":908,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"卸下_h.png":
+{
+	"frame": {"x":490,"y":865,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"取消.png":
+{
+	"frame": {"x":956,"y":812,"w":66,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":66},
+	"sourceSize": {"w":66,"h":66}
+},
+"后天技能背景框.png":
+{
+	"frame": {"x":947,"y":334,"w":74,"h":74},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":74,"h":74},
+	"sourceSize": {"w":74,"h":74}
+},
+"后天技能背景框_h.png":
+{
+	"frame": {"x":948,"y":258,"w":74,"h":74},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":74,"h":74},
+	"sourceSize": {"w":74,"h":74}
+},
+"吞噬.png":
+{
+	"frame": {"x":400,"y":865,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"吞噬_d.png":
+{
+	"frame": {"x":690,"y":812,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"吞噬_h.png":
+{
+	"frame": {"x":92,"y":900,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"吸血.png":
+{
+	"frame": {"x":362,"y":911,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"商店标签背景.png":
+{
+	"frame": {"x":2,"y":544,"w":228,"h":96},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":228,"h":96},
+	"sourceSize": {"w":228,"h":96}
+},
+"商店标签背景_d.png":
+{
+	"frame": {"x":502,"y":398,"w":248,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":248,"h":115},
+	"sourceSize": {"w":248,"h":115}
+},
+"商店标签背景_h.png":
+{
+	"frame": {"x":2,"y":410,"w":238,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":238,"h":106},
+	"sourceSize": {"w":238,"h":106}
+},
+"回收.png":
+{
+	"frame": {"x":2,"y":900,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"回收_d.png":
+{
+	"frame": {"x":310,"y":862,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"回收_h.png":
+{
+	"frame": {"x":220,"y":862,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"宝石弹出信息背景.png":
+{
+	"frame": {"x":1002,"y":236,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+	"sourceSize": {"w":20,"h":20}
+},
+"宝石弹出信息背景_h.png":
+{
+	"frame": {"x":1002,"y":214,"w":20,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+	"sourceSize": {"w":20,"h":20}
+},
+"寻路.png":
+{
+	"frame": {"x":528,"y":819,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"寻路_d.png":
+{
+	"frame": {"x":438,"y":819,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"寻路_h.png":
+{
+	"frame": {"x":528,"y":773,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"已选.png":
+{
+	"frame": {"x":434,"y":911,"w":64,"h":58},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":58},
+	"sourceSize": {"w":64,"h":58}
+},
+"帮助.png":
+{
+	"frame": {"x":444,"y":427,"w":52,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":52,"h":50},
+	"sourceSize": {"w":52,"h":50}
+},
+"幸运.png":
+{
+	"frame": {"x":948,"y":972,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"弹出框背景1.png":
+{
+	"frame": {"x":364,"y":148,"w":128,"h":128},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":128,"h":128},
+	"sourceSize": {"w":128,"h":128}
+},
+"弹出框背景2.png":
+{
+	"frame": {"x":242,"y":479,"w":234,"h":251},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":234,"h":251},
+	"sourceSize": {"w":234,"h":251}
+},
+"弹出框背景3.png":
+{
+	"frame": {"x":752,"y":483,"w":238,"h":235},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":238,"h":235},
+	"sourceSize": {"w":238,"h":235}
+},
+"战力.png":
+{
+	"frame": {"x":504,"y":338,"w":259,"h":54},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":259,"h":54},
+	"sourceSize": {"w":259,"h":54}
+},
+"打造等级.png":
+{
+	"frame": {"x":992,"y":515,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":30},
+	"sourceSize": {"w":30,"h":30}
+},
+"打造等级_h.png":
+{
+	"frame": {"x":992,"y":483,"w":30,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":30},
+	"sourceSize": {"w":30,"h":30}
+},
+"技能等级背景.png":
+{
+	"frame": {"x":483,"y":278,"w":27,"h":27},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":27,"h":27},
+	"sourceSize": {"w":27,"h":27}
+},
+"提示背景.png":
+{
+	"frame": {"x":846,"y":156,"w":168,"h":38},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":168,"h":38},
+	"sourceSize": {"w":168,"h":38}
+},
+"攻击.png":
+{
+	"frame": {"x":948,"y":948,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"时空水晶.png":
+{
+	"frame": {"x":364,"y":278,"w":117,"h":47},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":117,"h":47},
+	"sourceSize": {"w":117,"h":47}
+},
+"星级背景.png":
+{
+	"frame": {"x":516,"y":2,"w":365,"h":119},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":365,"h":119},
+	"sourceSize": {"w":365,"h":119}
+},
+"暴击.png":
+{
+	"frame": {"x":618,"y":845,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"更换.png":
+{
+	"frame": {"x":438,"y":773,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"格挡.png":
+{
+	"frame": {"x":618,"y":821,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"游戏币.png":
+{
+	"frame": {"x":752,"y":435,"w":242,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":242,"h":22},
+	"sourceSize": {"w":242,"h":22}
+},
+"滑动块.png":
+{
+	"frame": {"x":504,"y":184,"w":6,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":42},
+	"sourceSize": {"w":6,"h":42}
+},
+"滑动块背景.png":
+{
+	"frame": {"x":494,"y":184,"w":8,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":60},
+	"sourceSize": {"w":8,"h":60}
+},
+"灵识数字.png":
+{
+	"frame": {"x":2,"y":518,"w":234,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":234,"h":24},
+	"sourceSize": {"w":234,"h":24}
+},
+"物品数量.png":
+{
+	"frame": {"x":846,"y":196,"w":160,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":160,"h":16},
+	"sourceSize": {"w":160,"h":16}
+},
+"物品数量不足.png":
+{
+	"frame": {"x":242,"y":453,"w":73,"h":23},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":23},
+	"sourceSize": {"w":73,"h":23}
+},
+"物品数量满.png":
+{
+	"frame": {"x":945,"y":410,"w":73,"h":23},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":23},
+	"sourceSize": {"w":73,"h":23}
+},
+"物品数量背景.png":
+{
+	"frame": {"x":483,"y":307,"w":26,"h":26},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":26,"h":26},
+	"sourceSize": {"w":26,"h":26}
+},
+"生命.png":
+{
+	"frame": {"x":618,"y":797,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"确定.png":
+{
+	"frame": {"x":956,"y":880,"w":66,"h":66},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":66},
+	"sourceSize": {"w":66,"h":66}
+},
+"确定_d.png":
+{
+	"frame": {"x":876,"y":766,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"确认选择背景.png":
+{
+	"frame": {"x":512,"y":123,"w":332,"h":213},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":332,"h":213},
+	"sourceSize": {"w":332,"h":213}
+},
+"箭头.png":
+{
+	"frame": {"x":364,"y":31,"w":129,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":129,"h":115},
+	"sourceSize": {"w":129,"h":115}
+},
+"经验数字.png":
+{
+	"frame": {"x":846,"y":232,"w":154,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":154,"h":16},
+	"sourceSize": {"w":154,"h":16}
+},
+"能量数字.png":
+{
+	"frame": {"x":846,"y":214,"w":154,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":154,"h":16},
+	"sourceSize": {"w":154,"h":16}
+},
+"被动技能背景框.png":
+{
+	"frame": {"x":830,"y":984,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"被动技能背景框_d.png":
+{
+	"frame": {"x":748,"y":944,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"被动技能背景框_h.png":
+{
+	"frame": {"x":666,"y":944,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"装备.png":
+{
+	"frame": {"x":786,"y":766,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"装备_d.png":
+{
+	"frame": {"x":696,"y":766,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"装备_h.png":
+{
+	"frame": {"x":909,"y":720,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"装备框.png":
+{
+	"frame": {"x":776,"y":858,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"装备框_h.png":
+{
+	"frame": {"x":690,"y":858,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"装备框未开启.png":
+{
+	"frame": {"x":870,"y":812,"w":84,"h":84},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":84,"h":84},
+	"sourceSize": {"w":84,"h":84}
+},
+"购买.png":
+{
+	"frame": {"x":819,"y":720,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"购买_d.png":
+{
+	"frame": {"x":729,"y":720,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"购买_h.png":
+{
+	"frame": {"x":855,"y":378,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"选定.png":
+{
+	"frame": {"x":765,"y":378,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"选定_d.png":
+{
+	"frame": {"x":364,"y":370,"w":88,"h":44},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":44},
+	"sourceSize": {"w":88,"h":44}
+},
+"递进指示.png":
+{
+	"frame": {"x":696,"y":718,"w":31,"h":35},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":31,"h":35},
+	"sourceSize": {"w":31,"h":35}
+},
+"通用直线.png":
+{
+	"frame": {"x":952,"y":151,"w":20,"h":2},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":2},
+	"sourceSize": {"w":20,"h":2}
+},
+"通用直线1.png":
+{
+	"frame": {"x":908,"y":151,"w":42,"h":2},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":2},
+	"sourceSize": {"w":42,"h":2}
+},
+"通用直线2.png":
+{
+	"frame": {"x":2,"y":2,"w":512,"h":2},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":2},
+	"sourceSize": {"w":512,"h":2}
+},
+"通用背景_上1.jpg":
+{
+	"frame": {"x":478,"y":515,"w":216,"h":256},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":216,"h":256},
+	"sourceSize": {"w":216,"h":256}
+},
+"通用背景_下1.jpg":
+{
+	"frame": {"x":2,"y":642,"w":216,"h":256},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":216,"h":256},
+	"sourceSize": {"w":216,"h":256}
+},
+"通用背景_中1.jpg":
+{
+	"frame": {"x":220,"y":732,"w":216,"h":128},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":216,"h":128},
+	"sourceSize": {"w":216,"h":128}
+},
+"通用背景框1.png":
+{
+	"frame": {"x":563,"y":955,"w":60,"h":144},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":144},
+	"sourceSize": {"w":60,"h":144}
+},
+"通用背景框2.png":
+{
+	"frame": {"x":425,"y":971,"w":60,"h":160},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":160},
+	"sourceSize": {"w":60,"h":160}
+},
+"速度.png":
+{
+	"frame": {"x":618,"y":773,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"遇敌提示.png":
+{
+	"frame": {"x":846,"y":259,"w":99,"h":97},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":99,"h":97},
+	"sourceSize": {"w":99,"h":97}
+},
+"金币.png":
+{
+	"frame": {"x":364,"y":327,"w":116,"h":41},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":116,"h":41},
+	"sourceSize": {"w":116,"h":41}
+},
+"防御.png":
+{
+	"frame": {"x":317,"y":453,"w":70,"h":22},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":22},
+	"sourceSize": {"w":70,"h":22}
+},
+"顶部纹理.png":
+{
+	"frame": {"x":696,"y":656,"w":31,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":31,"h":60},
+	"sourceSize": {"w":31,"h":60}
+},
+"魔法阵背景.png":
+{
+	"frame": {"x":2,"y":6,"w":360,"h":402},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":402},
+	"sourceSize": {"w":360,"h":402}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "common.tt.png",
+	"format": "RGBA8888",
+	"size": {"w":1024,"h":2048},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e4cadf6b01326a8dd68361889cb8a971:1/1$"
+}
+}

@@ -329,6 +329,7 @@ declare module WOZLLA.renderer {
          * @member WOZLLA.renderer.IRenderer
          */
         var DOC: string;
+        var debugEnabled: boolean;
     }
 }
 declare module WOZLLA.math {
@@ -638,7 +639,8 @@ declare module WOZLLA {
          * set rect transform
          * @param {WOZLLA.RectTransform} rectTransform
          */
-        set(rectTransform: RectTransform): void;
+        set(rectTransform: any): void;
+        superSet(transform: Transform): void;
         /**
          * transform with parent transform
          * @param {WOZLLA.Transform} parentTransform
@@ -661,6 +663,7 @@ declare module WOZLLA {
     }
 }
 declare module WOZLLA {
+    var sharedHelpTransform: Transform;
     /**
      * Top class of all components
      * @class WOZLLA.Component
@@ -1453,6 +1456,10 @@ declare module WOZLLA.renderer {
         _usingMaterial: IMaterial;
         _usingTexture: ITexture;
         _uniforms: any;
+        debug: {
+            renderSequence: any[];
+            printRenderSequence: () => void;
+        };
         private _quadBatch;
         constructor(gl: any, viewport: any);
         addCommand(command: IRenderCommand): void;
@@ -1822,6 +1829,12 @@ declare module WOZLLA.component {
                 fromSpriteAtlas: string;
             };
         };
+        static createMargin(propertyName: any): {
+            name: any;
+            type: string;
+            convert: (arr: number[]) => layout.Margin;
+            defaultValue: number[];
+        };
     }
 }
 declare module WOZLLA.component {
@@ -1862,10 +1875,12 @@ declare module WOZLLA.renderer {
     class RenderCommandBase implements IRenderCommand {
         globalZ: number;
         layer: string;
+        flags: string;
         _globalZ: number;
         _layer: string;
+        _flags: string;
         _addIndex: number;
-        constructor(globalZ: number, layer: string);
+        constructor(globalZ: number, layer: string, flags?: string);
     }
 }
 declare module WOZLLA.renderer {
@@ -1874,7 +1889,7 @@ declare module WOZLLA.renderer {
      * @extends WOZLLA.renderer.RenderCommandBase
      */
     class CustomCommand extends RenderCommandBase {
-        constructor(globalZ: number, layer: string);
+        constructor(globalZ: number, layer: string, flags?: string);
         execute(renderer: IRenderer): void;
     }
 }
@@ -1986,7 +2001,7 @@ declare module WOZLLA.renderer {
      * @extends WOZLLA.renderer.RenderCommandBase
      */
     class QuadCommand extends RenderCommandBase implements WOZLLA.utils.Poolable {
-        static init(globalZ: number, layer: string, texture: ITexture, materialId: string, quad: Quad): QuadCommand;
+        static init(globalZ: number, layer: string, texture: ITexture, materialId: string, quad: Quad, flags?: string): QuadCommand;
         isPoolable: boolean;
         texture: ITexture;
         materialId: string;
@@ -1995,7 +2010,7 @@ declare module WOZLLA.renderer {
         _materialId: string;
         _quad: Quad;
         constructor(globalZ: number, layer: string);
-        initWith(globalZ: number, layer: string, texture: ITexture, materialId: string, quad: any): void;
+        initWith(globalZ: number, layer: string, texture: ITexture, materialId: string, quad: any, flags?: string): void;
         release(): void;
     }
 }
@@ -2060,6 +2075,8 @@ declare module WOZLLA.component {
         canvasSize: WOZLLA.math.Size;
         canvasWidth: number;
         canvasHeight: number;
+        renderLayer: string;
+        renderOrder: number;
         _canvas: any;
         _context: any;
         _canvasSize: WOZLLA.math.Size;
@@ -2175,14 +2192,31 @@ declare module WOZLLA.component {
      */
     class NinePatchRenderer extends SpriteRenderer {
         renderRegion: WOZLLA.math.Rectangle;
-        patch: WOZLLA.math.Rectangle;
-        _patch: WOZLLA.math.Rectangle;
+        patch: WOZLLA.layout.Padding;
+        _patch: WOZLLA.layout.Padding;
         _renderRegion: WOZLLA.math.Rectangle;
         _initQuad(): void;
         _updateNinePatchQuads(): void;
         _updateNinePatchQuadVertices(): void;
         _updateNinePatchQuadAlpha(): void;
         _updateNinePatchQuadColor(): void;
+        render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
+    }
+}
+declare module WOZLLA.component {
+    /**
+     * @class WOZLLA.component.TilingSpriteRenderer
+     */
+    class TilingSpriteRenderer extends SpriteRenderer {
+        renderRegion: WOZLLA.math.Rectangle;
+        tileMargin: WOZLLA.layout.Margin;
+        _renderRegion: WOZLLA.math.Rectangle;
+        _tileMargin: WOZLLA.layout.Margin;
+        _initQuad(): void;
+        _updateTilingQuads(): void;
+        _updateTilingQuadVertices(): void;
+        _updateTilingQuadAlpha(): void;
+        _updateTilingQuadColor(): void;
         render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
     }
 }
@@ -2353,17 +2387,6 @@ declare module WOZLLA.math {
     }
 }
 declare module WOZLLA.layout {
-    class Grid extends LayoutBase {
-        listRequiredComponents(): Array<Function>;
-        padding: Padding;
-        itemMargin: Margin;
-        _padding: Padding;
-        _itemMargin: Margin;
-        doLayout(): void;
-        protected measureChildSize(child: GameObject, idx: number, size: WOZLLA.math.Size): void;
-    }
-}
-declare module WOZLLA.layout {
     class Margin {
         top: number;
         left: number;
@@ -2374,12 +2397,30 @@ declare module WOZLLA.layout {
     }
 }
 declare module WOZLLA.layout {
+    class Grid extends LayoutBase {
+        static CONSTRAINT_HORIZONTAL: string;
+        static CONSTRAINT_VERTICAL: String;
+        static CONSTRAINT_BOTH: string;
+        listRequiredComponents(): Array<Function>;
+        padding: Padding;
+        itemMargin: Margin;
+        _padding: Padding;
+        _itemMargin: Margin;
+        doLayout(): void;
+        protected measureChildSize(child: GameObject, idx: number, size: WOZLLA.math.Size): void;
+    }
+}
+declare module WOZLLA.layout {
     class Padding {
         top: number;
         left: number;
         bottom: number;
         right: number;
-        constructor(top: number, left: number, bottom: number, right: number);
+        boxWidth: number;
+        boxHeight: number;
+        width: number;
+        height: number;
+        constructor(top: number, left: number, bottom: number, right: number, boxWidth?: number, boxHeight?: number);
         equals(padding: Padding): boolean;
     }
 }

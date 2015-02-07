@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TilingSpriteRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="960" height="640" style="border: 1px solid #999; display: block;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    var tilingSpriteRenderer = new WOZLLA.component.TilingSpriteRenderer();
+    tilingSpriteRenderer.spriteAtlasSrc = 'resources/common.tt.json';
+    tilingSpriteRenderer.spriteAtlasSrc = 'resources/partner.tt.json';
+    tilingSpriteRenderer.spriteName = '通用背景_上1.jpg';
+    tilingSpriteRenderer.spriteName = '人物星级_h.png';
+
+    tilingSpriteRenderer.renderRegion = new WOZLLA.math.Rectangle(0, 0, 100, 100);
+    // add to gameObj
+    gameObj.addComponent(tilingSpriteRenderer);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+    });
+
+
+</script>
+</body>
+</html>
