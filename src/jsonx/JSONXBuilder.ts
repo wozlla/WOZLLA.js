@@ -97,8 +97,9 @@ module WOZLLA.jsonx {
 
         protected _loadJSONData(callback:Function) {
             if(this.src && !this.data) {
+                var baseDir = Director.getInstance().assetLoader.getBaseDir();
                 WOZLLA.utils.Ajax.request({
-                    url: Director.getInstance().assetLoader.getBaseDir() + '/' + this.src,
+                    url: baseDir ? baseDir + '/' + this.src : this.src,
                     dataType: 'json',
                     async: this.async,
                     withCredentials: true,
@@ -128,6 +129,7 @@ module WOZLLA.jsonx {
             gameObj._uuid = data.uuid;
             this.uuidMap[data.uuid] = gameObj;
             gameObj.id = data.id;
+            gameObj.z = data.z;
             gameObj.name = data.name;
             gameObj.active = data.active;
             gameObj.visible = data.visible;
@@ -175,18 +177,27 @@ module WOZLLA.jsonx {
             builder.instantiateWithSrc(data.reference).build((err:any, root:WOZLLA.GameObject) => {
                 if(err) {
                     this.err = err;
+                    console.log('fail to load reference: ' + data.reference);
                 }
                 else if(root) {
-                    root._uuid = data.uuid;
-                    this.uuidMap[data.uuid] = root;
-                    root.name = data.name;
-                    root.id = data.id;
-                    root.active = data.active;
-                    root.visible = data.visible;
-                    root.touchable = data.touchable;
-                    root.transform.set(data.transform);
+                    var refObj;
+                    if(root.rectTransform) {
+                        refObj = new WOZLLA.GameObject(true);
+                    } else {
+                        refObj = new WOZLLA.GameObject();
+                    }
+                    refObj._uuid = data.uuid;
+                    this.uuidMap[data.uuid] = refObj;
+                    refObj.name = data.name;
+                    refObj.id = data.id;
+                    refObj.z = data.z;
+                    refObj.active = data.active;
+                    refObj.visible = data.visible;
+                    refObj.touchable = data.touchable;
+                    refObj.transform.set(data.transform);
+                    refObj.addChild(root);
                 }
-                callback(root);
+                callback(refObj);
             });
         }
 
