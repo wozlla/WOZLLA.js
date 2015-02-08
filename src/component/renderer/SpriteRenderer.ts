@@ -98,7 +98,7 @@ module WOZLLA.component {
             defaultValue: 0xFFFFFF
         }, {
             name: 'alpha',
-            type: 'int',
+            type: 'number',
             defaultValue: 1
         }, {
             name: 'spriteAtlasSrc',
