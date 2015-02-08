@@ -16,6 +16,13 @@ module WOZLLA.jsonx {
             return new JSONXBuilder();
         }
 
+        public static createInner(outerBuilder:JSONXBuilder) {
+            if(JSONXBuilder.Factory) {
+                return <JSONXBuilder>(new (<any>(JSONXBuilder.Factory))(outerBuilder));
+            }
+            return new JSONXBuilder();
+        }
+
         private src;
         private data;
         private err;
@@ -173,7 +180,7 @@ module WOZLLA.jsonx {
         }
 
         protected _newReferenceObject(data:any, callback:(gameObj:WOZLLA.GameObject) => void) {
-            var builder = new JSONXBuilder();
+            var builder = JSONXBuilder.createInner(this);
             builder.instantiateWithSrc(data.reference).build((err:any, root:WOZLLA.GameObject) => {
                 if(err) {
                     this.err = err;
