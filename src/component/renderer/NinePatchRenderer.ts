@@ -221,11 +221,11 @@ module WOZLLA.component {
                 p = patches[i];
                 if(p.frame.width > 0 && p.frame.height > 0) {
                     patchUVS = getPatchUVS(p.frame, this._texture);
-                    transform.set(this.gameObject.transform);
+                    transform.reset();
                     transform.x += p.pos.x;
                     transform.y += p.pos.y;
                     transform.setScale(p.size.width, p.size.height);
-                    transform.updateWorldMatrix();
+                    transform.transform(this.transform);
                     this._updateQuadVerticesByArgs(patchUVS, p.frame, patchOffset, transform.worldMatrix, i);
                 } else {
                     this._clearQuadVertices(i);
@@ -282,18 +282,18 @@ module WOZLLA.component {
     Component.register(NinePatchRenderer, {
         name: "NinePatchRenderer",
         properties: [
-        Component.extendConfig(SpriteRenderer),
-        {
-            name: 'patch',
-            type: 'padding',
-            defaultValue: [0, 0, 0, 0],
-            convert: PropertyConverter.array2Padding
-        }, {
-            name: 'renderRegion',
-            type: 'rect',
-            defaultValue: [0, 0, 0, 0],
-            convert: PropertyConverter.array2rect
-        }]
+            Component.extendConfig(SpriteRenderer),
+            {
+                name: 'patch',
+                type: 'padding',
+                defaultValue: [0, 0, 0, 0],
+                convert: PropertyConverter.array2Padding
+            }, {
+                name: 'renderRegion',
+                type: 'rect',
+                defaultValue: [0, 0, 0, 0],
+                convert: PropertyConverter.array2rect
+            }]
     });
 
 }
