@@ -81,7 +81,6 @@ module WOZLLA.renderer {
             var lastCommand;
             var currentTexture;
             var currentMaterial;
-
             var gl = this._gl;
             gl.viewport(0, 0, this._viewport.width, this._viewport.height);
             gl.clearColor(0, 0, 0, 0);
@@ -144,6 +143,10 @@ module WOZLLA.renderer {
                 this._usingTexture.bind(gl);
             }
             this._quadBatch.flush(gl);
+
+            if(IRenderer.debugEnabled) {
+                this.debug.renderSequence.push('flush');
+            }
         }
 
         _clearCommands() {
