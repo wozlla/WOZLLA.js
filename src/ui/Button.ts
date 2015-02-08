@@ -27,10 +27,18 @@ module WOZLLA.ui {
             this.setStateSpriteName(Button.STATE_PRESSED, spriteName);
         }
 
+        get scaleOnPress():number { return this._scaleOnPress; }
+        set scaleOnPress(value:number) { this._scaleOnPress = value; }
+
+        _scaleOnPress:number = 1.2;
+        _originScaleX:number;
+        _originScaleY:number;
+
         init() {
+            this._originScaleX = this.transform.scaleX;
+            this._originScaleY = this.transform.scaleY;
             this.gameObject.addListener('touch', (e) => this.onTouch(e));
             this.gameObject.addListener('release', (e) => this.onRelease(e));
-            this.gameObject.addListener('tap', (e) => this.onTap(e));
             super.init();
         }
 
@@ -56,16 +64,21 @@ module WOZLLA.ui {
 
         protected onTouch(e) {
             this._stateMachine.changeState(Button.STATE_PRESSED);
+            if(this._scaleOnPress) {
+                this.transform.tween(false).to({
+                    scaleX: this._scaleOnPress * this._originScaleX,
+                    scaleY: this._scaleOnPress * this._originScaleY
+                }, 100);
+            }
         }
 
         protected onRelease(e) {
             this._stateMachine.changeState(Button.STATE_NORMAL);
+            this.transform.tween(false).to({
+                scaleX: this._originScaleX,
+                scaleY: this._originScaleY
+            }, 100);
         }
-
-        protected onTap(e) {
-
-        }
-
 
     }
 
@@ -75,7 +88,12 @@ module WOZLLA.ui {
             Component.extendConfig(StateWidget),
             WOZLLA.component.PropertySnip.createSpriteFrame('disabledSpriteName'),
             WOZLLA.component.PropertySnip.createSpriteFrame('normalSpriteName'),
-            WOZLLA.component.PropertySnip.createSpriteFrame('pressedSpriteName')
+            WOZLLA.component.PropertySnip.createSpriteFrame('pressedSpriteName'),
+            {
+                name: 'scaleOnPress',
+                type: 'number',
+                defaultValue: 1.2
+            }
         ]
     });
 

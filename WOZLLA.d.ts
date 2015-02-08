@@ -2323,6 +2323,7 @@ declare module WOZLLA.jsonx {
     class JSONXBuilder {
         static Factory: Function;
         static create(): JSONXBuilder;
+        static createInner(outerBuilder: JSONXBuilder): JSONXBuilder;
         private src;
         private data;
         private err;
@@ -2675,6 +2676,10 @@ declare module WOZLLA.ui {
         normalSpriteName: string;
         disabledSpriteName: string;
         pressedSpriteName: string;
+        scaleOnPress: number;
+        _scaleOnPress: number;
+        _originScaleX: number;
+        _originScaleY: number;
         init(): void;
         destroy(): void;
         isEnabled(): boolean;
@@ -2682,7 +2687,6 @@ declare module WOZLLA.ui {
         protected initStates(): void;
         protected onTouch(e: any): void;
         protected onRelease(e: any): void;
-        protected onTap(e: any): void;
     }
 }
 declare module WOZLLA.ui {

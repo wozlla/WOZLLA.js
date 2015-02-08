@@ -4081,6 +4081,9 @@ var WOZLLA;
                     this._usingTexture.bind(gl);
                 }
                 this._quadBatch.flush(gl);
+                if (renderer.IRenderer.debugEnabled) {
+                    this.debug.renderSequence.push('flush');
+                }
             };
             Renderer.prototype._clearCommands = function () {
                 var commandQueueMap = this._commandQueueMap;
@@ -6131,11 +6134,11 @@ var WOZLLA;
                 var texture = renderer.textureManager.generateTexture(descriptor);
                 this._maskQuadRenderer = new WOZLLA.component.QuadRenderer();
                 this._maskQuadRenderer.setTexture(texture);
-                this._maskQuadRenderer.renderLayer = this._maskLayer;
-                this._maskQuadRenderer.renderOrder = this._startGlobalZ;
+                this._maskQuadRenderer.setQuadLayer(this._maskLayer);
+                this._maskQuadRenderer.setQuadGlobalZ(this._startGlobalZ);
                 this._helperGameObject.addComponent(this._maskQuadRenderer);
                 this._helperGameObject.init();
-                this._helperGameObject.name = this._gameObject.name;
+                this._helperGameObject.name = this._gameObject.name + '$RectMask';
             };
             return RectMask;
         })(WOZLLA.Mask);
@@ -6773,7 +6776,7 @@ var WOZLLA;
                 defaultValue: 0xFFFFFF
             }, {
                 name: 'alpha',
-                type: 'int',
+                type: 'number',
                 defaultValue: 1
             }, {
                 name: 'spriteAtlasSrc',
@@ -7195,11 +7198,11 @@ var WOZLLA;
                     p = patches[i];
                     if (p.frame.width > 0 && p.frame.height > 0) {
                         patchUVS = getPatchUVS(p.frame, this._texture);
-                        transform.set(this.gameObject.transform);
+                        transform.reset();
                         transform.x += p.pos.x;
                         transform.y += p.pos.y;
                         transform.setScale(p.size.width, p.size.height);
-                        transform.updateWorldMatrix();
+                        transform.transform(this.transform);
                         this._updateQuadVerticesByArgs(patchUVS, p.frame, patchOffset, transform.worldMatrix, i);
                     }
                     else {
@@ -7823,6 +7826,12 @@ var WOZLLA;
                 }
                 return new JSONXBuilder();
             };
+            JSONXBuilder.createInner = function (outerBuilder) {
+                if (JSONXBuilder.Factory) {
+                    return (new (JSONXBuilder.Factory)(outerBuilder));
+                }
+                return new JSONXBuilder();
+            };
             JSONXBuilder.prototype.getByUUID = function (uuid) {
                 return this.uuidMap[uuid];
             };
@@ -7969,7 +7978,7 @@ var WOZLLA;
             };
             JSONXBuilder.prototype._newReferenceObject = function (data, callback) {
                 var _this = this;
-                var builder = new JSONXBuilder();
+                var builder = JSONXBuilder.createInner(this);
                 builder.instantiateWithSrc(data.reference).build(function (err, root) {
                     if (err) {
                         _this.err = err;
@@ -8776,6 +8785,7 @@ var WOZLLA;
             __extends(Button, _super);
             function Button() {
                 _super.apply(this, arguments);
+                this._scaleOnPress = 1.2;
             }
             Object.defineProperty(Button.prototype, "normalSpriteName", {
                 get: function () {
@@ -8807,11 +8817,22 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Button.prototype, "scaleOnPress", {
+                get: function () {
+                    return this._scaleOnPress;
+                },
+                set: function (value) {
+                    this._scaleOnPress = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Button.prototype.init = function () {
                 var _this = this;
+                this._originScaleX = this.transform.scaleX;
+                this._originScaleY = this.transform.scaleY;
                 this.gameObject.addListener('touch', function (e) { return _this.onTouch(e); });
                 this.gameObject.addListener('release', function (e) { return _this.onRelease(e); });
-                this.gameObject.addListener('tap', function (e) { return _this.onTap(e); });
                 _super.prototype.init.call(this);
             };
             Button.prototype.destroy = function () {
@@ -8833,11 +8854,19 @@ var WOZLLA;
             };
             Button.prototype.onTouch = function (e) {
                 this._stateMachine.changeState(Button.STATE_PRESSED);
+                if (this._scaleOnPress) {
+                    this.transform.tween(false).to({
+                        scaleX: this._scaleOnPress * this._originScaleX,
+                        scaleY: this._scaleOnPress * this._originScaleY
+                    }, 100);
+                }
             };
             Button.prototype.onRelease = function (e) {
                 this._stateMachine.changeState(Button.STATE_NORMAL);
-            };
-            Button.prototype.onTap = function (e) {
+                this.transform.tween(false).to({
+                    scaleX: this._originScaleX,
+                    scaleY: this._originScaleY
+                }, 100);
             };
             Button.STATE_NORMAL = 'normal';
             Button.STATE_DISABLED = 'disabled';
@@ -8851,7 +8880,12 @@ var WOZLLA;
                 WOZLLA.Component.extendConfig(ui.StateWidget),
                 WOZLLA.component.PropertySnip.createSpriteFrame('disabledSpriteName'),
                 WOZLLA.component.PropertySnip.createSpriteFrame('normalSpriteName'),
-                WOZLLA.component.PropertySnip.createSpriteFrame('pressedSpriteName')
+                WOZLLA.component.PropertySnip.createSpriteFrame('pressedSpriteName'),
+                {
+                    name: 'scaleOnPress',
+                    type: 'number',
+                    defaultValue: 1.2
+                }
             ]
         });
     })(ui = WOZLLA.ui || (WOZLLA.ui = {}));
