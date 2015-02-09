@@ -80,8 +80,8 @@ module WOZLLA.dnd {
 
         onPanStart(e:GestureEvent) {
             var dragEvent = new DnDDragEvent(e, this.source);
-            if(this.dragHandler.canStartDragging(this.dragEvent)) {
-               this.dragEvent = dragEvent;
+            if(this.dragHandler.canStartDragging(dragEvent)) {
+                this.dragEvent = dragEvent;
                 this.draggedObject = this.dragHandler.createDraggedObject(dragEvent);
                 this.draggedObjectOriginPoint.x = this.draggedObject.transform.x;
                 this.draggedObjectOriginPoint.y = this.draggedObject.transform.y;
@@ -119,9 +119,9 @@ module WOZLLA.dnd {
                     dropEvent = new DnDDropEvent(e, targetWrapper.target, this.attactedObject);
                     targetWrapper.drop(dropEvent);
                     this.dragHandler.dragDropEnd();
-                    this.onDragDropEnd();
                 }
             }
+            this.onDragDropEnd();
         }
 
         onPanCancel(e) {
@@ -131,9 +131,13 @@ module WOZLLA.dnd {
 
         onDragDropEnd() {
             this.dragEvent = null;
-            this.draggedObject.destroy();
-            this.draggedObject.removeMe();
-            this.draggedObject = null;
+            if(this.draggedObject) {
+                this.draggedObject.destroy();
+                this.draggedObject.removeMe();
+                this.draggedObject = null;
+            }
+            this.draggedObjectOriginPoint.x = 0;
+            this.draggedObjectOriginPoint.y = 0;
             this.draggingStart = false;
             this.attactedObject = null;
         }

@@ -2881,7 +2881,7 @@ var WOZLLA;
         };
         GameObject.prototype.query = function (expr, record) {
             var result, compExpr, objExpr, compName, attrName;
-            var objArr;
+            var objArr, objName;
             var hasAttr = expr.indexOf('[') !== -1 && expr.indexOf(']') !== -1;
             var hasComp = expr.indexOf(':') !== -1;
             if (hasComp && hasAttr) {
@@ -2918,10 +2918,16 @@ var WOZLLA;
                 result = this;
                 objArr = objExpr.split('/');
                 for (var i = 0, len = objArr.length; i < len; i++) {
-                    if (!objArr[i]) {
+                    objName = objArr[i];
+                    if (!objName) {
                         break;
                     }
-                    result = result.getChild(objArr[i]);
+                    if (objName === '$this') {
+                        result = this;
+                    }
+                    else {
+                        result = result.getChild(objArr[i]);
+                    }
                     if (!result) {
                         break;
                     }
@@ -3288,7 +3294,7 @@ var WOZLLA;
             if (window['Hammer']) {
                 me.hammer = new Hammer.Manager(canvas);
                 me.hammer.add(new Hammer.Tap({ threshold: 10 }));
-                me.hammer.add(new Hammer.Pan({ threshold: 2 }));
+                me.hammer.add(new Hammer.Pan({ threshold: 5 }));
                 me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend pancancel', function (e) {
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
                         return;
@@ -8323,7 +8329,7 @@ var WOZLLA;
             };
             SourceWrapper.prototype.onPanStart = function (e) {
                 var dragEvent = new dnd.DnDDragEvent(e, this.source);
-                if (this.dragHandler.canStartDragging(this.dragEvent)) {
+                if (this.dragHandler.canStartDragging(dragEvent)) {
                     this.dragEvent = dragEvent;
                     this.draggedObject = this.dragHandler.createDraggedObject(dragEvent);
                     this.draggedObjectOriginPoint.x = this.draggedObject.transform.x;
@@ -8360,9 +8366,9 @@ var WOZLLA;
                         dropEvent = new dnd.DnDDropEvent(e, targetWrapper.target, this.attactedObject);
                         targetWrapper.drop(dropEvent);
                         this.dragHandler.dragDropEnd();
-                        this.onDragDropEnd();
                     }
                 }
+                this.onDragDropEnd();
             };
             SourceWrapper.prototype.onPanCancel = function (e) {
                 this.dragHandler.dragDropEnd();
@@ -8370,9 +8376,13 @@ var WOZLLA;
             };
             SourceWrapper.prototype.onDragDropEnd = function () {
                 this.dragEvent = null;
-                this.draggedObject.destroy();
-                this.draggedObject.removeMe();
-                this.draggedObject = null;
+                if (this.draggedObject) {
+                    this.draggedObject.destroy();
+                    this.draggedObject.removeMe();
+                    this.draggedObject = null;
+                }
+                this.draggedObjectOriginPoint.x = 0;
+                this.draggedObjectOriginPoint.y = 0;
                 this.draggingStart = false;
                 this.attactedObject = null;
             };
@@ -9599,6 +9609,7 @@ var WOZLLA;
                 this._bufferBackEnabled = true;
                 this._momentumEnabled = true;
                 this._dragMovedInLastSession = false;
+                this._dragging = false;
                 this._values = {
                     velocityX: 0,
                     velocityY: 0,
@@ -9788,6 +9799,7 @@ var WOZLLA;
                 if (!this.isScrollable()) {
                     return;
                 }
+                this._dragging = true;
                 this._dragMovedInLastSession = true;
                 this._values.lastDragX = e.x;
                 this._values.lastDragY = e.y;
@@ -9796,10 +9808,21 @@ var WOZLLA;
                 this._values.momentumX = 0;
                 this._values.momentumY = 0;
                 this._contentGameObject.rectTransform.clearTweens();
-                WOZLLA.utils.Tween.removeTweens(this);
+                if (this._values.momentumXTween) {
+                    this._values.momentumXTween.setPaused(true);
+                }
+                if (this._values.momentumYTween) {
+                    this._values.momentumYTween.setPaused(true);
+                }
+                if (this._values.bufferXTween) {
+                    this._values.bufferXTween.setPaused(true);
+                }
+                if (this._values.bufferYTween) {
+                    this._values.bufferYTween.setPaused(true);
+                }
             };
             ScrollRect.prototype.onDrag = function (e) {
-                if (!this.isScrollable()) {
+                if (!this.isScrollable() || !this._dragging) {
                     return;
                 }
                 var contentTrans = this._contentGameObject.rectTransform;
@@ -9829,7 +9852,7 @@ var WOZLLA;
                 }
             };
             ScrollRect.prototype.onDragEnd = function (e) {
-                if (!this.isScrollable()) {
+                if (!this.isScrollable() || !this._dragging) {
                     return;
                 }
                 if (this._direction === ScrollRect.BOTH || this._direction === ScrollRect.HORIZONTAL) {
@@ -9866,6 +9889,7 @@ var WOZLLA;
                         }
                     }
                 }
+                this._dragging = false;
             };
             ScrollRect.prototype.tryBufferBackX = function () {
                 if (!this._bufferBackEnabled) {

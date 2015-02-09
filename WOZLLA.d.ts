@@ -2833,6 +2833,7 @@ declare module WOZLLA.ui {
         _momentumEnabled: boolean;
         _content: string;
         _dragMovedInLastSession: boolean;
+        _dragging: boolean;
         _values: {
             velocityX: number;
             velocityY: number;
