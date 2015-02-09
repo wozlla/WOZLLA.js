@@ -728,7 +728,7 @@ module WOZLLA {
                 compName,
                 attrName;
 
-            var objArr;
+            var objArr, objName;
 
             var hasAttr = expr.indexOf('[') !== -1 && expr.indexOf(']') !== -1;
             var hasComp = expr.indexOf(':') !== -1;
@@ -764,10 +764,15 @@ module WOZLLA {
                 result = this;
                 objArr = objExpr.split('/');
                 for(var i=0,len=objArr.length; i<len; i++) {
-                    if(!objArr[i]) {
+                    objName = objArr[i];
+                    if(!objName) {
                         break;
                     }
-                    result = result.getChild(objArr[i]);
+                    if(objName === '$this') {
+                        result = this;
+                    } else {
+                        result = result.getChild(objArr[i]);
+                    }
                     if(!result) {
                         break;
                     }
