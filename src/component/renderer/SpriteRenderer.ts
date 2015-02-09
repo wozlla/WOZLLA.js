@@ -45,7 +45,7 @@ module WOZLLA.component {
 
         get imageSrc():string { return this._spriteAtlasSrc; }
         set imageSrc(value:string) {
-            if(this.spriteAtlasSrc && !value) return;
+            if(this.spriteName && !value) return;
             this.spriteAtlasSrc = value;
             this.spriteName = null;
         }

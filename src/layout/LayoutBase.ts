@@ -36,7 +36,6 @@ module WOZLLA.layout {
         }
 
         protected onChildRemove(e) {
-            alert('remove');
             this.requestLayout();
         }
 

@@ -121,8 +121,9 @@ module WOZLLA.component {
     Component.register(AnimationRenderer, {
         name: "AnimationRenderer",
         properties: [
-            Component.extendConfig(SpriteRenderer, function(name) {
-                return name !== 'spriteFrame' &&
+            Component.extendConfig(SpriteRenderer, function(propConfig) {
+                var name = propConfig.name;
+                return name !== 'spriteName' &&
                     name !== 'spriteOffset' &&
                     name !== 'imageSrc';
             }),

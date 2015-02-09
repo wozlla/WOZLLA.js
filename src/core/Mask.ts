@@ -126,6 +126,7 @@ module WOZLLA {
         }, {
             name: 'layer',
             type: 'string',
+            editor: 'renderLayer',
             defaultValue: WOZLLA.renderer.ILayerManager.DEFAULT
         }, {
             name: 'reverse',

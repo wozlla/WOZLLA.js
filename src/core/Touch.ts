@@ -74,7 +74,7 @@ module WOZLLA {
 
             if(window['Hammer']) {
                 me.hammer = new Hammer.Manager(canvas);
-                me.hammer.add(new Hammer.Tap());
+                me.hammer.add(new Hammer.Tap({ threshold: 10 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 2 }));
                 me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
                     if(e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
@@ -117,6 +117,7 @@ module WOZLLA {
 
             var me = this;
             var canvasScale = this.touchScale || 1;
+            var isFinalButNotHammerIpnut = type !== 'hammer.input' && e.isFinal;
 
             if(type === 'hammer.input') {
                 if (e.isFirst) {
@@ -141,8 +142,6 @@ module WOZLLA {
                     target = stage.getUnderPoint(x, y, true);
                     if (target) {
                         me.channelMap[identifier] = me.createDispatchChanel(target);
-                    } else {
-                        delete me.channelMap[identifier];
                     }
                 }
 
@@ -163,13 +162,17 @@ module WOZLLA {
                         target = stage.getUnderPoint(x, y, true);
                         if (target) {
                             me.channelMap[identifier] = me.createDispatchChanel(target);
-                            delete me.channelMap[identifier - 10];
                         }
                     }
 
                     channel = me.channelMap[identifier];
                     channel && channel.onGestureEvent(e, target, x, y, identifier);
                 }
+            }
+
+            // do clear channel
+            if(isFinalButNotHammerIpnut) {
+                delete me.channelMap[identifier];
             }
         }
 

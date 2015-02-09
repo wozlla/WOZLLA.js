@@ -35,7 +35,7 @@ module WOZLLA.math {
          * @returns {boolean}
          */
         containsXY(x:number, y:number):boolean {
-            return Math.pow((x - this.centerX), 2) + Math.pow((y - this.centerY), 2) <= this.radius;
+            return Math.pow((x - this.centerX), 2) + Math.pow((y - this.centerY), 2) <= Math.pow(this.radius, 2);
         }
 
         /**

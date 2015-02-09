@@ -34,6 +34,9 @@ module WOZLLA.ui {
         _originScaleX:number;
         _originScaleY:number;
 
+        _touchTime:number;
+        _scaleTimer;
+
         init() {
             this._originScaleX = this.transform.scaleX;
             this._originScaleY = this.transform.scaleY;
@@ -65,6 +68,7 @@ module WOZLLA.ui {
         protected onTouch(e) {
             this._stateMachine.changeState(Button.STATE_PRESSED);
             if(this._scaleOnPress) {
+                this._touchTime = Time.now;
                 this.transform.tween(false).to({
                     scaleX: this._scaleOnPress * this._originScaleX,
                     scaleY: this._scaleOnPress * this._originScaleY
@@ -74,10 +78,13 @@ module WOZLLA.ui {
 
         protected onRelease(e) {
             this._stateMachine.changeState(Button.STATE_NORMAL);
-            this.transform.tween(false).to({
-                scaleX: this._originScaleX,
-                scaleY: this._originScaleY
-            }, 100);
+            this._scaleTimer && this.scheduler.removeSchedule(this._scaleTimer);
+            this._scaleTimer = this.scheduler.scheduleTime(() => {
+                this.transform.tween(false).to({
+                    scaleX: this._originScaleX,
+                    scaleY: this._originScaleY
+                }, 100);
+            }, 100+this._touchTime-Time.now);
         }
 
     }

@@ -246,43 +246,29 @@ module WOZLLA {
             this._dirty = false;
         }
 
-        updateWorldMatrix() {
-            if(!this._dirty) {
-                return;
-            }
-            var matrix = this.worldMatrix;
-            if (matrix) {
-                matrix.identity();
-            }
-            else {
-                matrix = new WOZLLA.math.Matrix();
-            }
-            var o:any = this;
-            while (o != null) {
-                matrix.prependTransform(o.x, o.y, o.scaleX, o.scaleY, o.rotation, o.skewX, o.skewY, 0, 0);
-                o = o.parent;
-            }
-        }
-
-        globalToLocal(x, y, updateMatrix:boolean=false) {
-            if(updateMatrix) {
-                this.updateWorldMatrix();
-            }
+        globalToLocal(x, y, out?:{x:number; y:number;}) {
             helpMatrix.applyMatrix(this.worldMatrix);
             helpMatrix.invert();
             helpMatrix.append(1, 0, 0, 1, x, y);
+            if(out) {
+                out.x = helpMatrix.values[6];
+                out.y = helpMatrix.values[7];
+                return out;
+            }
             return {
                 x : helpMatrix.values[6],
                 y : helpMatrix.values[7]
             };
         }
 
-        localToGlobal(x, y, updateMatrix:boolean=false) {
-            if(updateMatrix) {
-                this.updateWorldMatrix();
-            }
+        localToGlobal(x, y, out?:{x:number; y:number;}) {
             helpMatrix.applyMatrix(this.worldMatrix);
             helpMatrix.append(1, 0, 0, 1, x, y);
+            if(out) {
+                out.x = helpMatrix.values[6];
+                out.y = helpMatrix.values[7];
+                return out;
+            }
             return {
                 x : helpMatrix.values[6],
                 y : helpMatrix.values[7]

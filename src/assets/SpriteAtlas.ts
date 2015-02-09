@@ -165,9 +165,13 @@ module WOZLLA.assets {
             var image = new Image();
             image.src = this._imageSrc;
             image.onload = () => {
+                image.onload = null;
+                image.onerror = null;
                 callback && callback(null, image);
             };
             image.onerror = () => {
+                image.onload = null;
+                image.onerror = null;
                 callback('Fail to load image: ' + this._imageSrc);
             };
         }

@@ -47,9 +47,9 @@ module WOZLLA.ui {
         name: "StateWidget",
         abstractComponent: true,
         properties: [
-            Component.extendConfig(WOZLLA.component.SpriteRenderer, function(name) {
-                return name !== 'spriteFrame' &&
-                    name !== 'imageSrc';
+            Component.extendConfig(WOZLLA.component.SpriteRenderer, function(propConfig) {
+                return propConfig.name !== 'spriteName' &&
+                    propConfig.name !== 'imageSrc';
             })
         ]
     });
