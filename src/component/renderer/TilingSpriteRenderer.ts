@@ -58,8 +58,8 @@ module WOZLLA.component {
                     sharedHelpTransform.reset();
                     posX = (margin.left + margin.right + frame.width) * j + margin.left + this._renderRegion.x;
                     posY = (margin.top + margin.bottom + frame.height) * i + margin.top + this._renderRegion.y;
-                    sharedHelpTransform.x += posX;
-                    sharedHelpTransform.y += posY;
+                    sharedHelpTransform.x = posX;
+                    sharedHelpTransform.y = posY;
                     sharedHelpTransform.transform(thisTrans);
                     this._updateQuadVerticesByArgs(normalUVS, frame, textureOffset, sharedHelpTransform.worldMatrix, i*colNum+j);
                 }

@@ -5966,6 +5966,21 @@ var WOZLLA;
                 this._quadColorDirty = true;
                 this._textureUpdated = false;
             }
+            QuadRenderer.getTextureUVS = function (frame, texture, outUVS) {
+                var tw, th, uvs;
+                tw = texture.descriptor.width;
+                th = texture.descriptor.height;
+                uvs = outUVS || {};
+                uvs.x0 = frame.x / tw;
+                uvs.y0 = frame.y / th;
+                uvs.x1 = (frame.x + frame.width) / tw;
+                uvs.y1 = frame.y / th;
+                uvs.x2 = (frame.x + frame.width) / tw;
+                uvs.y2 = (frame.y + frame.height) / th;
+                uvs.x3 = frame.x / tw;
+                uvs.y3 = (frame.y + frame.height) / th;
+                return uvs;
+            };
             QuadRenderer.prototype.setQuadRenderRange = function (offset, count) {
                 this._quad.setRenderRange(offset, count);
             };
@@ -6106,8 +6121,8 @@ var WOZLLA;
             };
             QuadRenderer.prototype._clearQuadVertices = function (quadIndex) {
                 if (quadIndex === void 0) { quadIndex = 0; }
-                this._quad.setVertices(0, 0, 0, 0, 0, 0, 0, 0);
-                this._quad.setTexCoords(0, 0, 0, 0, 0, 0, 0, 0);
+                this._quad.setVertices(0, 0, 0, 0, 0, 0, 0, 0, quadIndex);
+                this._quad.setTexCoords(0, 0, 0, 0, 0, 0, 0, 0, quadIndex);
             };
             QuadRenderer.prototype._updateQuadAlpha = function (quadIndex) {
                 if (quadIndex === void 0) { quadIndex = 0; }
@@ -7002,7 +7017,7 @@ var WOZLLA;
             properties: [
                 WOZLLA.Component.extendConfig(component.SpriteRenderer, function (propConfig) {
                     var name = propConfig.name;
-                    return name !== 'spriteFrame' && name !== 'spriteOffset' && name !== 'imageSrc';
+                    return name !== 'spriteName' && name !== 'spriteOffset' && name !== 'imageSrc';
                 }),
                 {
                     name: 'patch',
@@ -7311,6 +7326,75 @@ var WOZLLA;
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
+/// <reference path="../renderer/SpriteRenderer.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var QuadCommand = WOZLLA.renderer.QuadCommand;
+        /**
+         * @class WOZLLA.component.QuadArrayRenderer
+         */
+        var QuadArraySpriteRenderer = (function (_super) {
+            __extends(QuadArraySpriteRenderer, _super);
+            function QuadArraySpriteRenderer() {
+                _super.apply(this, arguments);
+            }
+            QuadArraySpriteRenderer.prototype._initQuad = function () {
+            };
+            QuadArraySpriteRenderer.prototype._updateQuads = function () {
+                this._updateQuadsVertices();
+                this._updateQuadsAlpha();
+                this._updateQuadsColor();
+                this._textureUpdated = false;
+            };
+            QuadArraySpriteRenderer.prototype._updateQuadsVertices = function () {
+            };
+            QuadArraySpriteRenderer.prototype._updateQuadsAlpha = function () {
+                for (var i = 0; i < this._quad.count; i++) {
+                    this._updateQuadAlpha(i);
+                }
+                this._quadAlphaDirty = false;
+            };
+            QuadArraySpriteRenderer.prototype._updateQuadsColor = function () {
+                for (var i = 0; i < this._quad.count; i++) {
+                    this._updateQuadColor(i);
+                }
+                this._quadColorDirty = false;
+            };
+            QuadArraySpriteRenderer.prototype.render = function (renderer, flags) {
+                if (!this._texture || !this._quad) {
+                    return;
+                }
+                if ((flags & WOZLLA.GameObject.MASK_TRANSFORM_DIRTY) === WOZLLA.GameObject.MASK_TRANSFORM_DIRTY) {
+                    this._quadVertexDirty = true;
+                }
+                if (this._textureUpdated) {
+                    this._updateQuads();
+                }
+                if (this._quadVertexDirty) {
+                    this._updateQuadsVertices();
+                }
+                if (this._quadAlphaDirty) {
+                    this._updateQuadsAlpha();
+                }
+                if (this._quadColorDirty) {
+                    this._updateQuadsColor();
+                }
+                renderer.addCommand(QuadCommand.init(this._quadGlobalZ, this._quadLayer, this._texture, this._quadMaterialId, this._quad, this._gameObject.name + 'QuadArrayRenderer'));
+            };
+            return QuadArraySpriteRenderer;
+        })(component.SpriteRenderer);
+        component.QuadArraySpriteRenderer = QuadArraySpriteRenderer;
+        WOZLLA.Component.register(QuadArraySpriteRenderer, {
+            name: "QuadArraySpriteRenderer",
+            abstractComponent: true,
+            properties: [
+                WOZLLA.Component.extendConfig(component.SpriteRenderer),
+            ]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
 /// <reference path="SpriteRenderer.ts"/>
 /// <reference path="../PropertySnip.ts"/>
 var WOZLLA;
@@ -7375,8 +7459,8 @@ var WOZLLA;
                         WOZLLA.sharedHelpTransform.reset();
                         posX = (margin.left + margin.right + frame.width) * j + margin.left + this._renderRegion.x;
                         posY = (margin.top + margin.bottom + frame.height) * i + margin.top + this._renderRegion.y;
-                        WOZLLA.sharedHelpTransform.x += posX;
-                        WOZLLA.sharedHelpTransform.y += posY;
+                        WOZLLA.sharedHelpTransform.x = posX;
+                        WOZLLA.sharedHelpTransform.y = posY;
                         WOZLLA.sharedHelpTransform.transform(thisTrans);
                         this._updateQuadVerticesByArgs(normalUVS, frame, textureOffset, WOZLLA.sharedHelpTransform.worldMatrix, i * colNum + j);
                     }
@@ -7427,25 +7511,6 @@ var WOZLLA;
                 component.PropertySnip.createMargin('tileMargin')
             ]
         });
-    })(component = WOZLLA.component || (WOZLLA.component = {}));
-})(WOZLLA || (WOZLLA = {}));
-/// <reference path="../renderer/SpriteRenderer.ts"/>
-var WOZLLA;
-(function (WOZLLA) {
-    var component;
-    (function (component) {
-        var QuadCommand = WOZLLA.renderer.QuadCommand;
-        /**
-         * @class WOZLLA.component.SpriteFrameText
-         */
-        var SpriteFrameText = (function (_super) {
-            __extends(SpriteFrameText, _super);
-            function SpriteFrameText() {
-                _super.apply(this, arguments);
-            }
-            return SpriteFrameText;
-        })(component.SpriteRenderer);
-        component.SpriteFrameText = SpriteFrameText;
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../renderer/CanvasRenderer.ts"/>
@@ -7786,6 +7851,184 @@ var WOZLLA;
                         align: TextStyle.START,
                         baseline: TextStyle.TOP
                     }
+                }
+            ]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="../renderer/SpriteRenderer.ts"/>
+/// <reference path="TextRenderer.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var sharedFrame = {};
+        var sharedUVS = {};
+        /**
+         * @class WOZLLA.component.SpriteFrameText
+         */
+        var SpriteFrameText = (function (_super) {
+            __extends(SpriteFrameText, _super);
+            function SpriteFrameText() {
+                _super.apply(this, arguments);
+                this._align = component.TextStyle.START;
+                this._baseline = component.TextStyle.END;
+            }
+            Object.defineProperty(SpriteFrameText.prototype, "sample", {
+                get: function () {
+                    return this._sample;
+                },
+                set: function (value) {
+                    if (value === this._sample)
+                        return;
+                    this._sample = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(SpriteFrameText.prototype, "text", {
+                get: function () {
+                    return this._text;
+                },
+                set: function (value) {
+                    if (value === this._text)
+                        return;
+                    this._text = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(SpriteFrameText.prototype, "wordMargin", {
+                get: function () {
+                    return this._wordMargin;
+                },
+                set: function (value) {
+                    if (value === this._wordMargin) {
+                        return;
+                    }
+                    this._wordMargin = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(SpriteFrameText.prototype, "align", {
+                get: function () {
+                    return this._align;
+                },
+                set: function (value) {
+                    if (value === this._align) {
+                        return;
+                    }
+                    this._align = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(SpriteFrameText.prototype, "baseline", {
+                get: function () {
+                    return this._align;
+                },
+                set: function (value) {
+                    if (value === this._baseline) {
+                        return;
+                    }
+                    this._baseline = value;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            SpriteFrameText.prototype._initQuad = function () {
+                if (this._sample && this._text) {
+                    this._quad = new WOZLLA.renderer.Quad(this._text.length);
+                }
+            };
+            SpriteFrameText.prototype._updateQuadsVertices = function () {
+                var textureOffset = this._getTextureOffset();
+                var frame = this.sprite.frame;
+                var wordLen = this._text.length;
+                var wordFrameW = frame / wordLen;
+                var wordUVS;
+                var character;
+                var totalW = wordLen * (this._wordMargin * 2 + wordFrameW);
+                var totalH = frame.height;
+                var offsetX = 0, offsetY = 0;
+                switch (this._align) {
+                    case component.TextStyle.CENTER:
+                        offsetX = -totalW / 2;
+                        break;
+                    case component.TextStyle.END:
+                        offsetX = -totalW;
+                        break;
+                }
+                switch (this._baseline) {
+                    case component.TextStyle.MIDDLE:
+                        offsetY = -totalH / 2;
+                        break;
+                    case component.TextStyle.BOTTOM:
+                        offsetY = -totalH;
+                        break;
+                }
+                sharedFrame.y = frame.y;
+                sharedFrame.width = wordFrameW;
+                sharedFrame.height = frame.height;
+                for (var i = 0; i < wordLen; i++) {
+                    character = this._text.charAt(i);
+                    WOZLLA.sharedHelpTransform.reset();
+                    WOZLLA.sharedHelpTransform.x = i * this._wordMargin * 2 + this._wordMargin + offsetX;
+                    WOZLLA.sharedHelpTransform.y = offsetY;
+                    WOZLLA.sharedHelpTransform.transform(this.transform);
+                    sharedFrame.x = frame.x + i * wordFrameW;
+                    wordUVS = component.QuadRenderer.getTextureUVS(sharedFrame, this._texture, sharedUVS);
+                    this._updateQuadVerticesByArgs(wordUVS, sharedFrame, textureOffset, WOZLLA.sharedHelpTransform.worldMatrix, i);
+                }
+                this._quadVertexDirty = false;
+            };
+            SpriteFrameText.prototype.render = function (renderer, flags) {
+                if (!this._sample || !this._text) {
+                    return;
+                }
+                _super.prototype.render.call(this, renderer, flags);
+            };
+            return SpriteFrameText;
+        })(component.QuadArraySpriteRenderer);
+        component.SpriteFrameText = SpriteFrameText;
+        WOZLLA.Component.register(SpriteFrameText, {
+            name: "SpriteFrameText",
+            properties: [
+                WOZLLA.Component.extendConfig(component.QuadArraySpriteRenderer),
+                {
+                    name: 'sample',
+                    type: 'string',
+                    defaultValue: ''
+                },
+                {
+                    name: 'text',
+                    type: 'string',
+                    defaultValue: ''
+                },
+                {
+                    name: 'wordMargin',
+                    type: 'int',
+                    defaultValue: 0
+                },
+                {
+                    name: 'align',
+                    type: 'string',
+                    editor: 'combobox',
+                    defaultValue: component.TextStyle.START,
+                    data: [component.TextStyle.START, component.TextStyle.CENTER, component.TextStyle.END]
+                },
+                {
+                    name: 'baseline',
+                    type: 'string',
+                    editor: 'combobox',
+                    defaultValue: component.TextStyle.TOP,
+                    data: [component.TextStyle.TOP, component.TextStyle.MIDDLE, component.TextStyle.BOTTOM]
                 }
             ]
         });
@@ -8808,7 +9051,7 @@ var WOZLLA;
             abstractComponent: true,
             properties: [
                 WOZLLA.Component.extendConfig(WOZLLA.component.SpriteRenderer, function (propConfig) {
-                    return propConfig.name !== 'spriteFrame' && propConfig.name !== 'imageSrc';
+                    return propConfig.name !== 'spriteName' && propConfig.name !== 'imageSrc';
                 })
             ]
         });

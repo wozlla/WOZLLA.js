@@ -12,6 +12,23 @@ module WOZLLA.component {
      */
     export class QuadRenderer extends WOZLLA.Renderer {
 
+        public static getTextureUVS(frame, texture:WOZLLA.renderer.ITexture, outUVS?) {
+            var tw, th, uvs:any;
+            tw = texture.descriptor.width;
+            th = texture.descriptor.height;
+
+            uvs = outUVS || {};
+            uvs.x0 = frame.x / tw;
+            uvs.y0 = frame.y / th;
+            uvs.x1 = (frame.x + frame.width) / tw;
+            uvs.y1 = frame.y / th;
+            uvs.x2 = (frame.x + frame.width) / tw;
+            uvs.y2 = (frame.y + frame.height) / th;
+            uvs.x3 = frame.x / tw;
+            uvs.y3 = (frame.y + frame.height) / th;
+            return uvs;
+        }
+
         _quad:WOZLLA.renderer.Quad;
         _quadLayer:string = WOZLLA.renderer.ILayerManager.DEFAULT;
         _quadMaterialId:string = WOZLLA.renderer.IMaterial.DEFAULT;
@@ -190,8 +207,8 @@ module WOZLLA.component {
         }
 
         _clearQuadVertices(quadIndex=0) {
-            this._quad.setVertices(0, 0, 0, 0, 0, 0, 0, 0);
-            this._quad.setTexCoords(0, 0, 0, 0, 0, 0, 0, 0);
+            this._quad.setVertices(0, 0, 0, 0, 0, 0, 0, 0, quadIndex);
+            this._quad.setTexCoords(0, 0, 0, 0, 0, 0, 0, 0, quadIndex);
         }
 
         _updateQuadAlpha(quadIndex=0) {

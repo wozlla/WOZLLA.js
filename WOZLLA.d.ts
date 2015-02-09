@@ -2027,6 +2027,7 @@ declare module WOZLLA.component {
      * @abstract
      */
     class QuadRenderer extends WOZLLA.Renderer {
+        static getTextureUVS(frame: any, texture: WOZLLA.renderer.ITexture, outUVS?: any): any;
         _quad: WOZLLA.renderer.Quad;
         _quadLayer: string;
         _quadMaterialId: string;
@@ -2212,6 +2213,19 @@ declare module WOZLLA.component {
 }
 declare module WOZLLA.component {
     /**
+     * @class WOZLLA.component.QuadArrayRenderer
+     */
+    class QuadArraySpriteRenderer extends SpriteRenderer {
+        _initQuad(): void;
+        _updateQuads(): void;
+        _updateQuadsVertices(): void;
+        _updateQuadsAlpha(): void;
+        _updateQuadsColor(): void;
+        render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
+    }
+}
+declare module WOZLLA.component {
+    /**
      * @class WOZLLA.component.TilingSpriteRenderer
      */
     class TilingSpriteRenderer extends SpriteRenderer {
@@ -2225,15 +2239,6 @@ declare module WOZLLA.component {
         _updateTilingQuadAlpha(): void;
         _updateTilingQuadColor(): void;
         render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
-    }
-}
-declare module WOZLLA.component {
-    /**
-     * @class WOZLLA.component.SpriteFrameText
-     */
-    class SpriteFrameText extends SpriteRenderer {
-        _textSample: string;
-        _text: string;
     }
 }
 declare module WOZLLA.component {
@@ -2285,6 +2290,26 @@ declare module WOZLLA.component {
         _strokeWidth: number;
         _align: string;
         _baseline: string;
+    }
+}
+declare module WOZLLA.component {
+    /**
+     * @class WOZLLA.component.SpriteFrameText
+     */
+    class SpriteFrameText extends QuadArraySpriteRenderer {
+        sample: string;
+        text: string;
+        wordMargin: number;
+        align: string;
+        baseline: string;
+        _sample: string;
+        _text: string;
+        _wordMargin: number;
+        _align: string;
+        _baseline: string;
+        _initQuad(): void;
+        _updateQuadsVertices(): void;
+        render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
     }
 }
 declare module WOZLLA {
