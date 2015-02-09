@@ -86,6 +86,10 @@ module WOZLLA.renderer {
             gl.clearColor(0, 0, 0, 0);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
+            if(IRenderer.debugEnabled) {
+                this.debug.renderSequence.length = 0;
+            }
+
             this._eachCommand((command) => {
                 var quadCommand;
                 var customCommand;
@@ -117,7 +121,7 @@ module WOZLLA.renderer {
                 lastCommand = command;
 
                 if(IRenderer.debugEnabled) {
-                    this.debug.renderSequence.push(command.layer + ':' + command.flags);
+                    this.debug.renderSequence.push(command.layer + ':' + command.globalZ + ':' + command.flags);
                 }
             });
             if(lastCommand) {
@@ -168,6 +172,7 @@ module WOZLLA.renderer {
                 layer = layers[i];
                 commandQueue = commandQueueMap[layer];
                 if(commandQueue) {
+                    commandQueue.sort();
                     zQueue = commandQueue.negativeZQueue;
                     if(zQueue.length > 0) {
                         for(j=0, len2=zQueue.length; j<len2; j++) {
@@ -281,7 +286,7 @@ module WOZLLA.renderer {
         }
 
         canFill(quad:Quad):boolean {
-            return this._curVertexIndex  < this._size;
+            return this._curVertexIndex + quad.type.size < this._vertices.length;
         }
 
         fillQuad(quad:Quad):void {
