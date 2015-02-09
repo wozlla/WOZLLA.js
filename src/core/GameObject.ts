@@ -1,4 +1,5 @@
 /// <reference path="Transform.ts"/>
+/// <reference path="../utils/IdentifyUtils.ts"/>
 /// <reference path="RectTransform.ts"/>
 /// <reference path="Collider.ts"/>
 /// <reference path="../event/EventDispatcher.ts"/>
@@ -36,6 +37,10 @@ module WOZLLA {
          */
         public static getById(id:string):GameObject {
             return idMap[id];
+        }
+
+        get UID():string {
+            return this._UID;
         }
 
         /**
@@ -199,6 +204,7 @@ module WOZLLA {
          */
         get mask():Mask { return this._mask; }
 
+        _UID:string = utils.IdentifyUtils.genUID();
         _uuid:string;
         _id:string;
         _name;
