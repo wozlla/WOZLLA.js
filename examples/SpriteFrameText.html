@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TilingSpriteRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="960" height="640" style="border: 1px solid #999; display: block;"></canvas>
+<script type="text/javascript" src="WOZLLA.js"></script>
+<script type="text/javascript">
+
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var gameObj = new WOZLLA.GameObject();
+    gameObj.transform.setPosition(300, 300);
+
+    var spriteFrameText = new WOZLLA.component.SpriteFrameText();
+    spriteFrameText.spriteAtlasSrc = 'resources/common.tt.json';
+    spriteFrameText.spriteName = '人物等级.png';
+    spriteFrameText.sample = '0123456789';
+    spriteFrameText.text = "1000";
+    spriteFrameText.wordMargin = -3;
+
+    // add to gameObj
+    gameObj.addComponent(spriteFrameText);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+
+        director.scheduler.scheduleLoop(function() {
+            spriteFrameText.text = Date.now() + '';
+        });
+    });
+
+
+</script>
+</body>
+</html>

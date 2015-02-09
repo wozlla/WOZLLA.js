@@ -7871,6 +7871,7 @@ var WOZLLA;
             __extends(SpriteFrameText, _super);
             function SpriteFrameText() {
                 _super.apply(this, arguments);
+                this._wordMargin = 0;
                 this._align = component.TextStyle.START;
                 this._baseline = component.TextStyle.END;
             }
@@ -7942,20 +7943,26 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
-            SpriteFrameText.prototype._initQuad = function () {
+            SpriteFrameText.prototype._updateQuadSize = function () {
                 if (this._sample && this._text) {
+                    if (this._quad && this._quad.count === this._text.length) {
+                        return;
+                    }
                     this._quad = new WOZLLA.renderer.Quad(this._text.length);
+                    this._quadAlphaDirty = true;
+                    this._quadColorDirty = true;
                 }
             };
             SpriteFrameText.prototype._updateQuadsVertices = function () {
                 var textureOffset = this._getTextureOffset();
-                var frame = this.sprite.frame;
+                var textureFrame = this._getTextureFrame();
                 var wordLen = this._text.length;
-                var wordFrameW = frame / wordLen;
+                var wordFrameW = textureFrame.width / this._sample.length;
                 var wordUVS;
                 var character;
+                var characterIndex;
                 var totalW = wordLen * (this._wordMargin * 2 + wordFrameW);
-                var totalH = frame.height;
+                var totalH = textureFrame.height;
                 var offsetX = 0, offsetY = 0;
                 switch (this._align) {
                     case component.TextStyle.CENTER:
@@ -7973,16 +7980,20 @@ var WOZLLA;
                         offsetY = -totalH;
                         break;
                 }
-                sharedFrame.y = frame.y;
+                sharedFrame.y = textureFrame.y;
                 sharedFrame.width = wordFrameW;
-                sharedFrame.height = frame.height;
+                sharedFrame.height = textureFrame.height;
                 for (var i = 0; i < wordLen; i++) {
                     character = this._text.charAt(i);
+                    characterIndex = this._sample.indexOf(character);
+                    if (characterIndex === -1) {
+                        throw new Error('character "' + character + '" not found in sample "' + this._sample + '"');
+                    }
                     WOZLLA.sharedHelpTransform.reset();
-                    WOZLLA.sharedHelpTransform.x = i * this._wordMargin * 2 + this._wordMargin + offsetX;
+                    WOZLLA.sharedHelpTransform.x = i * (this._wordMargin * 2 + wordFrameW) + this._wordMargin + offsetX;
                     WOZLLA.sharedHelpTransform.y = offsetY;
                     WOZLLA.sharedHelpTransform.transform(this.transform);
-                    sharedFrame.x = frame.x + i * wordFrameW;
+                    sharedFrame.x = textureFrame.x + characterIndex * wordFrameW;
                     wordUVS = component.QuadRenderer.getTextureUVS(sharedFrame, this._texture, sharedUVS);
                     this._updateQuadVerticesByArgs(wordUVS, sharedFrame, textureOffset, WOZLLA.sharedHelpTransform.worldMatrix, i);
                 }
@@ -7991,6 +8002,9 @@ var WOZLLA;
             SpriteFrameText.prototype.render = function (renderer, flags) {
                 if (!this._sample || !this._text) {
                     return;
+                }
+                if (this._quadVertexDirty) {
+                    this._updateQuadSize();
                 }
                 _super.prototype.render.call(this, renderer, flags);
             };

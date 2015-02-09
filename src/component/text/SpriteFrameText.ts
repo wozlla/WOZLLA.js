@@ -67,26 +67,32 @@ module WOZLLA.component {
 
         _sample:string;
         _text:string;
-        _wordMargin:number;
+        _wordMargin:number = 0;
         _align:string = TextStyle.START;
         _baseline:string = TextStyle.END;
 
-        _initQuad() {
+        _updateQuadSize() {
             if(this._sample && this._text) {
+                if(this._quad && this._quad.count === this._text.length) {
+                    return;
+                }
                 this._quad = new WOZLLA.renderer.Quad(this._text.length);
+                this._quadAlphaDirty = true;
+                this._quadColorDirty = true;
             }
         }
 
         _updateQuadsVertices() {
             var textureOffset = this._getTextureOffset();
-            var frame = this.sprite.frame;
+            var textureFrame = this._getTextureFrame();
             var wordLen = this._text.length;
-            var wordFrameW = frame/wordLen;
+            var wordFrameW = textureFrame.width/this._sample.length;
             var wordUVS;
             var character;
+            var characterIndex;
 
             var totalW = wordLen * (this._wordMargin*2+wordFrameW);
-            var totalH = frame.height;
+            var totalH = textureFrame.height;
 
             var offsetX = 0, offsetY = 0;
             switch(this._align) {
@@ -106,18 +112,22 @@ module WOZLLA.component {
                     break;
             }
 
-            sharedFrame.y = frame.y;
+            sharedFrame.y = textureFrame.y;
             sharedFrame.width = wordFrameW;
-            sharedFrame.height = frame.height;
+            sharedFrame.height = textureFrame.height;
 
             for(var i=0; i<wordLen; i++) {
                 character = this._text.charAt(i);
+                characterIndex = this._sample.indexOf(character);
+                if(characterIndex === -1) {
+                    throw new Error('character "' + character + '" not found in sample "' + this._sample + '"');
+                }
                 sharedHelpTransform.reset();
-                sharedHelpTransform.x = i * this._wordMargin * 2 + this._wordMargin + offsetX;
+                sharedHelpTransform.x = i * (this._wordMargin * 2 + wordFrameW) + this._wordMargin + offsetX;
                 sharedHelpTransform.y = offsetY;
                 sharedHelpTransform.transform(this.transform);
 
-                sharedFrame.x = frame.x + i*wordFrameW;
+                sharedFrame.x = textureFrame.x + characterIndex*wordFrameW;
                 wordUVS = QuadRenderer.getTextureUVS(sharedFrame, this._texture, sharedUVS);
                 this._updateQuadVerticesByArgs(wordUVS, sharedFrame, textureOffset, sharedHelpTransform.worldMatrix, i);
             }
@@ -128,6 +138,9 @@ module WOZLLA.component {
         render(renderer:WOZLLA.renderer.IRenderer, flags:number):void {
             if (!this._sample || !this._text) {
                 return;
+            }
+            if(this._quadVertexDirty) {
+                this._updateQuadSize();
             }
             super.render(renderer, flags);
         }

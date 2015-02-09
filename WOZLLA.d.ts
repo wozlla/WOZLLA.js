@@ -2307,7 +2307,7 @@ declare module WOZLLA.component {
         _wordMargin: number;
         _align: string;
         _baseline: string;
-        _initQuad(): void;
+        _updateQuadSize(): void;
         _updateQuadsVertices(): void;
         render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
     }
