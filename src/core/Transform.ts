@@ -162,7 +162,7 @@ module WOZLLA {
             this._values[8] = 0; // skewY
         }
 
-        set(transform:any) {
+        set(transform:any):void {
             if(typeof transform.x === "number") {
                 this._values[0] = transform.x; //x
             }
