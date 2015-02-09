@@ -153,15 +153,15 @@ declare module WOZLLA.event {
          * @param {string} type
          * @param {boolean} useCapture true to check capture phase, false to check bubble and target phases.
          */
-        addListener(type: string, listener: Function, useCapture?: boolean): void;
-        addListenerScope(type: string, listener: Function, scope: any, useCapture?: boolean): void;
+        addListener(type: string, listener: any, useCapture?: boolean): void;
+        addListenerScope(type: string, listener: any, scope: any, useCapture?: boolean): void;
         /**
          * @method removeListener
          * @param {string} type
          * @param {boolean} useCapture true to check capture phase, false to check bubble and target phases.
          */
-        removeListener(type: string, listener: Function, useCapture?: boolean): boolean;
-        removeListenerScope(type: string, listener: Function, scope: any, userCapture?: boolean): boolean;
+        removeListener(type: string, listener: any, useCapture?: boolean): boolean;
+        removeListenerScope(type: string, listener: any, scope: any, userCapture?: boolean): boolean;
         /**
          * @method clearListeners
          * @param {string} type
@@ -504,12 +504,17 @@ declare module WOZLLA {
         reset(): void;
         set(transform: any): void;
         transform(parentTransform?: Transform): void;
-        updateWorldMatrix(): void;
-        globalToLocal(x: any, y: any, updateMatrix?: boolean): {
+        globalToLocal(x: any, y: any, out?: {
+            x: number;
+            y: number;
+        }): {
             x: number;
             y: number;
         };
-        localToGlobal(x: any, y: any, updateMatrix?: boolean): {
+        localToGlobal(x: any, y: any, out?: {
+            x: number;
+            y: number;
+        }): {
             x: number;
             y: number;
         };
@@ -681,6 +686,8 @@ declare module WOZLLA {
          *  @property {WOZLLA.Transform} transform
          */
         transform: Transform;
+        rectTransform: RectTransform;
+        scheduler: Scheduler;
         _gameObject: GameObject;
         _uuid: string;
         /**
@@ -2680,6 +2687,8 @@ declare module WOZLLA.ui {
         _scaleOnPress: number;
         _originScaleX: number;
         _originScaleY: number;
+        _touchTime: number;
+        _scaleTimer: any;
         init(): void;
         destroy(): void;
         isEnabled(): boolean;
@@ -2723,6 +2732,7 @@ declare module WOZLLA.ui {
         contentHeight: number;
         bufferBackEnabled: boolean;
         momentumEnabled: boolean;
+        optimizeList: boolean;
         _direction: string;
         _enabled: boolean;
         _bufferBackEnabled: boolean;
@@ -2754,6 +2764,7 @@ declare module WOZLLA.ui {
         protected onDragEnd(e: any): void;
         protected tryBufferBackX(): boolean;
         protected tryBufferBackY(): boolean;
+        protected doOptimizeList(): void;
     }
 }
 declare module WOZLLA.utils {

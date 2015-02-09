@@ -1,25 +1,26 @@
 /// <reference path="Event.ts"/>
 module WOZLLA.event {
 
-    var SCOPE = '_EventDispatcher_scope';
-
     class ListenerList {
 
         _listeners = [];
 
-        add(listener:Function) {
+        add(listener:any) {
             this._listeners.push(listener);
         }
 
-        remove(listener:Function, scope?:any) {
+        remove(listener:any, scope?:any) {
             var i, len = this._listeners.length;
             var l;
             for(i=0; i<len; i++) {
                 l = this._listeners[i];
-                if(l === listener) {
-                    if(!scope || scope === l[SCOPE]) {
+                if(scope) {
+                    if(l.listener === listener && scope === l.scope) {
                         this._listeners.splice(i, 1);
                     }
+                }
+                else if(l === listener) {
+                    this._listeners.splice(i, 1);
                     return true;
                 }
             }
@@ -87,13 +88,15 @@ module WOZLLA.event {
          * @param {string} type
          * @param {boolean} useCapture true to check capture phase, false to check bubble and target phases.
          */
-        addListener(type:string, listener:Function, useCapture:boolean=false) {
+        addListener(type:string, listener:any, useCapture:boolean=false) {
             this._getListenerList(type, useCapture).add(listener);
         }
 
-        addListenerScope(type:string, listener:Function, scope:any, useCapture:boolean=false) {
-            listener[SCOPE] = scope;
-            this.addListener(type, listener, useCapture);
+        addListenerScope(type:string, listener:any, scope:any, useCapture:boolean=false) {
+            this.addListener(type, {
+                listener: listener,
+                scope: scope
+            }, useCapture);
         }
 
         /**
@@ -101,11 +104,11 @@ module WOZLLA.event {
          * @param {string} type
          * @param {boolean} useCapture true to check capture phase, false to check bubble and target phases.
          */
-        removeListener(type:string, listener:Function, useCapture:boolean=false):boolean {
+        removeListener(type:string, listener:any, useCapture:boolean=false):boolean {
             return this._getListenerList(type, useCapture).remove(listener);
         }
 
-        removeListenerScope(type:string, listener:Function, scope:any , userCapture:boolean=false):boolean {
+        removeListenerScope(type:string, listener:any, scope:any , userCapture:boolean=false):boolean {
             return this._getListenerList(type, userCapture).remove(listener, scope);
         }
 
@@ -170,7 +173,7 @@ module WOZLLA.event {
 
         _dispatchEventInPhase(event:Event, phase:EventPhase):boolean {
             var i, len;
-            var listener:Function;
+            var listener:any;
             var scope:any;
             var listenerList:ListenerList;
 
@@ -180,12 +183,14 @@ module WOZLLA.event {
 
             listenerList = this._getListenerList(event.type, phase === EventPhase.CAPTURE);
             len = listenerList.length();
+
+
             if(len > 0) {
                 for (i = len-1; i >= 0; i--) {
                     listener = listenerList.get(i);
-                    scope = listener[SCOPE];
+                    scope = listener.scope;
                     if(scope) {
-                        listener.call(scope, event);
+                        listener.listener.call(scope, event);
                     } else {
                         listener(event);
                     }
@@ -204,6 +209,35 @@ module WOZLLA.event {
                     return true;
                 }
             }
+
+            listenerList = this._getListenerList('*', phase === EventPhase.CAPTURE);
+            len = listenerList.length();
+
+            if(len > 0) {
+                for (i = len-1; i >= 0; i--) {
+                    listener = listenerList.get(i);
+                    scope = listener.scope;
+                    if(scope) {
+                        listener.listener.call(scope, event);
+                    } else {
+                        listener(event);
+                    }
+
+                    // handle remove listener when client call event.removeCurrentListener();
+                    if(event._listenerRemove) {
+                        event._listenerRemove = false;
+                        listenerList.removeAt(i);
+                    }
+
+                    if(event.isStopImmediatePropagation()) {
+                        return true;
+                    }
+                }
+                if(event.isStopPropagation()) {
+                    return true;
+                }
+            }
+
             return false;
         }
 

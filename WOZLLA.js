@@ -191,7 +191,6 @@ var WOZLLA;
 (function (WOZLLA) {
     var event;
     (function (_event) {
-        var SCOPE = '_EventDispatcher_scope';
         var ListenerList = (function () {
             function ListenerList() {
                 this._listeners = [];
@@ -204,10 +203,13 @@ var WOZLLA;
                 var l;
                 for (i = 0; i < len; i++) {
                     l = this._listeners[i];
-                    if (l === listener) {
-                        if (!scope || scope === l[SCOPE]) {
+                    if (scope) {
+                        if (l.listener === listener && scope === l.scope) {
                             this._listeners.splice(i, 1);
                         }
+                    }
+                    else if (l === listener) {
+                        this._listeners.splice(i, 1);
                         return true;
                     }
                 }
@@ -274,8 +276,10 @@ var WOZLLA;
             };
             EventDispatcher.prototype.addListenerScope = function (type, listener, scope, useCapture) {
                 if (useCapture === void 0) { useCapture = false; }
-                listener[SCOPE] = scope;
-                this.addListener(type, listener, useCapture);
+                this.addListener(type, {
+                    listener: listener,
+                    scope: scope
+                }, useCapture);
             };
             /**
              * @method removeListener
@@ -351,9 +355,34 @@ var WOZLLA;
                 if (len > 0) {
                     for (i = len - 1; i >= 0; i--) {
                         listener = listenerList.get(i);
-                        scope = listener[SCOPE];
+                        scope = listener.scope;
                         if (scope) {
-                            listener.call(scope, event);
+                            listener.listener.call(scope, event);
+                        }
+                        else {
+                            listener(event);
+                        }
+                        // handle remove listener when client call event.removeCurrentListener();
+                        if (event._listenerRemove) {
+                            event._listenerRemove = false;
+                            listenerList.removeAt(i);
+                        }
+                        if (event.isStopImmediatePropagation()) {
+                            return true;
+                        }
+                    }
+                    if (event.isStopPropagation()) {
+                        return true;
+                    }
+                }
+                listenerList = this._getListenerList('*', phase === 0 /* CAPTURE */);
+                len = listenerList.length();
+                if (len > 0) {
+                    for (i = len - 1; i >= 0; i--) {
+                        listener = listenerList.get(i);
+                        scope = listener.scope;
+                        if (scope) {
+                            listener.listener.call(scope, event);
                         }
                         else {
                             listener(event);
@@ -1446,43 +1475,28 @@ var WOZLLA;
             }
             this._dirty = false;
         };
-        Transform.prototype.updateWorldMatrix = function () {
-            if (!this._dirty) {
-                return;
-            }
-            var matrix = this.worldMatrix;
-            if (matrix) {
-                matrix.identity();
-            }
-            else {
-                matrix = new WOZLLA.math.Matrix();
-            }
-            var o = this;
-            while (o != null) {
-                matrix.prependTransform(o.x, o.y, o.scaleX, o.scaleY, o.rotation, o.skewX, o.skewY, 0, 0);
-                o = o.parent;
-            }
-        };
-        Transform.prototype.globalToLocal = function (x, y, updateMatrix) {
-            if (updateMatrix === void 0) { updateMatrix = false; }
-            if (updateMatrix) {
-                this.updateWorldMatrix();
-            }
+        Transform.prototype.globalToLocal = function (x, y, out) {
             helpMatrix.applyMatrix(this.worldMatrix);
             helpMatrix.invert();
             helpMatrix.append(1, 0, 0, 1, x, y);
+            if (out) {
+                out.x = helpMatrix.values[6];
+                out.y = helpMatrix.values[7];
+                return out;
+            }
             return {
                 x: helpMatrix.values[6],
                 y: helpMatrix.values[7]
             };
         };
-        Transform.prototype.localToGlobal = function (x, y, updateMatrix) {
-            if (updateMatrix === void 0) { updateMatrix = false; }
-            if (updateMatrix) {
-                this.updateWorldMatrix();
-            }
+        Transform.prototype.localToGlobal = function (x, y, out) {
             helpMatrix.applyMatrix(this.worldMatrix);
             helpMatrix.append(1, 0, 0, 1, x, y);
+            if (out) {
+                out.x = helpMatrix.values[6];
+                out.y = helpMatrix.values[7];
+                return out;
+            }
             return {
                 x: helpMatrix.values[6],
                 y: helpMatrix.values[7]
@@ -1929,6 +1943,20 @@ var WOZLLA;
              */
             get: function () {
                 return this._gameObject.transform;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Component.prototype, "rectTransform", {
+            get: function () {
+                return this._gameObject.rectTransform;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Component.prototype, "scheduler", {
+            get: function () {
+                return WOZLLA.Director.getInstance().scheduler;
             },
             enumerable: true,
             configurable: true
@@ -3226,7 +3254,7 @@ var WOZLLA;
             me.updateCanvasOffset();
             if (window['Hammer']) {
                 me.hammer = new Hammer.Manager(canvas);
-                me.hammer.add(new Hammer.Tap());
+                me.hammer.add(new Hammer.Tap({ threshold: 10 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 2 }));
                 me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
@@ -3263,6 +3291,7 @@ var WOZLLA;
             var x, y, i, len, touch, identifier, channel, changedTouches, target, type = e.type, stage = WOZLLA.Director.getInstance().stage;
             var me = this;
             var canvasScale = this.touchScale || 1;
+            var isFinalButNotHammerIpnut = type !== 'hammer.input' && e.isFinal;
             if (type === 'hammer.input') {
                 if (e.isFirst) {
                     type = 'touch';
@@ -3283,9 +3312,6 @@ var WOZLLA;
                     if (target) {
                         me.channelMap[identifier] = me.createDispatchChanel(target);
                     }
-                    else {
-                        delete me.channelMap[identifier];
-                    }
                 }
                 channel = me.channelMap[identifier];
                 channel && channel.onGestureEvent(e, target, x, y, identifier);
@@ -3303,12 +3329,15 @@ var WOZLLA;
                         target = stage.getUnderPoint(x, y, true);
                         if (target) {
                             me.channelMap[identifier] = me.createDispatchChanel(target);
-                            delete me.channelMap[identifier - 10];
                         }
                     }
                     channel = me.channelMap[identifier];
                     channel && channel.onGestureEvent(e, target, x, y, identifier);
                 }
+            }
+            // do clear channel
+            if (isFinalButNotHammerIpnut) {
+                delete me.channelMap[identifier];
             }
         };
         Touch.prototype.createDispatchChanel = function (touchTarget) {
@@ -4021,6 +4050,9 @@ var WOZLLA;
                 gl.viewport(0, 0, this._viewport.width, this._viewport.height);
                 gl.clearColor(0, 0, 0, 0);
                 gl.clear(gl.COLOR_BUFFER_BIT);
+                if (renderer.IRenderer.debugEnabled) {
+                    this.debug.renderSequence.length = 0;
+                }
                 this._eachCommand(function (command) {
                     var quadCommand;
                     var customCommand;
@@ -4057,7 +4089,7 @@ var WOZLLA;
                     _this._usingTexture = currentTexture = command.texture;
                     lastCommand = command;
                     if (renderer.IRenderer.debugEnabled) {
-                        _this.debug.renderSequence.push(command.layer + ':' + command.flags);
+                        _this.debug.renderSequence.push(command.layer + ':' + command.globalZ + ':' + command.flags);
                     }
                 });
                 if (lastCommand) {
@@ -4103,6 +4135,7 @@ var WOZLLA;
                     layer = layers[i];
                     commandQueue = commandQueueMap[layer];
                     if (commandQueue) {
+                        commandQueue.sort();
                         zQueue = commandQueue.negativeZQueue;
                         if (zQueue.length > 0) {
                             for (j = 0, len2 = zQueue.length; j < len2; j++) {
@@ -4211,7 +4244,7 @@ var WOZLLA;
                 configurable: true
             });
             QuadBatch.prototype.canFill = function (quad) {
-                return this._curVertexIndex < this._size;
+                return this._curVertexIndex + quad.type.size < this._vertices.length;
             };
             QuadBatch.prototype.fillQuad = function (quad) {
                 var vertexIndex, storage;
@@ -5093,9 +5126,13 @@ var WOZLLA;
                 var image = new Image();
                 image.src = this._imageSrc;
                 image.onload = function () {
+                    image.onload = null;
+                    image.onerror = null;
                     callback && callback(null, image);
                 };
                 image.onerror = function () {
+                    image.onload = null;
+                    image.onerror = null;
                     callback('Fail to load image: ' + _this._imageSrc);
                 };
             };
@@ -5604,6 +5641,7 @@ var WOZLLA;
         }, {
             name: 'layer',
             type: 'string',
+            editor: 'renderLayer',
             defaultValue: WOZLLA.renderer.ILayerManager.DEFAULT
         }, {
             name: 'reverse',
@@ -5886,6 +5924,11 @@ var WOZLLA;
                 this._flags = flags;
             };
             QuadCommand.prototype.release = function () {
+                this._layer = null;
+                this._texture = null;
+                this._materialId = null;
+                this._quad = null;
+                this._flags = null;
                 quadCommandPool.release(this);
             };
             return QuadCommand;
@@ -6720,7 +6763,7 @@ var WOZLLA;
                     return this._spriteAtlasSrc;
                 },
                 set: function (value) {
-                    if (this.spriteAtlasSrc && !value)
+                    if (this.spriteName && !value)
                         return;
                     this.spriteAtlasSrc = value;
                     this.spriteName = null;
@@ -6957,7 +7000,8 @@ var WOZLLA;
         WOZLLA.Component.register(AnimationRenderer, {
             name: "AnimationRenderer",
             properties: [
-                WOZLLA.Component.extendConfig(component.SpriteRenderer, function (name) {
+                WOZLLA.Component.extendConfig(component.SpriteRenderer, function (propConfig) {
+                    var name = propConfig.name;
                     return name !== 'spriteFrame' && name !== 'spriteOffset' && name !== 'imageSrc';
                 }),
                 {
@@ -8086,7 +8130,6 @@ var WOZLLA;
                 this.requestLayout();
             };
             LayoutBase.prototype.onChildRemove = function (e) {
-                alert('remove');
                 this.requestLayout();
             };
             return LayoutBase;
@@ -8434,7 +8477,7 @@ var WOZLLA;
              * @returns {boolean}
              */
             Circle.prototype.containsXY = function (x, y) {
-                return Math.pow((x - this.centerX), 2) + Math.pow((y - this.centerY), 2) <= this.radius;
+                return Math.pow((x - this.centerX), 2) + Math.pow((y - this.centerY), 2) <= Math.pow(this.radius, 2);
             };
             /**
              * get simple description of this object
@@ -8764,8 +8807,8 @@ var WOZLLA;
             name: "StateWidget",
             abstractComponent: true,
             properties: [
-                WOZLLA.Component.extendConfig(WOZLLA.component.SpriteRenderer, function (name) {
-                    return name !== 'spriteFrame' && name !== 'imageSrc';
+                WOZLLA.Component.extendConfig(WOZLLA.component.SpriteRenderer, function (propConfig) {
+                    return propConfig.name !== 'spriteFrame' && propConfig.name !== 'imageSrc';
                 })
             ]
         });
@@ -8855,6 +8898,7 @@ var WOZLLA;
             Button.prototype.onTouch = function (e) {
                 this._stateMachine.changeState(Button.STATE_PRESSED);
                 if (this._scaleOnPress) {
+                    this._touchTime = WOZLLA.Time.now;
                     this.transform.tween(false).to({
                         scaleX: this._scaleOnPress * this._originScaleX,
                         scaleY: this._scaleOnPress * this._originScaleY
@@ -8862,11 +8906,15 @@ var WOZLLA;
                 }
             };
             Button.prototype.onRelease = function (e) {
+                var _this = this;
                 this._stateMachine.changeState(Button.STATE_NORMAL);
-                this.transform.tween(false).to({
-                    scaleX: this._originScaleX,
-                    scaleY: this._originScaleY
-                }, 100);
+                this._scaleTimer && this.scheduler.removeSchedule(this._scaleTimer);
+                this._scaleTimer = this.scheduler.scheduleTime(function () {
+                    _this.transform.tween(false).to({
+                        scaleX: _this._originScaleX,
+                        scaleY: _this._originScaleY
+                    }, 100);
+                }, 100 + this._touchTime - WOZLLA.Time.now);
             };
             Button.STATE_NORMAL = 'normal';
             Button.STATE_DISABLED = 'disabled';
@@ -8983,10 +9031,13 @@ var WOZLLA;
     })(ui = WOZLLA.ui || (WOZLLA.ui = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../core/Component.ts"/>
+/// <reference path="../math/MathUtils.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
     var ui;
     (function (ui) {
+        var helpPoint = { x: 0, y: 0 };
+        var rectIntersect2 = WOZLLA.math.MathUtils.rectIntersect2;
         function middle(a, b, c) {
             return (a < b ? (b < c ? b : a < c ? c : a) : (b > c ? b : a > c ? c : a));
         }
@@ -8994,6 +9045,7 @@ var WOZLLA;
             __extends(ScrollRect, _super);
             function ScrollRect() {
                 _super.apply(this, arguments);
+                this.optimizeList = false;
                 this._direction = ScrollRect.VERTICAL;
                 this._enabled = true;
                 this._bufferBackEnabled = true;
@@ -9112,6 +9164,9 @@ var WOZLLA;
                 var _this = this;
                 if (!this._contentGameObject)
                     return;
+                if (this.optimizeList) {
+                    this.doOptimizeList();
+                }
                 if (!this._bufferBackEnabled && !this._momentumEnabled)
                     return;
                 var contentTrans = this._contentGameObject.rectTransform;
@@ -9316,6 +9371,19 @@ var WOZLLA;
                 }
                 return false;
             };
+            ScrollRect.prototype.doOptimizeList = function () {
+                var children = this._contentGameObject.rawChildren;
+                if (children.length === 0)
+                    return;
+                var thisTrans = this.rectTransform;
+                for (var i = 0, len = children.length; i < len; i++) {
+                    var child = children[i];
+                    var rect = child.rectTransform;
+                    var globalP = rect.localToGlobal(0, 0, helpPoint);
+                    var localP = thisTrans.globalToLocal(globalP.x, globalP.y);
+                    child.visible = rectIntersect2(0, 0, thisTrans.width, thisTrans.height, localP.x, localP.y, rect.width, rect.height);
+                }
+            };
             ScrollRect.globalScrollEnabled = true;
             ScrollRect.HORIZONTAL = 'Horizontal';
             ScrollRect.VERTICAL = 'Vertical';
@@ -9351,6 +9419,10 @@ var WOZLLA;
                 name: 'momentumEnabled',
                 type: 'boolean',
                 defaultValue: true
+            }, {
+                name: 'optimizeList',
+                type: 'boolean',
+                defaultValue: false
             }]
         });
     })(ui = WOZLLA.ui || (WOZLLA.ui = {}));
