@@ -1,5 +1,10 @@
 /// <reference path="../core/Component.ts"/>
+/// <reference path="../math/MathUtils.ts"/>
 module WOZLLA.ui {
+
+    var helpPoint = { x: 0, y: 0 };
+
+    var rectIntersect2 = math.MathUtils.rectIntersect2;
 
     function middle(a:number, b:number, c:number) {
         return (a < b ? (b < c ? b : a < c ? c : a) : (b > c ? b : a > c ? c : a));
@@ -33,6 +38,8 @@ module WOZLLA.ui {
 
         get momentumEnabled():boolean { return this._momentumEnabled; }
         set momentumEnabled(value:boolean) { this._momentumEnabled = value; }
+
+        public optimizeList:boolean = false;
 
         _direction:string = ScrollRect.VERTICAL;
         _enabled:boolean = true;
@@ -79,6 +86,11 @@ module WOZLLA.ui {
 
         update() {
             if(!this._contentGameObject) return;
+
+            if(this.optimizeList) {
+                this.doOptimizeList();
+            }
+
             if(!this._bufferBackEnabled && !this._momentumEnabled) return;
             var contentTrans = this._contentGameObject.rectTransform;
             if(this._direction === ScrollRect.BOTH || this._direction === ScrollRect.HORIZONTAL) {
@@ -292,6 +304,22 @@ module WOZLLA.ui {
             return false;
         }
 
+        protected doOptimizeList() {
+            var children = this._contentGameObject.rawChildren;
+            if(children.length === 0) return;
+            var thisTrans = this.rectTransform;
+            for(var i=0, len=children.length; i<len; i++) {
+                var child = children[i];
+                var rect = child.rectTransform;
+                var globalP = rect.localToGlobal(0, 0, helpPoint);
+                var localP = thisTrans.globalToLocal(globalP.x, globalP.y);
+                child.visible = rectIntersect2(
+                    0, 0, thisTrans.width, thisTrans.height,
+                    localP.x, localP.y, rect.width, rect.height
+                );
+            }
+        }
+
     }
 
     Component.register(ScrollRect, {
@@ -322,6 +350,10 @@ module WOZLLA.ui {
             name: 'momentumEnabled',
             type: 'boolean',
             defaultValue: true
+        }, {
+            name: 'optimizeList',
+            type: 'boolean',
+            defaultValue: false
         }]
     });
 
