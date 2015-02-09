@@ -1518,6 +1518,30 @@ var WOZLLA;
     })();
     WOZLLA.Transform = Transform;
 })(WOZLLA || (WOZLLA = {}));
+var WOZLLA;
+(function (WOZLLA) {
+    var utils;
+    (function (utils) {
+        var IdentifyUtils = (function () {
+            function IdentifyUtils() {
+            }
+            IdentifyUtils.genUID = function () {
+                return (IdentifyUtils.UID_gen++) + '';
+            };
+            IdentifyUtils.UUID = function () {
+                var d = new Date().getTime();
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = (d + Math.random() * 16) % 16 | 0;
+                    d = Math.floor(d / 16);
+                    return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+            };
+            IdentifyUtils.UID_gen = 10000;
+            return IdentifyUtils;
+        })();
+        utils.IdentifyUtils = IdentifyUtils;
+    })(utils = WOZLLA.utils || (WOZLLA.utils = {}));
+})(WOZLLA || (WOZLLA = {}));
 /// <reference path="Transform.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
@@ -2076,6 +2100,7 @@ var WOZLLA;
     WOZLLA.Collider = Collider;
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="Transform.ts"/>
+/// <reference path="../utils/IdentifyUtils.ts"/>
 /// <reference path="RectTransform.ts"/>
 /// <reference path="Collider.ts"/>
 /// <reference path="../event/EventDispatcher.ts"/>
@@ -2107,6 +2132,7 @@ var WOZLLA;
         function GameObject(useRectTransform) {
             if (useRectTransform === void 0) { useRectTransform = false; }
             _super.call(this);
+            this._UID = WOZLLA.utils.IdentifyUtils.genUID();
             this._active = true;
             this._visible = true;
             this._initialized = false;
@@ -2131,6 +2157,13 @@ var WOZLLA;
         GameObject.getById = function (id) {
             return idMap[id];
         };
+        Object.defineProperty(GameObject.prototype, "UID", {
+            get: function () {
+                return this._UID;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(GameObject.prototype, "id", {
             /**
              * get or set the id of this game object
@@ -3256,7 +3289,7 @@ var WOZLLA;
                 me.hammer = new Hammer.Manager(canvas);
                 me.hammer.add(new Hammer.Tap({ threshold: 10 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 2 }));
-                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
+                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend pancancel', function (e) {
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
                         return;
                     }
@@ -8105,6 +8138,264 @@ var WOZLLA;
         return CoreEvent;
     })(WOZLLA.event.Event);
     WOZLLA.CoreEvent = CoreEvent;
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="../event/Event" />
+var WOZLLA;
+(function (WOZLLA) {
+    var dnd;
+    (function (dnd) {
+        var DnDEvent = (function (_super) {
+            __extends(DnDEvent, _super);
+            function DnDEvent(type, gestureEvent) {
+                _super.call(this, type, false);
+                this._gestureEvent = gestureEvent;
+            }
+            Object.defineProperty(DnDEvent.prototype, "gestureEvent", {
+                get: function () {
+                    return this._gestureEvent;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DnDEvent.prototype, "screenX", {
+                get: function () {
+                    return this._gestureEvent.x;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DnDEvent.prototype, "screenY", {
+                get: function () {
+                    return this._gestureEvent.y;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return DnDEvent;
+        })(WOZLLA.event.Event);
+        dnd.DnDEvent = DnDEvent;
+        var DnDDragEvent = (function (_super) {
+            __extends(DnDDragEvent, _super);
+            function DnDDragEvent(gestureEvent, source) {
+                _super.call(this, DnDDragEvent.TYPE, gestureEvent);
+            }
+            Object.defineProperty(DnDDragEvent.prototype, "source", {
+                get: function () {
+                    return this._source;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DnDDragEvent.TYPE = 'drag';
+            return DnDDragEvent;
+        })(DnDEvent);
+        dnd.DnDDragEvent = DnDDragEvent;
+        var DnDDraggingEvent = (function (_super) {
+            __extends(DnDDraggingEvent, _super);
+            function DnDDraggingEvent(gestureEvent, target, attachedObject) {
+                _super.call(this, DnDDraggingEvent.TYPE, gestureEvent);
+                this._attachedObject = null;
+                this._dropPossible = false;
+                this._target = target;
+                this._attachedObject = attachedObject;
+            }
+            Object.defineProperty(DnDDraggingEvent.prototype, "attachedObject", {
+                get: function () {
+                    return this._attachedObject;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DnDDraggingEvent.prototype, "target", {
+                get: function () {
+                    return this._target;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DnDDraggingEvent.prototype.isDropPossible = function () {
+                return this._dropPossible;
+            };
+            DnDDraggingEvent.prototype.setDropPossible = function (possible) {
+                this._dropPossible = possible;
+            };
+            DnDDraggingEvent.TYPE = 'dragging';
+            return DnDDraggingEvent;
+        })(DnDEvent);
+        dnd.DnDDraggingEvent = DnDDraggingEvent;
+        var DnDDropEvent = (function (_super) {
+            __extends(DnDDropEvent, _super);
+            function DnDDropEvent(gestureEvent, target, attachedObject) {
+                _super.call(this, DnDDraggingEvent.TYPE, gestureEvent);
+                this._target = target;
+                this._attachedObject = attachedObject;
+            }
+            Object.defineProperty(DnDDropEvent.prototype, "attachedObject", {
+                get: function () {
+                    return this._attachedObject;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(DnDDropEvent.prototype, "target", {
+                get: function () {
+                    return this._target;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            DnDDropEvent.TYPE = 'drop';
+            return DnDDropEvent;
+        })(DnDEvent);
+        dnd.DnDDropEvent = DnDDropEvent;
+    })(dnd = WOZLLA.dnd || (WOZLLA.dnd = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="../utils/Assert.ts" />
+var WOZLLA;
+(function (WOZLLA) {
+    var dnd;
+    (function (dnd) {
+        var DnDManager = (function () {
+            function DnDManager() {
+                this._sourceMap = {};
+                this._targetMap = {};
+            }
+            DnDManager.getInstance = function () {
+                if (!DnDManager.instance) {
+                    DnDManager.instance = new DnDManager();
+                }
+                return DnDManager.instance;
+            };
+            DnDManager.prototype.registerSource = function (source, dragHandler) {
+                WOZLLA.Assert.isUndefined(this._sourceMap[source.UID]);
+                var wrapper = new SourceWrapper(source, dragHandler, this);
+                wrapper.init();
+                this._sourceMap[source.UID] = wrapper;
+            };
+            DnDManager.prototype.unregisterSource = function (source, dragHandler) {
+                var wrapper = this._sourceMap[source.UID];
+                WOZLLA.Assert.isNotUndefined(wrapper);
+                wrapper.destroy();
+                delete this._sourceMap[source.UID];
+            };
+            DnDManager.prototype.registerTarget = function (target, dropHandler) {
+                WOZLLA.Assert.isUndefined(this._targetMap[target.UID]);
+                this._targetMap[target.UID] = new TargetWrapper(target, dropHandler);
+            };
+            DnDManager.prototype.unregisterTarget = function (target, dropHandler) {
+                var targetWrapper = this._targetMap[target.UID];
+                WOZLLA.Assert.isNotUndefined(targetWrapper);
+                WOZLLA.Assert.isTrue(targetWrapper.dropHandler === dropHandler);
+                delete this._targetMap[target.UID];
+            };
+            return DnDManager;
+        })();
+        dnd.DnDManager = DnDManager;
+        var SourceWrapper = (function () {
+            function SourceWrapper(source, dragHandler, dndManager) {
+                this.source = source;
+                this.dragHandler = dragHandler;
+                this.dndManager = dndManager;
+                this.draggingStart = false;
+                this.attactedObject = null;
+                this.draggedObjectOriginPoint = { x: 0, y: 0 };
+            }
+            SourceWrapper.prototype.init = function () {
+                this.source.addListenerScope('panstart', this.onPanStart, this);
+                this.source.addListenerScope('panmove', this.onPanMove, this);
+                this.source.addListenerScope('panend', this.onPanEnd, this);
+                this.source.addListenerScope('pancancel', this.onPanCancel, this);
+            };
+            SourceWrapper.prototype.destroy = function () {
+                this.source.removeListenerScope('panstart', this.onPanStart, this);
+                this.source.removeListenerScope('panmove', this.onPanMove, this);
+                this.source.removeListenerScope('panend', this.onPanEnd, this);
+                this.source.removeListenerScope('pancancel', this.onPanCancel, this);
+            };
+            SourceWrapper.prototype.updateDraggedObjectPosition = function (gestureEvent) {
+                var dragStartGesture = this.dragEvent.gestureEvent;
+                var startX = dragStartGesture.x;
+                var startY = dragStartGesture.y;
+                var deltaX = gestureEvent.x - startX;
+                var deltaY = gestureEvent.y - startY;
+                this.draggedObject.transform.x = this.draggedObjectOriginPoint.x + deltaX;
+                this.draggedObject.transform.y = this.draggedObjectOriginPoint.y + deltaY;
+            };
+            SourceWrapper.prototype.onPanStart = function (e) {
+                var dragEvent = new dnd.DnDDragEvent(e, this.source);
+                if (this.dragHandler.canStartDragging(this.dragEvent)) {
+                    this.dragEvent = dragEvent;
+                    this.draggedObject = this.dragHandler.createDraggedObject(dragEvent);
+                    this.draggedObjectOriginPoint.x = this.draggedObject.transform.x;
+                    this.draggedObjectOriginPoint.y = this.draggedObject.transform.y;
+                    this.updateDraggedObjectPosition(e);
+                    this.attactedObject = this.dragHandler.startDragging(dragEvent);
+                    this.draggingStart = true;
+                }
+            };
+            SourceWrapper.prototype.onPanMove = function (e) {
+                var targetMap;
+                var key;
+                var targetWrapper;
+                var draggingEvent;
+                if (this.draggingStart) {
+                    this.updateDraggedObjectPosition(e);
+                    targetMap = this.dndManager._targetMap;
+                    for (key in targetMap) {
+                        targetWrapper = targetMap[key];
+                        draggingEvent = new dnd.DnDDraggingEvent(e, targetWrapper.target, this.attactedObject);
+                        targetWrapper.dragging(draggingEvent);
+                    }
+                }
+            };
+            SourceWrapper.prototype.onPanEnd = function (e) {
+                var targetMap;
+                var key;
+                var targetWrapper;
+                var dropEvent;
+                if (this.draggingStart) {
+                    targetMap = this.dndManager._targetMap;
+                    for (key in targetMap) {
+                        targetWrapper = targetMap[key];
+                        dropEvent = new dnd.DnDDropEvent(e, targetWrapper.target, this.attactedObject);
+                        targetWrapper.drop(dropEvent);
+                        this.dragHandler.dragDropEnd();
+                        this.onDragDropEnd();
+                    }
+                }
+            };
+            SourceWrapper.prototype.onPanCancel = function (e) {
+                this.dragHandler.dragDropEnd();
+                this.onDragDropEnd();
+            };
+            SourceWrapper.prototype.onDragDropEnd = function () {
+                this.dragEvent = null;
+                this.draggedObject.destroy();
+                this.draggedObject.removeMe();
+                this.draggedObject = null;
+                this.draggingStart = false;
+                this.attactedObject = null;
+            };
+            return SourceWrapper;
+        })();
+        var TargetWrapper = (function () {
+            function TargetWrapper(target, dropHandler) {
+                this.target = target;
+                this.dropHandler = dropHandler;
+                this.dropPossible = false;
+            }
+            TargetWrapper.prototype.dragging = function (event) {
+                this.dropHandler.dragging(event);
+                this.dropPossible = event.isDropPossible();
+            };
+            TargetWrapper.prototype.drop = function (event) {
+                if (this.dropPossible) {
+                    this.dropHandler.drop(event);
+                }
+            };
+            return TargetWrapper;
+        })();
+    })(dnd = WOZLLA.dnd || (WOZLLA.dnd = {}));
 })(WOZLLA || (WOZLLA = {}));
 var WOZLLA;
 (function (WOZLLA) {

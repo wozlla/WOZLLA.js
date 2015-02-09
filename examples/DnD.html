@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DnD | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<script type="text/javascript" src="../hammer.js"></script>
+<script type="text/javascript" src="../WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+    director.start();
+
+    var container = new WOZLLA.GameObject();
+
+    var source = new WOZLLA.GameObject();
+    source.transform.setPosition(100, 100);
+    source.touchable = true;
+    var rectRenderer = new WOZLLA.component.RectRenderer();
+    rectRenderer.primitiveStyle.fill = true;
+    rectRenderer.primitiveStyle.fillColor = 'red';
+    rectRenderer.primitiveStyle.strokeWidth = 3;
+    rectRenderer.rect = new WOZLLA.math.Rectangle(0, 0, 100, 100);
+    source.addComponent(rectRenderer);
+    var rectCollider = new WOZLLA.component.RectCollider();
+    rectCollider.region = rectRenderer.rect;
+    source.addComponent(rectCollider);
+
+    var target = new WOZLLA.GameObject();
+    target.transform.setPosition(300, 100);
+    target.touchable = true;
+    var circleRenderer = new WOZLLA.component.CircleRenderer();
+    circleRenderer.primitiveStyle.fill = true;
+    circleRenderer.primitiveStyle.fillColor = 'blue';
+    circleRenderer.primitiveStyle.strokeWidth = 3;
+    circleRenderer.circle = new WOZLLA.math.Circle(0, 0, 50);
+    target.addComponent(circleRenderer);
+    var circleCollider = new WOZLLA.component.CircleCollider();
+    circleCollider.region = circleRenderer.circle;
+    target.addComponent(circleCollider);
+
+    WOZLLA.dnd.DnDManager.getInstance().registerSource(source, {
+        canStartDragging: function(e) {
+            return true;
+        },
+        startDragging: function(e) {
+            return {
+                myDragDataField: 'myDragDataValue'
+            }
+        },
+        createDraggedObject: function(e) {
+            var draggedObject = new WOZLLA.GameObject();
+            var rectRenderer = new WOZLLA.component.RectRenderer();
+            rectRenderer.primitiveStyle.alpha = 0.4;
+            rectRenderer.primitiveStyle.fill = true;
+            rectRenderer.primitiveStyle.fillColor = 'red';
+            rectRenderer.primitiveStyle.stroke = false;
+            rectRenderer.rect = new WOZLLA.math.Rectangle(-50, -50, 100, 100);
+            draggedObject.addComponent(rectRenderer);
+            draggedObject.transform.setPosition(e.screenX, e.screenY);
+            draggedObject.init();
+            director.stage.addChild(draggedObject);
+            return draggedObject;
+        },
+        dragDropEnd: function() {
+            rectRenderer.primitiveStyle.fillColor = Date.now() % 2 ? 'blue' : 'green';
+        }
+    });
+
+    WOZLLA.dnd.DnDManager.getInstance().registerTarget(target, {
+        dragging: function(e) {
+            if(e.attachedObject.myDragDataField !== 'myDragDataValue') {
+                e.setDropPossible(false);
+                return;
+            }
+            if(!e.target.getUnderPoint(e.screenX, e.screenY)) {
+                circleRenderer.primitiveStyle.alpha = 1;
+                circleRenderer.primitiveStyle.fillColor = 'blue';
+                return;
+            }
+            e.setDropPossible(true);
+            circleRenderer.primitiveStyle.alpha = 0.7;
+            circleRenderer.primitiveStyle.fillColor = 'red';
+        },
+        drop: function(e) {
+            circleRenderer.primitiveStyle.alpha = 1;
+            circleRenderer.primitiveStyle.fillColor = 'red';
+        }
+    });
+
+    container.addChild(source);
+    container.addChild(target);
+    // this would automatically load all assets of gameObj, children and children's children.
+    container.loadAssets(function() {
+        container.init();
+        director.stage.addChild(container);
+    });
+</script>
+</body>
+</html>

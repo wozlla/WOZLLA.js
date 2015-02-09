@@ -76,7 +76,7 @@ module WOZLLA {
                 me.hammer = new Hammer.Manager(canvas);
                 me.hammer.add(new Hammer.Tap({ threshold: 10 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 2 }));
-                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend', function (e) {
+                me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend pancancel', function (e) {
                     if(e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
                         return;
                     }

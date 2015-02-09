@@ -522,6 +522,13 @@ declare module WOZLLA {
         clearTweens(): void;
     }
 }
+declare module WOZLLA.utils {
+    class IdentifyUtils {
+        private static UID_gen;
+        static genUID(): string;
+        static UUID(): string;
+    }
+}
 declare module WOZLLA {
     /**
      * RectTransform is a subclass of {@link WOZLLA.Transform}, define a rect region
@@ -764,6 +771,7 @@ declare module WOZLLA {
          * @member WOZLLA.GameObject
          */
         static getById(id: string): GameObject;
+        UID: string;
         /**
          * get or set the id of this game object
          * @property {string} id
@@ -886,6 +894,7 @@ declare module WOZLLA {
          * @readonly
          */
         mask: Mask;
+        _UID: string;
         _uuid: string;
         _id: string;
         _name: any;
@@ -2349,6 +2358,66 @@ declare module WOZLLA {
          * @param canStopBubbles
          */
         constructor(type: string, bubbles?: boolean, data?: any, canStopBubbles?: boolean);
+    }
+}
+declare module WOZLLA.dnd {
+    class DnDEvent extends WOZLLA.event.Event {
+        gestureEvent: GestureEvent;
+        screenX: number;
+        screenY: number;
+        _gestureEvent: GestureEvent;
+        constructor(type: string, gestureEvent: GestureEvent);
+    }
+    class DnDDragEvent extends DnDEvent {
+        static TYPE: string;
+        source: WOZLLA.GameObject;
+        _source: WOZLLA.GameObject;
+        constructor(gestureEvent: GestureEvent, source: WOZLLA.GameObject);
+    }
+    class DnDDraggingEvent extends DnDEvent {
+        static TYPE: string;
+        attachedObject: any;
+        target: WOZLLA.GameObject;
+        _target: WOZLLA.GameObject;
+        _attachedObject: any;
+        _dropPossible: boolean;
+        constructor(gestureEvent: GestureEvent, target: WOZLLA.GameObject, attachedObject: any);
+        isDropPossible(): boolean;
+        setDropPossible(possible: boolean): void;
+    }
+    class DnDDropEvent extends DnDEvent {
+        static TYPE: string;
+        attachedObject: any;
+        target: WOZLLA.GameObject;
+        _attachedObject: any;
+        _target: WOZLLA.GameObject;
+        constructor(gestureEvent: GestureEvent, target: WOZLLA.GameObject, attachedObject: any);
+    }
+}
+declare module WOZLLA.dnd {
+    class DnDManager {
+        private static instance;
+        static getInstance(): DnDManager;
+        _sourceMap: any;
+        _targetMap: any;
+        registerSource(source: WOZLLA.GameObject, dragHandler: DragHandler): void;
+        unregisterSource(source: WOZLLA.GameObject, dragHandler: DragHandler): void;
+        registerTarget(target: WOZLLA.GameObject, dropHandler: DropHandler): void;
+        unregisterTarget(target: WOZLLA.GameObject, dropHandler: DropHandler): void;
+    }
+}
+declare module WOZLLA.dnd {
+    interface DragHandler {
+        canStartDragging(event: DnDDragEvent): boolean;
+        startDragging(event: DnDDragEvent): any;
+        createDraggedObject(event: DnDDragEvent): WOZLLA.GameObject;
+        dragDropEnd(): void;
+    }
+}
+declare module WOZLLA.dnd {
+    interface DropHandler {
+        dragging(event: DnDDraggingEvent): any;
+        drop(event: DnDDropEvent): any;
     }
 }
 declare module WOZLLA.jsonx {
