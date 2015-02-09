@@ -48,6 +48,7 @@ module WOZLLA.ui {
 
         _content:string;
         _dragMovedInLastSession:boolean = false;
+        _dragging:boolean = false;
         _values = {
             velocityX: 0,
             velocityY: 0,
@@ -166,6 +167,7 @@ module WOZLLA.ui {
             if(!this.isScrollable()) {
                 return;
             }
+            this._dragging = true;
             this._dragMovedInLastSession = true;
             this._values.lastDragX = e.x;
             this._values.lastDragY = e.y;
@@ -174,11 +176,22 @@ module WOZLLA.ui {
             this._values.momentumX = 0;
             this._values.momentumY = 0;
             this._contentGameObject.rectTransform.clearTweens();
-            utils.Tween.removeTweens(this);
+            if (this._values.momentumXTween) {
+                this._values.momentumXTween.setPaused(true);
+            }
+            if (this._values.momentumYTween) {
+                this._values.momentumYTween.setPaused(true);
+            }
+            if (this._values.bufferXTween) {
+                this._values.bufferXTween.setPaused(true);
+            }
+            if (this._values.bufferYTween) {
+                this._values.bufferYTween.setPaused(true);
+            }
         }
 
         protected onDrag(e) {
-            if(!this.isScrollable()) {
+            if(!this.isScrollable() || !this._dragging) {
                 return;
             }
             var contentTrans = this._contentGameObject.rectTransform;
@@ -213,7 +226,7 @@ module WOZLLA.ui {
         }
 
         protected onDragEnd(e) {
-            if(!this.isScrollable()) {
+            if(!this.isScrollable() || !this._dragging) {
                 return;
             }
             if(this._direction === ScrollRect.BOTH || this._direction === ScrollRect.HORIZONTAL) {
@@ -248,6 +261,7 @@ module WOZLLA.ui {
                     }
                 }
             }
+            this._dragging = false;
         }
 
         protected tryBufferBackX() {
