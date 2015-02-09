@@ -24,6 +24,9 @@ module WOZLLA {
          *  @property {WOZLLA.Transform} transform
          */
         get transform():Transform { return this._gameObject.transform; }
+        get rectTransform():RectTransform { return this._gameObject.rectTransform; }
+
+        get scheduler():Scheduler { return Director.getInstance().scheduler; }
 
         _gameObject:GameObject;
         _uuid:string;
