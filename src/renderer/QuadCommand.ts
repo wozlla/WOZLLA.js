@@ -42,6 +42,11 @@ module WOZLLA.renderer {
         }
 
         release() {
+            this._layer = null;
+            this._texture = null;
+            this._materialId = null;
+            this._quad = null;
+            this._flags = null;
             quadCommandPool.release(this);
         }
 
