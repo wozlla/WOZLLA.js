@@ -39,6 +39,10 @@ module WOZLLA {
             return idMap[id];
         }
 
+        public static _getIdMap() {
+            return idMap;
+        }
+
         get UID():string {
             return this._UID;
         }
@@ -55,7 +59,9 @@ module WOZLLA {
             if(oldId) {
                 delete idMap[oldId];
             }
-            idMap[value] = this;
+            if(value) {
+                idMap[value] = this;
+            }
         }
 
         /**

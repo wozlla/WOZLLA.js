@@ -132,6 +132,7 @@ module WOZLLA.jsonx {
         }
 
         protected _newGameObject(data:any, callback:(gameObj:WOZLLA.GameObject) => void) {
+            var me = this;
             var gameObj = new WOZLLA.GameObject(data.rect);
             gameObj._uuid = data.uuid;
             this.uuidMap[data.uuid] = gameObj;
@@ -156,27 +157,30 @@ module WOZLLA.jsonx {
                 callback(gameObj);
                 return;
             }
-            children.forEach((childData:any) => {
+
+            var index = 0;
+            function next() {
+                var childData = children[index++];
+                if(!childData) {
+                    callback(gameObj);
+                    return;
+                }
                 if(childData.reference) {
-                    this._newReferenceObject(childData, (child) => {
+                    me._newReferenceObject(childData, (child) => {
                         if(child) {
                             gameObj.addChild(child);
                         }
-                        createdChildCount ++;
-                        if(createdChildCount === children.length) {
-                            callback(gameObj);
-                        }
+                        next();
                     });
                 } else {
-                    this._newGameObject(childData, (child) => {
+                    me._newGameObject(childData, (child) => {
                         gameObj.addChild(child);
-                        createdChildCount ++;
-                        if(createdChildCount === children.length) {
-                            callback(gameObj);
-                        }
+                        next();
                     });
                 }
-            });
+            }
+
+            next();
         }
 
         protected _newReferenceObject(data:any, callback:(gameObj:WOZLLA.GameObject) => void) {

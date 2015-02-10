@@ -26,6 +26,11 @@ module WOZLLA.ui {
             super.init();
         }
 
+        destroy() {
+            this._stateMachine.clearAllListeners();
+            super.destroy();
+        }
+
         protected initStates():void {
         }
 

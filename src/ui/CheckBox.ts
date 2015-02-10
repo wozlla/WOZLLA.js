@@ -32,11 +32,6 @@ module WOZLLA.ui {
             super.init();
         }
 
-        destroy() {
-            this._stateMachine.clearAllListeners();
-            super.destroy();
-        }
-
         isEnabled() {
             return this._stateMachine.getCurrentState() !== CheckBox.STATE_DISABLED;
         }

@@ -2157,6 +2157,9 @@ var WOZLLA;
         GameObject.getById = function (id) {
             return idMap[id];
         };
+        GameObject._getIdMap = function () {
+            return idMap;
+        };
         Object.defineProperty(GameObject.prototype, "UID", {
             get: function () {
                 return this._UID;
@@ -2179,7 +2182,9 @@ var WOZLLA;
                 if (oldId) {
                     delete idMap[oldId];
                 }
-                idMap[value] = this;
+                if (value) {
+                    idMap[value] = this;
+                }
             },
             enumerable: true,
             configurable: true
@@ -8533,6 +8538,7 @@ var WOZLLA;
             };
             JSONXBuilder.prototype._newGameObject = function (data, callback) {
                 var _this = this;
+                var me = this;
                 var gameObj = new WOZLLA.GameObject(data.rect);
                 gameObj._uuid = data.uuid;
                 this.uuidMap[data.uuid] = gameObj;
@@ -8555,28 +8561,29 @@ var WOZLLA;
                     callback(gameObj);
                     return;
                 }
-                children.forEach(function (childData) {
+                var index = 0;
+                function next() {
+                    var childData = children[index++];
+                    if (!childData) {
+                        callback(gameObj);
+                        return;
+                    }
                     if (childData.reference) {
-                        _this._newReferenceObject(childData, function (child) {
+                        me._newReferenceObject(childData, function (child) {
                             if (child) {
                                 gameObj.addChild(child);
                             }
-                            createdChildCount++;
-                            if (createdChildCount === children.length) {
-                                callback(gameObj);
-                            }
+                            next();
                         });
                     }
                     else {
-                        _this._newGameObject(childData, function (child) {
+                        me._newGameObject(childData, function (child) {
                             gameObj.addChild(child);
-                            createdChildCount++;
-                            if (createdChildCount === children.length) {
-                                callback(gameObj);
-                            }
+                            next();
                         });
                     }
-                });
+                }
+                next();
             };
             JSONXBuilder.prototype._newReferenceObject = function (data, callback) {
                 var _this = this;
@@ -9269,7 +9276,7 @@ var WOZLLA;
                 WOZLLA.Assert.isNotUndefined(this._stateConfig[state]);
                 from = this._currentState;
                 to = state;
-                transition = this._stateConfig[state][to] || EmptyTransition.getInstance();
+                transition = this._stateConfig[from][to] || EmptyTransition.getInstance();
                 if (this._currentTransition) {
                     this._currentTransition.cancel();
                 }
@@ -9346,6 +9353,10 @@ var WOZLLA;
                 this._stateMachine.addListener(StateMachine.CHANGE, function (e) { return _this.onStateChange(e); });
                 this._stateMachine.init();
                 _super.prototype.init.call(this);
+            };
+            StateWidget.prototype.destroy = function () {
+                this._stateMachine.clearAllListeners();
+                _super.prototype.destroy.call(this);
             };
             StateWidget.prototype.initStates = function () {
             };
@@ -9435,10 +9446,6 @@ var WOZLLA;
                 this.gameObject.addListener('touch', function (e) { return _this.onTouch(e); });
                 this.gameObject.addListener('release', function (e) { return _this.onRelease(e); });
                 _super.prototype.init.call(this);
-            };
-            Button.prototype.destroy = function () {
-                this._stateMachine.clearAllListeners();
-                _super.prototype.destroy.call(this);
             };
             Button.prototype.isEnabled = function () {
                 return this._stateMachine.getCurrentState() !== Button.STATE_DISABLED;
@@ -9545,10 +9552,6 @@ var WOZLLA;
                 var _this = this;
                 this._gameObject.addListener('tap', function (e) { return _this.onTap(e); });
                 _super.prototype.init.call(this);
-            };
-            CheckBox.prototype.destroy = function () {
-                this._stateMachine.clearAllListeners();
-                _super.prototype.destroy.call(this);
             };
             CheckBox.prototype.isEnabled = function () {
                 return this._stateMachine.getCurrentState() !== CheckBox.STATE_DISABLED;

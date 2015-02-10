@@ -52,7 +52,7 @@ module WOZLLA.utils {
             Assert.isNotUndefined(this._stateConfig[state]);
             from = this._currentState;
             to = state;
-            transition = this._stateConfig[state][to] || EmptyTransition.getInstance();
+            transition = this._stateConfig[from][to] || EmptyTransition.getInstance();
             if(this._currentTransition) {
                 this._currentTransition.cancel();
             }

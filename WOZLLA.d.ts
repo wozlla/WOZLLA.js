@@ -771,6 +771,7 @@ declare module WOZLLA {
          * @member WOZLLA.GameObject
          */
         static getById(id: string): GameObject;
+        static _getIdMap(): any;
         UID: string;
         /**
          * get or set the id of this game object
@@ -2760,6 +2761,7 @@ declare module WOZLLA.ui {
         _stateMachine: WOZLLA.utils.StateMachine;
         constructor();
         init(): void;
+        destroy(): void;
         protected initStates(): void;
         protected getStateSpriteName(state: string): string;
         protected setStateSpriteName(state: string, spriteName: string): void;
@@ -2784,7 +2786,6 @@ declare module WOZLLA.ui {
         _touchTime: number;
         _scaleTimer: any;
         init(): void;
-        destroy(): void;
         isEnabled(): boolean;
         setEnabled(enabled?: boolean): void;
         protected initStates(): void;
@@ -2804,7 +2805,6 @@ declare module WOZLLA.ui {
         disabledSpriteName: string;
         checkedSpriteName: string;
         init(): void;
-        destroy(): void;
         isEnabled(): boolean;
         setEnabled(enabled?: boolean): void;
         protected initStates(): void;
