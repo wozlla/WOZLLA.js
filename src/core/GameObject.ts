@@ -151,7 +151,13 @@ module WOZLLA {
          * @member WOZLLA.GameObject
          */
         get visible():boolean { return this._visible; }
-        set visible(value:boolean) { this._visible = value; }
+        set visible(value:boolean) {
+            var oldVisible = this._visible;
+            this._visible = value;
+            if(!oldVisible && value) {
+                this._transform.dirty = true;
+            }
+        }
 
         /**
          * get initialized of this game object
@@ -232,6 +238,8 @@ module WOZLLA {
         _behaviours:Behaviour[];
         _mask:Mask;
 
+        _data:any;
+
         /**
          * new a GameObject
          * @method constructor
@@ -248,6 +256,17 @@ module WOZLLA {
             this._z = 0;
 
             this._behaviours = [];
+        }
+
+        data(key:string, value?:any):any {
+            if(value == void 0) {
+                return this._data ? this._data[key] : undefined;
+            } else {
+                if(!this._data) {
+                    this._data = {};
+                }
+                this._data[key] = value;
+            }
         }
 
         /**
@@ -621,7 +640,7 @@ module WOZLLA {
                 if((flags & GameObject.MASK_TRANSFORM_DIRTY) === GameObject.MASK_TRANSFORM_DIRTY) {
                     this._transform.dirty = true;
                 }
-                return;
+                return flags;
             }
             if(this._transform.dirty) {
                 flags |= GameObject.MASK_TRANSFORM_DIRTY;
