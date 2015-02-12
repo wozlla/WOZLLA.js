@@ -24,6 +24,9 @@ module WOZLLA.component {
         }
 
         set text(value:string) {
+            if(typeof value !== 'string') {
+                value += '';
+            }
             if(value === this._text) return;
             this._text = value;
             this._quadVertexDirty = true;

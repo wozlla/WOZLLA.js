@@ -35,70 +35,77 @@ module WOZLLA.layout {
             this.requestLayout();
         }
 
-        _padding:Padding;
-        _itemMargin:Margin;
+        get itemSize():math.Size {
+            return this._itemSize;
+        }
+        set itemSize(value:math.Size) {
+            this._itemSize = value;
+            this.requestLayout();
+        }
+
+        get constraint():string {
+            return this._constraint;
+        }
+        set constraint(value:string) {
+            this._constraint = value;
+            this.requestLayout();
+        }
+
+        _padding:Padding = new Padding(0, 0, 0, 0);
+        _itemMargin:Margin = new Margin(0, 0, 0, 0);
+        _itemSize:math.Size = new math.Size(0, 0);
+        _constraint:string = Grid.CONSTRAINT_HORIZONTAL;
+        ignoreInvisible:boolean = true;
 
         doLayout():void {
             var padding = this._padding;
             var margin = this._itemMargin;
+            var itemSize = this._itemSize;
             var children = this.gameObject.rawChildren;
+            var rowNum = Math.floor((this.rectTransform.width-padding.left-padding.right)/(itemSize.width+margin.left+margin.right));
 
-            var col = 0;
-            var row = 0;
-            var totalHeight = padding.top + padding.bottom;
-            var rowHeight = 0;
-            var x = padding.left;
-            var y = padding.top;
+            var visibleCount = 0;
             var child;
-            var rect = this.gameObject.rectTransform;
-            for(var i=0,len=children.length; i<len; i++) {
-                child = children[i];
-                this.measureChildSize(child, i, helpSize);
+            var idx;
 
-                // measure x, y
-                x += margin.left;
-                y += margin.top;
-
-                // resolve new row
-                if(x + helpSize.width + margin.right + padding.right > rect.width) {
-                    row ++;
-                    col = 0;
-                    y += margin.bottom;
-                    y += helpSize.height;
-                    x = padding.left + margin.left;
-                    totalHeight += margin.top + margin.bottom + rowHeight;
+            if(this.ignoreInvisible) {
+                for (var i = 0, len = children.length; i < len; i++) {
+                    child = children[i];
+                    if (child.active && child.visible) {
+                        visibleCount++;
+                    }
                 }
-
-                // apply position
-                if(child.rectTransform) {
-                    child.rectTransform.px = x;
-                    child.rectTransform.py = y;
-                } else {
-                    child.transform.x = x;
-                    child.transform.y = y;
-                }
-
-                // determine row height
-                if(helpSize.height > rowHeight) {
-                    rowHeight = helpSize.height;
-                }
-
-                // grow col num
-                x += margin.right + helpSize.width;
-                col++;
-            }
-
-            rect.height = totalHeight + rowHeight;
-        }
-
-        protected measureChildSize(child:GameObject, idx:number, size:WOZLLA.math.Size) {
-            var rectTransform = child.rectTransform;
-            if(!rectTransform) {
-                size.height = size.width = 0;
             } else {
-                size.width = rectTransform.width;
-                size.height = rectTransform.height;
+                visibleCount = children.length;
             }
+
+            var colNum = Math.ceil(visibleCount/rowNum);
+
+            if(this._constraint === Grid.CONSTRAINT_HORIZONTAL) {
+                this.rectTransform.height = colNum * (itemSize.height+margin.top+margin.bottom)
+                    + padding.top + padding.bottom;
+
+                idx = 0;
+                for(var i=0,len=children.length; i<len; i++) {
+                    child = children[i];
+                    if(!this.ignoreInvisible || (this.ignoreInvisible && child.active && child.visible)) {
+                        var row = idx % rowNum;
+                        var col = Math.floor(idx / rowNum);
+                        var x = padding.left + margin.left + (margin.left + margin.right + itemSize.width) * row;
+                        var y = padding.top + margin.top + (margin.top + margin.bottom + itemSize.height) * col;
+                        if (child.rectTransform) {
+                            child.rectTransform.px = x;
+                            child.rectTransform.py = y;
+                        } else {
+                            child.transform.setPosition(x, y);
+                        }
+                        idx++;
+                    }
+                }
+            } else {
+                // TODO
+            }
+
         }
 
     }
@@ -121,6 +128,15 @@ module WOZLLA.layout {
             type: 'Margin',
             convert: component.PropertyConverter.array2Margin,
             defaultValue: [0, 0, 0, 0]
+        }, {
+            name: 'itemSize',
+            type: 'point',
+            defaultValue: [0, 0],
+            convert: component.PropertyConverter.array2size
+        }, {
+            name: 'ignoreInvisible',
+            type: 'boolean',
+            defaultValue: true
         }]
     });
 

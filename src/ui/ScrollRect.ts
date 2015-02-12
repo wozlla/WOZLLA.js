@@ -64,6 +64,8 @@ module WOZLLA.ui {
 
         _contentGameObject:GameObject;
 
+        _bufferBackCheckRequired:boolean = false;
+
         listRequiredComponents():Array<Function> {
             return [RectTransform];
         }
@@ -82,6 +84,7 @@ module WOZLLA.ui {
             this.gameObject.removeListenerScope('panstart', this.onDragStart, this);
             this.gameObject.removeListenerScope('panmove', this.onDrag, this);
             this.gameObject.removeListenerScope('panend', this.onDragEnd, this);
+            this.clearAllTweens();
             super.destroy();
         }
 
@@ -101,14 +104,16 @@ module WOZLLA.ui {
                     contentTrans.px = middle(contentTrans.px, minScrollX, 0);
                 }
                 var bufferMomentumX = false;
-                if (contentTrans.px > 0 && this._values.velocityX !== 0) {
+                if (contentTrans.px > 0 && this._values.velocityX !== 0 || this._bufferBackCheckRequired) {
                     contentTrans.px = 0;
                     this._values.momentumX = this._values.velocityX;
                     bufferMomentumX = true;
-                } else if (contentTrans.px < minScrollX && this._values.velocityX !== 0) {
+                    this._bufferBackCheckRequired = false;
+                } else if (contentTrans.px < minScrollX && this._values.velocityX !== 0 || this._bufferBackCheckRequired) {
                     contentTrans.px = minScrollX;
                     this._values.momentumX = this._values.velocityX;
                     bufferMomentumX = true;
+                    this._bufferBackCheckRequired = false;
                 }
                 if (bufferMomentumX) {
                     if (this._values.momentumXTween) {
@@ -129,14 +134,16 @@ module WOZLLA.ui {
                     contentTrans.py = middle(contentTrans.py, minScrollY, 0);
                 }
                 var bufferMomentumY = false;
-                if(contentTrans.py > 0 && this._values.velocityY !== 0) {
+                if(contentTrans.py > 0 && this._values.velocityY !== 0 || this._bufferBackCheckRequired) {
                     contentTrans.py = 0;
                     this._values.momentumY = this._values.velocityY;
                     bufferMomentumY = true;
-                } else if(contentTrans.py < minScrollY && this._values.velocityY !== 0) {
+                    this._bufferBackCheckRequired = false;
+                } else if(contentTrans.py < minScrollY && this._values.velocityY !== 0 || this._bufferBackCheckRequired) {
                     contentTrans.py = minScrollY;
                     this._values.momentumY = this._values.velocityY;
                     bufferMomentumY = true;
+                    this._bufferBackCheckRequired = false;
                 }
                 if(bufferMomentumY) {
                     if(this._values.momentumYTween) {
@@ -153,6 +160,40 @@ module WOZLLA.ui {
 
         isScrollable() {
             return this._contentGameObject && ScrollRect.globalScrollEnabled && this._enabled;
+        }
+
+        requestCheckBufferBack() {
+            this._bufferBackCheckRequired = true;
+        }
+
+        stopScroll() {
+            this.clearAllTweens();
+            this._values.lastDragX = 0;
+            this._values.lastDragY = 0;
+            this._values.velocityX = 0;
+            this._values.velocityY = 0;
+            this._values.momentumX = 0;
+            this._values.momentumY = 0;
+        }
+
+        protected clearAllTweens() {
+            this._contentGameObject.rectTransform.clearTweens();
+            if (this._values.momentumXTween) {
+                this._values.momentumXTween.setPaused(true);
+                this._values.momentumXTween = null;
+            }
+            if (this._values.momentumYTween) {
+                this._values.momentumYTween.setPaused(true);
+                this._values.momentumYTween = null;
+            }
+            if (this._values.bufferXTween) {
+                this._values.bufferXTween.setPaused(true);
+                this._values.bufferXTween = null;
+            }
+            if (this._values.bufferYTween) {
+                this._values.bufferYTween.setPaused(true);
+                this._values.bufferYTween = null;
+            }
         }
 
         protected getMinScrollX() {
@@ -175,19 +216,7 @@ module WOZLLA.ui {
             this._values.velocityY = 0;
             this._values.momentumX = 0;
             this._values.momentumY = 0;
-            this._contentGameObject.rectTransform.clearTweens();
-            if (this._values.momentumXTween) {
-                this._values.momentumXTween.setPaused(true);
-            }
-            if (this._values.momentumYTween) {
-                this._values.momentumYTween.setPaused(true);
-            }
-            if (this._values.bufferXTween) {
-                this._values.bufferXTween.setPaused(true);
-            }
-            if (this._values.bufferYTween) {
-                this._values.bufferYTween.setPaused(true);
-            }
+            this.clearAllTweens();
         }
 
         protected onDrag(e) {
@@ -326,7 +355,7 @@ module WOZLLA.ui {
                 var child = children[i];
                 var rect = child.rectTransform;
                 var globalP = rect.localToGlobal(0, 0, helpPoint);
-                var localP = thisTrans.globalToLocal(globalP.x, globalP.y);
+                var localP = thisTrans.globalToLocal(globalP.x, globalP.y, helpPoint);
                 child.visible = rectIntersect2(
                     0, 0, thisTrans.width, thisTrans.height,
                     localP.x, localP.y, rect.width, rect.height
