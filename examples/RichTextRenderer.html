@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RichTextRenderer | WOZLLA.js</title>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500" style="border: 1px solid #999;"></canvas>
+<textarea id="textProvider" rows="20" cols="80">《饥饿游戏3：嘲笑鸟（上）》是科幻冒险系列电影《饥饿游戏》第三集，改编自苏珊•柯林斯同名小说，由弗朗西斯•劳伦斯执导，<color value='red'>詹妮弗•劳伦斯</color><color value='red'>詹妮弗•劳伦斯</color>、乔什•哈切森、利亚姆•海姆斯沃斯、朱丽安•摩尔主演。影片讲述了原本被彻底消灭在的第十三区再度出现，凯特尼斯被迫成为反抗者的棋子，肩负起了改变帕纳姆国未来的使命。该片于2015年2月8日在中国上映。</textarea>
+
+<script type="text/javascript" src="../WOZLLA.js"></script>
+<script type="text/javascript">
+    var director = new WOZLLA.Director(document.getElementById('canvas'));
+
+    var gameObj = new WOZLLA.GameObject();
+    var richText = new WOZLLA.component.RichTextRenderer();
+    richText.lineWidth = 480;
+    richText.text = document.getElementById('textProvider').value;
+    document.getElementById('textProvider').onchange = function() {
+        richText.text = document.getElementById('textProvider').value;
+        director.runStep(1);
+    };
+    gameObj.addComponent(richText);
+
+    gameObj.transform.setPosition(10, 0);
+
+    // this would automatically load all assets of gameObj, children and children's children.
+    gameObj.loadAssets(function() {
+        gameObj.init();
+        director.stage.addChild(gameObj);
+        director.runStep(1);
+    });
+</script>
+</body>
+</html>

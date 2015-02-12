@@ -2327,7 +2327,11 @@ var WOZLLA;
                 return this._visible;
             },
             set: function (value) {
+                var oldVisible = this._visible;
                 this._visible = value;
+                if (!oldVisible && value) {
+                    this._transform.dirty = true;
+                }
             },
             enumerable: true,
             configurable: true
@@ -2426,6 +2430,17 @@ var WOZLLA;
             enumerable: true,
             configurable: true
         });
+        GameObject.prototype.data = function (key, value) {
+            if (value == void 0) {
+                return this._data ? this._data[key] : undefined;
+            }
+            else {
+                if (!this._data) {
+                    this._data = {};
+                }
+                this._data[key] = value;
+            }
+        };
         /**
          * get active in tree
          * @method isActive
@@ -2790,7 +2805,7 @@ var WOZLLA;
                 if ((flags & GameObject.MASK_TRANSFORM_DIRTY) === GameObject.MASK_TRANSFORM_DIRTY) {
                     this._transform.dirty = true;
                 }
-                return;
+                return flags;
             }
             if (this._transform.dirty) {
                 flags |= GameObject.MASK_TRANSFORM_DIRTY;
@@ -3298,7 +3313,7 @@ var WOZLLA;
             me.updateCanvasOffset();
             if (window['Hammer']) {
                 me.hammer = new Hammer.Manager(canvas);
-                me.hammer.add(new Hammer.Tap({ threshold: 10 }));
+                me.hammer.add(new Hammer.Tap({ threshold: 100 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 5 }));
                 me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend pancancel', function (e) {
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
@@ -5314,6 +5329,9 @@ var WOZLLA;
             PropertyConverter.array2point = function (arr) {
                 return new WOZLLA.math.Point(arr[0], arr[1]);
             };
+            PropertyConverter.array2size = function (arr) {
+                return new WOZLLA.math.Size(arr[0], arr[1]);
+            };
             PropertyConverter.array2rect = function (arr) {
                 return new WOZLLA.math.Rectangle(arr[0], arr[1], arr[2], arr[3]);
             };
@@ -6259,8 +6277,51 @@ var WOZLLA;
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
+var WOZLLA;
+(function (WOZLLA) {
+    var math;
+    (function (math) {
+        /**
+         * @class WOZLLA.math.Size
+         * a util class contains width and height properties
+         */
+        var Size = (function () {
+            /**
+             * @method constructor
+             * create a new instance of Size
+             * @member WOZLLA.math.Size
+             * @param {number} width
+             * @param {number} height
+             */
+            function Size(width, height) {
+                /**
+                 * @property {number} width
+                 * get or set width of this object
+                 * @member WOZLLA.math.Size
+                 */
+                this.width = width;
+                /**
+                 * @property {number} height
+                 * get or set height of this object
+                 * @member WOZLLA.math.Size
+                 */
+                this.height = height;
+            }
+            /**
+             * get simple description of this object
+             * @returns {string}
+             */
+            Size.prototype.toString = function () {
+                return 'Size[' + this.width + ',' + this.height + ']';
+            };
+            return Size;
+        })();
+        math.Size = Size;
+    })(math = WOZLLA.math || (WOZLLA.math = {}));
+})(WOZLLA || (WOZLLA = {}));
 /// <reference path="../../assets/GLTextureAsset.ts"/>
 /// <reference path="QuadRenderer.ts"/>
+/// <reference path="../../math/Size.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
     var component;
@@ -7702,6 +7763,8 @@ var WOZLLA;
                 }
                 this.setTextureOffset(offset);
             };
+            TextRenderer.helpCanvas = helpCanvas;
+            TextRenderer.helpContext = helpContext;
             return TextRenderer;
         })(component.CanvasRenderer);
         component.TextRenderer = TextRenderer;
@@ -7861,6 +7924,32 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            TextStyle.prototype.save = function () {
+                if (!this._stack) {
+                    this._stack = [];
+                }
+                this._stack.push({
+                    font: this.font,
+                    color: this.color,
+                    shadow: this.shadow,
+                    shadowColor: this.shadowColor,
+                    shadowOffsetX: this.shadowOffsetX,
+                    shadowOffsetY: this.shadowOffsetY,
+                    stroke: this.stroke,
+                    strokeColor: this.strokeColor,
+                    strokeWidth: this.strokeWidth,
+                    align: this.align,
+                    baseline: this.baseline
+                });
+            };
+            TextStyle.prototype.restore = function () {
+                var data = this._stack && this._stack.shift();
+                if (data) {
+                    for (var i in data) {
+                        this[i] = data[i];
+                    }
+                }
+            };
             TextStyle.START = 'start';
             TextStyle.CENTER = 'center';
             TextStyle.END = 'end';
@@ -7894,6 +7983,279 @@ var WOZLLA;
                         strokeWidth: 0,
                         align: TextStyle.START,
                         baseline: TextStyle.TOP
+                    }
+                }
+            ]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="TextRenderer.ts"/>
+/// <reference path="../PropertyConverter.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var RichTextRenderer = (function (_super) {
+            __extends(RichTextRenderer, _super);
+            function RichTextRenderer() {
+                _super.apply(this, arguments);
+                this.lineWidth = 256;
+                this.lineHeight = 24;
+            }
+            Object.defineProperty(RichTextRenderer.prototype, "offset", {
+                get: function () {
+                    return this._getTextureOffset();
+                },
+                set: function (value) {
+                    this.setTextureOffset(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            RichTextRenderer.prototype.drawText = function (context, measuredWidth, measuredHeight) {
+                var startX = 0;
+                var startY = 0;
+                if (this._textStyle.stroke) {
+                    startX += this._textStyle.strokeWidth;
+                    startY += this._textStyle.strokeWidth;
+                }
+                if (this._textStyle.shadow) {
+                    startX += Math.abs(this._textStyle.shadowOffsetX);
+                    startY += Math.abs(this._textStyle.shadowOffsetX);
+                }
+                var drawShadow = this._textStyle.shadow && (this._textStyle.shadowOffsetX > 0 || this._textStyle.shadowOffsetY > 0);
+                var drawStroke = this._textStyle.stroke && this._textStyle.strokeWidth > 0;
+                var fragments = this._fragments;
+                var textData;
+                var text;
+                var color = this._textStyle.color;
+                var x = 0, y = startY;
+                var offsetX = 0;
+                context.font = this._textStyle.font;
+                context.textAlign = 'start';
+                context.textBaseline = 'top';
+                for (var i = 0, len = fragments.length; i < len; i++) {
+                    textData = fragments[i];
+                    if (typeof textData !== 'string') {
+                        if (textData.start) {
+                            color = textData.color;
+                            offsetX = textData.x;
+                            textData = fragments[i + 1];
+                            i++;
+                        }
+                        else if (textData.end) {
+                            color = this._textStyle.color;
+                            offsetX = textData.x;
+                            textData = fragments[i + 1];
+                            if (typeof textData !== 'string') {
+                                continue;
+                            }
+                            i++;
+                        }
+                    }
+                    else {
+                        offsetX = 0;
+                    }
+                    text = textData;
+                    x = startX + offsetX;
+                    if (i !== 0 && offsetX === 0) {
+                        y += this.lineHeight;
+                    }
+                    if (drawShadow) {
+                        context.fillStyle = this._textStyle.shadowColor;
+                        context.fillText(text, x + this._textStyle.shadowOffsetX, y + this._textStyle.shadowOffsetY);
+                    }
+                    if (drawStroke) {
+                        context.strokeStyle = this._textStyle.strokeColor;
+                        context.lineWidth = this._textStyle.strokeWidth;
+                        context.strokeText(text, x, y);
+                    }
+                    context.fillStyle = color;
+                    context.fillText(text, x, y);
+                }
+            };
+            RichTextRenderer.prototype.measureTextSize = function () {
+                var measureSize;
+                if (!this._text) {
+                    measureSize = {
+                        width: 0,
+                        height: 0
+                    };
+                }
+                else {
+                    var lineNum = this.parseText();
+                    var strokeExtend = this._textStyle.stroke ? this._textStyle.strokeWidth * 2 : 0;
+                    var shadowXExtend = this._textStyle.shadow ? Math.abs(this._textStyle.shadowOffsetX) * 2 : 0;
+                    var shadowYExtend = this._textStyle.shadow ? Math.abs(this._textStyle.shadowOffsetY) * 2 : 0;
+                    measureSize = {
+                        width: this.lineWidth + strokeExtend + shadowXExtend,
+                        height: this.lineHeight * lineNum + strokeExtend + shadowYExtend
+                    };
+                }
+                return measureSize;
+            };
+            RichTextRenderer.prototype.generateCanvasTexture = function (renderer) {
+                _super.prototype.generateCanvasTexture.call(this, renderer);
+            };
+            RichTextRenderer.prototype.parseText = function () {
+                var text = this._text;
+                var fragments = [];
+                text.trim();
+                text = text.replace(/([\s\S]*?)<color value='(.*?)'>([\s\S]*?)<\/color>/ig, function (word) {
+                    var result = /([\s\S]*?)<color value='(.*?)'>([\s\S]*?)<\/color>/ig.exec(word);
+                    var presetText = result[1];
+                    var color = result[2];
+                    var colorText = result[3];
+                    if (presetText) {
+                        fragments.push(presetText);
+                    }
+                    if (colorText) {
+                        fragments.push({
+                            color: color,
+                            text: colorText
+                        });
+                    }
+                    return '';
+                });
+                if (text) {
+                    fragments.push(text);
+                }
+                var helpContext = component.TextRenderer.helpContext;
+                var lineWidth = this.lineWidth;
+                var lineNum = 0;
+                var line = '';
+                var frag;
+                var words;
+                var wrappedFragments = [];
+                var testWidthPreset = 0;
+                helpContext.font = this._textStyle.font;
+                for (var i = 0, len = fragments.length; i < len; i++) {
+                    frag = fragments[i];
+                    if (typeof frag === 'string') {
+                        words = frag;
+                        for (var n = 0; n < words.length; n++) {
+                            if (words[n] === '\n') {
+                                wrappedFragments.push(line);
+                                line = '';
+                                lineNum++;
+                                testWidthPreset = 0;
+                            }
+                            else {
+                                var testLine = line + words[n];
+                                var metrics = helpContext.measureText(testLine);
+                                var testWidth = metrics.width + testWidthPreset;
+                                if (testWidth > lineWidth && n > 0) {
+                                    wrappedFragments.push(line);
+                                    line = words[n];
+                                    lineNum++;
+                                    testWidthPreset = 0;
+                                }
+                                else {
+                                    line = testLine;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (line) {
+                            wrappedFragments.push(line);
+                            testWidthPreset = Math.ceil(helpContext.measureText(line).width);
+                            line = '';
+                        }
+                        var color = frag.color;
+                        var words = frag.text;
+                        wrappedFragments.push({
+                            color: color,
+                            start: true,
+                            x: testWidthPreset
+                        });
+                        for (var n = 0; n < words.length; n++) {
+                            if (words[n] === '\n') {
+                                wrappedFragments.push(line);
+                                line = '';
+                                lineNum++;
+                                testWidthPreset = 0;
+                            }
+                            else {
+                                var testLine = line + words[n];
+                                var metrics = helpContext.measureText(testLine);
+                                var testWidth = metrics.width + testWidthPreset;
+                                if (testWidth > lineWidth && n > 0) {
+                                    wrappedFragments.push(line);
+                                    line = words[n];
+                                    lineNum++;
+                                    testWidthPreset = 0;
+                                }
+                                else {
+                                    line = testLine;
+                                }
+                            }
+                        }
+                        if (line) {
+                            wrappedFragments.push(line);
+                            testWidthPreset += Math.ceil(helpContext.measureText(line).width);
+                            line = '';
+                        }
+                        else {
+                            testWidthPreset = 0;
+                        }
+                        wrappedFragments.push({
+                            color: color,
+                            end: true,
+                            x: testWidthPreset
+                        });
+                    }
+                }
+                if (line) {
+                    wrappedFragments.push(line);
+                    lineNum++;
+                }
+                this._fragments = wrappedFragments;
+                return lineNum;
+            };
+            return RichTextRenderer;
+        })(component.TextRenderer);
+        component.RichTextRenderer = RichTextRenderer;
+        WOZLLA.Component.register(RichTextRenderer, {
+            name: 'RichTextRenderer',
+            properties: [
+                WOZLLA.Component.extendConfig(component.CanvasRenderer),
+                {
+                    name: 'text',
+                    type: 'string',
+                    defaultValue: ''
+                },
+                {
+                    name: 'offset',
+                    type: 'spriteOffset',
+                    convert: component.PropertyConverter.array2point,
+                    defaultValue: [0, 0]
+                },
+                {
+                    name: 'lineWidth',
+                    type: 'int',
+                    defaultValue: 256
+                },
+                {
+                    name: 'lineHeight',
+                    type: 'int',
+                    defaultValue: 24
+                },
+                {
+                    name: 'textStyle',
+                    type: 'textStyle',
+                    convert: component.PropertyConverter.json2TextStyle,
+                    defaultValue: {
+                        font: 'normal 24px Arial',
+                        color: '#000000',
+                        shadow: false,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        stroke: false,
+                        strokeColor: '#000000',
+                        strokeWidth: 0,
+                        align: component.TextStyle.START,
+                        baseline: component.TextStyle.TOP
                     }
                 }
             ]
@@ -7937,6 +8299,9 @@ var WOZLLA;
                     return this._text;
                 },
                 set: function (value) {
+                    if (typeof value !== 'string') {
+                        value += '';
+                    }
                     if (value === this._text)
                         return;
                     this._text = value;
@@ -8704,48 +9069,6 @@ var WOZLLA;
 })(WOZLLA || (WOZLLA = {}));
 var WOZLLA;
 (function (WOZLLA) {
-    var math;
-    (function (math) {
-        /**
-         * @class WOZLLA.math.Size
-         * a util class contains width and height properties
-         */
-        var Size = (function () {
-            /**
-             * @method constructor
-             * create a new instance of Size
-             * @member WOZLLA.math.Size
-             * @param {number} width
-             * @param {number} height
-             */
-            function Size(width, height) {
-                /**
-                 * @property {number} width
-                 * get or set width of this object
-                 * @member WOZLLA.math.Size
-                 */
-                this.width = width;
-                /**
-                 * @property {number} height
-                 * get or set height of this object
-                 * @member WOZLLA.math.Size
-                 */
-                this.height = height;
-            }
-            /**
-             * get simple description of this object
-             * @returns {string}
-             */
-            Size.prototype.toString = function () {
-                return 'Size[' + this.width + ',' + this.height + ']';
-            };
-            return Size;
-        })();
-        math.Size = Size;
-    })(math = WOZLLA.math || (WOZLLA.math = {}));
-})(WOZLLA || (WOZLLA = {}));
-var WOZLLA;
-(function (WOZLLA) {
     var layout;
     (function (layout) {
         var Margin = (function () {
@@ -8776,6 +9099,11 @@ var WOZLLA;
             __extends(Grid, _super);
             function Grid() {
                 _super.apply(this, arguments);
+                this._padding = new layout.Padding(0, 0, 0, 0);
+                this._itemMargin = new layout.Margin(0, 0, 0, 0);
+                this._itemSize = new WOZLLA.math.Size(0, 0);
+                this._constraint = Grid.CONSTRAINT_HORIZONTAL;
+                this.ignoreInvisible = true;
             }
             Grid.prototype.listRequiredComponents = function () {
                 return [WOZLLA.RectTransform];
@@ -8804,60 +9132,71 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Grid.prototype, "itemSize", {
+                get: function () {
+                    return this._itemSize;
+                },
+                set: function (value) {
+                    this._itemSize = value;
+                    this.requestLayout();
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Grid.prototype, "constraint", {
+                get: function () {
+                    return this._constraint;
+                },
+                set: function (value) {
+                    this._constraint = value;
+                    this.requestLayout();
+                },
+                enumerable: true,
+                configurable: true
+            });
             Grid.prototype.doLayout = function () {
                 var padding = this._padding;
                 var margin = this._itemMargin;
+                var itemSize = this._itemSize;
                 var children = this.gameObject.rawChildren;
-                var col = 0;
-                var row = 0;
-                var totalHeight = padding.top + padding.bottom;
-                var rowHeight = 0;
-                var x = padding.left;
-                var y = padding.top;
+                var rowNum = Math.floor((this.rectTransform.width - padding.left - padding.right) / (itemSize.width + margin.left + margin.right));
+                var visibleCount = 0;
                 var child;
-                var rect = this.gameObject.rectTransform;
-                for (var i = 0, len = children.length; i < len; i++) {
-                    child = children[i];
-                    this.measureChildSize(child, i, helpSize);
-                    // measure x, y
-                    x += margin.left;
-                    y += margin.top;
-                    // resolve new row
-                    if (x + helpSize.width + margin.right + padding.right > rect.width) {
-                        row++;
-                        col = 0;
-                        y += margin.bottom;
-                        y += helpSize.height;
-                        x = padding.left + margin.left;
-                        totalHeight += margin.top + margin.bottom + rowHeight;
+                var idx;
+                if (this.ignoreInvisible) {
+                    for (var i = 0, len = children.length; i < len; i++) {
+                        child = children[i];
+                        if (child.active && child.visible) {
+                            visibleCount++;
+                        }
                     }
-                    // apply position
-                    if (child.rectTransform) {
-                        child.rectTransform.px = x;
-                        child.rectTransform.py = y;
-                    }
-                    else {
-                        child.transform.x = x;
-                        child.transform.y = y;
-                    }
-                    // determine row height
-                    if (helpSize.height > rowHeight) {
-                        rowHeight = helpSize.height;
-                    }
-                    // grow col num
-                    x += margin.right + helpSize.width;
-                    col++;
-                }
-                rect.height = totalHeight + rowHeight;
-            };
-            Grid.prototype.measureChildSize = function (child, idx, size) {
-                var rectTransform = child.rectTransform;
-                if (!rectTransform) {
-                    size.height = size.width = 0;
                 }
                 else {
-                    size.width = rectTransform.width;
-                    size.height = rectTransform.height;
+                    visibleCount = children.length;
+                }
+                var colNum = Math.ceil(visibleCount / rowNum);
+                if (this._constraint === Grid.CONSTRAINT_HORIZONTAL) {
+                    this.rectTransform.height = colNum * (itemSize.height + margin.top + margin.bottom) + padding.top + padding.bottom;
+                    idx = 0;
+                    for (var i = 0, len = children.length; i < len; i++) {
+                        child = children[i];
+                        if (!this.ignoreInvisible || (this.ignoreInvisible && child.active && child.visible)) {
+                            var row = idx % rowNum;
+                            var col = Math.floor(idx / rowNum);
+                            var x = padding.left + margin.left + (margin.left + margin.right + itemSize.width) * row;
+                            var y = padding.top + margin.top + (margin.top + margin.bottom + itemSize.height) * col;
+                            if (child.rectTransform) {
+                                child.rectTransform.px = x;
+                                child.rectTransform.py = y;
+                            }
+                            else {
+                                child.transform.setPosition(x, y);
+                            }
+                            idx++;
+                        }
+                    }
+                }
+                else {
                 }
             };
             Grid.CONSTRAINT_HORIZONTAL = "Horizontal";
@@ -8884,6 +9223,15 @@ var WOZLLA;
                 type: 'Margin',
                 convert: WOZLLA.component.PropertyConverter.array2Margin,
                 defaultValue: [0, 0, 0, 0]
+            }, {
+                name: 'itemSize',
+                type: 'point',
+                defaultValue: [0, 0],
+                convert: WOZLLA.component.PropertyConverter.array2size
+            }, {
+                name: 'ignoreInvisible',
+                type: 'boolean',
+                defaultValue: true
             }]
         });
     })(layout = WOZLLA.layout || (WOZLLA.layout = {}));
@@ -9464,7 +9812,7 @@ var WOZLLA;
                 this._stateMachine.changeState(Button.STATE_PRESSED);
                 if (this._scaleOnPress) {
                     this._touchTime = WOZLLA.Time.now;
-                    this.transform.tween(false).to({
+                    this._touchTween = this.transform.tween(false).to({
                         scaleX: this._scaleOnPress * this._originScaleX,
                         scaleY: this._scaleOnPress * this._originScaleY
                     }, 100);
@@ -9474,12 +9822,15 @@ var WOZLLA;
                 var _this = this;
                 this._stateMachine.changeState(Button.STATE_NORMAL);
                 this._scaleTimer && this.scheduler.removeSchedule(this._scaleTimer);
-                this._scaleTimer = this.scheduler.scheduleTime(function () {
-                    _this.transform.tween(false).to({
-                        scaleX: _this._originScaleX,
-                        scaleY: _this._originScaleY
-                    }, 100);
-                }, 100 + this._touchTime - WOZLLA.Time.now);
+                if (this._scaleOnPress) {
+                    this._scaleTimer = this.scheduler.scheduleTime(function () {
+                        _this._touchTween.setPaused();
+                        _this.transform.tween(false).to({
+                            scaleX: _this._originScaleX,
+                            scaleY: _this._originScaleY
+                        }, 100);
+                    }, 100 + this._touchTime - WOZLLA.Time.now);
+                }
             };
             Button.STATE_NORMAL = 'normal';
             Button.STATE_DISABLED = 'disabled';
@@ -9517,6 +9868,7 @@ var WOZLLA;
             __extends(CheckBox, _super);
             function CheckBox() {
                 _super.apply(this, arguments);
+                this.initState = CheckBox.STATE_CHECKED;
             }
             Object.defineProperty(CheckBox.prototype, "uncheckedSpriteName", {
                 get: function () {
@@ -9552,6 +9904,10 @@ var WOZLLA;
                 var _this = this;
                 this._gameObject.addListener('tap', function (e) { return _this.onTap(e); });
                 _super.prototype.init.call(this);
+                if (!this.initState) {
+                    this.initState = CheckBox.STATE_CHECKED;
+                }
+                this._stateMachine.changeState(this.initState);
             };
             CheckBox.prototype.isEnabled = function () {
                 return this._stateMachine.getCurrentState() !== CheckBox.STATE_DISABLED;
@@ -9561,19 +9917,30 @@ var WOZLLA;
                 this._stateMachine.changeState(enabled ? CheckBox.STATE_UNCHECKED : CheckBox.STATE_DISABLED);
                 this._gameObject.touchable = enabled;
             };
+            CheckBox.prototype.setChecked = function (checked) {
+                if (checked === void 0) { checked = true; }
+                if (this.isEnabled()) {
+                    this._stateMachine.changeState(checked ? CheckBox.STATE_CHECKED : CheckBox.STATE_UNCHECKED);
+                }
+            };
+            CheckBox.prototype.isChecked = function () {
+                return this._stateMachine.getCurrentState() === CheckBox.STATE_CHECKED;
+            };
             CheckBox.prototype.initStates = function () {
-                this._stateMachine.defineState(CheckBox.STATE_UNCHECKED, true);
-                this._stateMachine.defineState(CheckBox.STATE_DISABLED);
-                this._stateMachine.defineState(CheckBox.STATE_CHECKED);
+                if (!this.initState) {
+                    this.initState = CheckBox.STATE_CHECKED;
+                }
+                this._stateMachine.defineState(CheckBox.STATE_UNCHECKED, this.initState === CheckBox.STATE_UNCHECKED);
+                this._stateMachine.defineState(CheckBox.STATE_DISABLED, this.initState === CheckBox.STATE_DISABLED);
+                this._stateMachine.defineState(CheckBox.STATE_CHECKED, this.initState === CheckBox.STATE_CHECKED);
             };
             CheckBox.prototype.onTap = function (e) {
-                if (this._stateMachine.getCurrentState() === CheckBox.STATE_CHECKED) {
-                    this._stateMachine.changeState(CheckBox.STATE_UNCHECKED);
-                }
-                else {
-                    this._stateMachine.changeState(CheckBox.STATE_CHECKED);
+                if (this.isEnabled()) {
+                    this.setChecked(this._stateMachine.getCurrentState() !== CheckBox.STATE_CHECKED);
+                    this.gameObject.dispatchEvent(new WOZLLA.event.Event(CheckBox.EVENT_CHECK_CHANGE, true, this.isChecked()));
                 }
             };
+            CheckBox.EVENT_CHECK_CHANGE = 'CheckBox.checkChange';
             CheckBox.STATE_UNCHECKED = 'unchecked';
             CheckBox.STATE_CHECKED = 'checked';
             CheckBox.STATE_DISABLED = 'disabled';
@@ -9586,7 +9953,18 @@ var WOZLLA;
                 WOZLLA.Component.extendConfig(ui.StateWidget),
                 WOZLLA.component.PropertySnip.createSpriteFrame('disabledSpriteName'),
                 WOZLLA.component.PropertySnip.createSpriteFrame('uncheckedSpriteName'),
-                WOZLLA.component.PropertySnip.createSpriteFrame('checkedSpriteName')
+                WOZLLA.component.PropertySnip.createSpriteFrame('checkedSpriteName'),
+                {
+                    name: 'initState',
+                    type: 'string',
+                    editor: 'combobox',
+                    defaultValue: CheckBox.STATE_CHECKED,
+                    data: [
+                        CheckBox.STATE_CHECKED,
+                        CheckBox.STATE_UNCHECKED,
+                        CheckBox.STATE_DISABLED
+                    ]
+                }
             ]
         });
     })(ui = WOZLLA.ui || (WOZLLA.ui = {}));
@@ -9625,6 +10003,7 @@ var WOZLLA;
                     bufferXTween: undefined,
                     bufferYTween: undefined
                 };
+                this._bufferBackCheckRequired = false;
             }
             Object.defineProperty(ScrollRect.prototype, "direction", {
                 get: function () {
@@ -9720,6 +10099,7 @@ var WOZLLA;
                 this.gameObject.removeListenerScope('panstart', this.onDragStart, this);
                 this.gameObject.removeListenerScope('panmove', this.onDrag, this);
                 this.gameObject.removeListenerScope('panend', this.onDragEnd, this);
+                this.clearAllTweens();
                 _super.prototype.destroy.call(this);
             };
             ScrollRect.prototype.update = function () {
@@ -9739,15 +10119,17 @@ var WOZLLA;
                         contentTrans.px = middle(contentTrans.px, minScrollX, 0);
                     }
                     var bufferMomentumX = false;
-                    if (contentTrans.px > 0 && this._values.velocityX !== 0) {
+                    if (contentTrans.px > 0 && this._values.velocityX !== 0 || this._bufferBackCheckRequired) {
                         contentTrans.px = 0;
                         this._values.momentumX = this._values.velocityX;
                         bufferMomentumX = true;
+                        this._bufferBackCheckRequired = false;
                     }
-                    else if (contentTrans.px < minScrollX && this._values.velocityX !== 0) {
+                    else if (contentTrans.px < minScrollX && this._values.velocityX !== 0 || this._bufferBackCheckRequired) {
                         contentTrans.px = minScrollX;
                         this._values.momentumX = this._values.velocityX;
                         bufferMomentumX = true;
+                        this._bufferBackCheckRequired = false;
                     }
                     if (bufferMomentumX) {
                         if (this._values.momentumXTween) {
@@ -9767,15 +10149,17 @@ var WOZLLA;
                         contentTrans.py = middle(contentTrans.py, minScrollY, 0);
                     }
                     var bufferMomentumY = false;
-                    if (contentTrans.py > 0 && this._values.velocityY !== 0) {
+                    if (contentTrans.py > 0 && this._values.velocityY !== 0 || this._bufferBackCheckRequired) {
                         contentTrans.py = 0;
                         this._values.momentumY = this._values.velocityY;
                         bufferMomentumY = true;
+                        this._bufferBackCheckRequired = false;
                     }
-                    else if (contentTrans.py < minScrollY && this._values.velocityY !== 0) {
+                    else if (contentTrans.py < minScrollY && this._values.velocityY !== 0 || this._bufferBackCheckRequired) {
                         contentTrans.py = minScrollY;
                         this._values.momentumY = this._values.velocityY;
                         bufferMomentumY = true;
+                        this._bufferBackCheckRequired = false;
                     }
                     if (bufferMomentumY) {
                         if (this._values.momentumYTween) {
@@ -9791,6 +10175,37 @@ var WOZLLA;
             };
             ScrollRect.prototype.isScrollable = function () {
                 return this._contentGameObject && ScrollRect.globalScrollEnabled && this._enabled;
+            };
+            ScrollRect.prototype.requestCheckBufferBack = function () {
+                this._bufferBackCheckRequired = true;
+            };
+            ScrollRect.prototype.stopScroll = function () {
+                this.clearAllTweens();
+                this._values.lastDragX = 0;
+                this._values.lastDragY = 0;
+                this._values.velocityX = 0;
+                this._values.velocityY = 0;
+                this._values.momentumX = 0;
+                this._values.momentumY = 0;
+            };
+            ScrollRect.prototype.clearAllTweens = function () {
+                this._contentGameObject.rectTransform.clearTweens();
+                if (this._values.momentumXTween) {
+                    this._values.momentumXTween.setPaused(true);
+                    this._values.momentumXTween = null;
+                }
+                if (this._values.momentumYTween) {
+                    this._values.momentumYTween.setPaused(true);
+                    this._values.momentumYTween = null;
+                }
+                if (this._values.bufferXTween) {
+                    this._values.bufferXTween.setPaused(true);
+                    this._values.bufferXTween = null;
+                }
+                if (this._values.bufferYTween) {
+                    this._values.bufferYTween.setPaused(true);
+                    this._values.bufferYTween = null;
+                }
             };
             ScrollRect.prototype.getMinScrollX = function () {
                 return this.visibleWidth - this.contentWidth;
@@ -9810,19 +10225,7 @@ var WOZLLA;
                 this._values.velocityY = 0;
                 this._values.momentumX = 0;
                 this._values.momentumY = 0;
-                this._contentGameObject.rectTransform.clearTweens();
-                if (this._values.momentumXTween) {
-                    this._values.momentumXTween.setPaused(true);
-                }
-                if (this._values.momentumYTween) {
-                    this._values.momentumYTween.setPaused(true);
-                }
-                if (this._values.bufferXTween) {
-                    this._values.bufferXTween.setPaused(true);
-                }
-                if (this._values.bufferYTween) {
-                    this._values.bufferYTween.setPaused(true);
-                }
+                this.clearAllTweens();
             };
             ScrollRect.prototype.onDrag = function (e) {
                 if (!this.isScrollable() || !this._dragging) {
@@ -9955,7 +10358,7 @@ var WOZLLA;
                     var child = children[i];
                     var rect = child.rectTransform;
                     var globalP = rect.localToGlobal(0, 0, helpPoint);
-                    var localP = thisTrans.globalToLocal(globalP.x, globalP.y);
+                    var localP = thisTrans.globalToLocal(globalP.x, globalP.y, helpPoint);
                     child.visible = rectIntersect2(0, 0, thisTrans.width, thisTrans.height, localP.x, localP.y, rect.width, rect.height);
                 }
             };

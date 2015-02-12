@@ -915,6 +915,7 @@ declare module WOZLLA {
         _collider: Collider;
         _behaviours: Behaviour[];
         _mask: Mask;
+        _data: any;
         /**
          * new a GameObject
          * @method constructor
@@ -922,6 +923,7 @@ declare module WOZLLA {
          * @param {boolean} useRectTransform specify which transform this game object should be used.
          */
         constructor(useRectTransform?: boolean);
+        data(key: string, value?: any): any;
         /**
          * get active in tree
          * @method isActive
@@ -1817,6 +1819,7 @@ declare module WOZLLA.math {
 declare module WOZLLA.component {
     class PropertyConverter {
         static array2point(arr: Array<number>): WOZLLA.math.Point;
+        static array2size(arr: Array<number>): WOZLLA.math.Size;
         static array2rect(arr: Array<number>): WOZLLA.math.Rectangle;
         static array2circle(arr: Array<number>): WOZLLA.math.Circle;
         static json2TextStyle(json: any): TextStyle;
@@ -2088,6 +2091,29 @@ declare module WOZLLA.component {
         private _initMaskQuadRenderer(renderer);
     }
 }
+declare module WOZLLA.math {
+    /**
+     * @class WOZLLA.math.Size
+     * a util class contains width and height properties
+     */
+    class Size {
+        width: number;
+        height: number;
+        /**
+         * @method constructor
+         * create a new instance of Size
+         * @member WOZLLA.math.Size
+         * @param {number} width
+         * @param {number} height
+         */
+        constructor(width: number, height: number);
+        /**
+         * get simple description of this object
+         * @returns {string}
+         */
+        toString(): string;
+    }
+}
 declare module WOZLLA.component {
     class CanvasRenderer extends QuadRenderer {
         canvasSize: WOZLLA.math.Size;
@@ -2253,6 +2279,8 @@ declare module WOZLLA.component {
 }
 declare module WOZLLA.component {
     class TextRenderer extends CanvasRenderer {
+        static helpCanvas: HTMLCanvasElement;
+        static helpContext: CanvasRenderingContext2D;
         static measureText(style: TextStyle, text: string): {
             width: any;
             height: any;
@@ -2300,6 +2328,21 @@ declare module WOZLLA.component {
         _strokeWidth: number;
         _align: string;
         _baseline: string;
+        _stack: any;
+        save(): void;
+        restore(): void;
+    }
+}
+declare module WOZLLA.component {
+    class RichTextRenderer extends TextRenderer {
+        offset: any;
+        lineWidth: number;
+        lineHeight: number;
+        _fragments: Array<any>;
+        protected drawText(context: any, measuredWidth: any, measuredHeight: any): void;
+        protected measureTextSize(): any;
+        protected generateCanvasTexture(renderer: renderer.IRenderer): void;
+        protected parseText(): number;
     }
 }
 declare module WOZLLA.component {
@@ -2466,29 +2509,6 @@ declare module WOZLLA.layout {
         protected onChildRemove(e: any): void;
     }
 }
-declare module WOZLLA.math {
-    /**
-     * @class WOZLLA.math.Size
-     * a util class contains width and height properties
-     */
-    class Size {
-        width: number;
-        height: number;
-        /**
-         * @method constructor
-         * create a new instance of Size
-         * @member WOZLLA.math.Size
-         * @param {number} width
-         * @param {number} height
-         */
-        constructor(width: number, height: number);
-        /**
-         * get simple description of this object
-         * @returns {string}
-         */
-        toString(): string;
-    }
-}
 declare module WOZLLA.layout {
     class Margin {
         top: number;
@@ -2507,10 +2527,14 @@ declare module WOZLLA.layout {
         listRequiredComponents(): Array<Function>;
         padding: Padding;
         itemMargin: Margin;
+        itemSize: math.Size;
+        constraint: string;
         _padding: Padding;
         _itemMargin: Margin;
+        _itemSize: math.Size;
+        _constraint: string;
+        ignoreInvisible: boolean;
         doLayout(): void;
-        protected measureChildSize(child: GameObject, idx: number, size: WOZLLA.math.Size): void;
     }
 }
 declare module WOZLLA.layout {
@@ -2784,6 +2808,7 @@ declare module WOZLLA.ui {
         _originScaleX: number;
         _originScaleY: number;
         _touchTime: number;
+        _touchTween: any;
         _scaleTimer: any;
         init(): void;
         isEnabled(): boolean;
@@ -2798,15 +2823,19 @@ declare module WOZLLA.ui {
      * @class WOZLLA.ui.CheckBox
      */
     class CheckBox extends StateWidget {
+        static EVENT_CHECK_CHANGE: string;
         static STATE_UNCHECKED: string;
         static STATE_CHECKED: string;
         static STATE_DISABLED: string;
         uncheckedSpriteName: string;
         disabledSpriteName: string;
         checkedSpriteName: string;
+        initState: string;
         init(): void;
         isEnabled(): boolean;
         setEnabled(enabled?: boolean): void;
+        setChecked(checked?: boolean): void;
+        isChecked(): boolean;
         protected initStates(): void;
         protected onTap(e: any): void;
     }
@@ -2847,11 +2876,15 @@ declare module WOZLLA.ui {
             bufferYTween: any;
         };
         _contentGameObject: GameObject;
+        _bufferBackCheckRequired: boolean;
         listRequiredComponents(): Array<Function>;
         init(): void;
         destroy(): void;
         update(): void;
         isScrollable(): boolean;
+        requestCheckBufferBack(): void;
+        stopScroll(): void;
+        protected clearAllTweens(): void;
         protected getMinScrollX(): number;
         protected getMinScrollY(): number;
         protected onDragStart(e: any): void;
