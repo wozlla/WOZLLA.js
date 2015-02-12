@@ -6,6 +6,10 @@ module WOZLLA.component {
             return new WOZLLA.math.Point(arr[0], arr[1]);
         }
 
+        public static array2size(arr:Array<number>):WOZLLA.math.Size {
+            return new WOZLLA.math.Size(arr[0], arr[1]);
+        }
+
         public static array2rect(arr:Array<number>):WOZLLA.math.Rectangle {
             return new WOZLLA.math.Rectangle(arr[0], arr[1], arr[2], arr[3]);
         }
