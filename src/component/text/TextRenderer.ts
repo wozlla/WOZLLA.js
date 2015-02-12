@@ -9,6 +9,9 @@ module WOZLLA.component {
 
     export class TextRenderer extends CanvasRenderer {
 
+        public static helpCanvas = helpCanvas;
+        public static helpContext = helpContext;
+
         public static measureText(style:TextStyle, text:string) {
             var measuredWidth,
                 measuredHeight;
@@ -236,6 +239,36 @@ module WOZLLA.component {
         _strokeWidth:number = 0;
         _align:string = TextStyle.START;
         _baseline:string = TextStyle.TOP;
+
+        _stack;
+
+        save() {
+            if(!this._stack) {
+                this._stack = [];
+            }
+            this._stack.push({
+                font: this.font,
+                color: this.color,
+                shadow: this.shadow,
+                shadowColor: this.shadowColor,
+                shadowOffsetX: this.shadowOffsetX,
+                shadowOffsetY: this.shadowOffsetY,
+                stroke: this.stroke,
+                strokeColor: this.strokeColor,
+                strokeWidth: this.strokeWidth,
+                align: this.align,
+                baseline: this.baseline
+            });
+        }
+
+        restore() {
+            var data = this._stack && this._stack.shift();
+            if(data) {
+                for(var i in data) {
+                    this[i] = data[i];
+                }
+            }
+        }
 
     }
 
