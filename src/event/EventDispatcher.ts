@@ -17,6 +17,7 @@ module WOZLLA.event {
                 if(scope) {
                     if(l.listener === listener && scope === l.scope) {
                         this._listeners.splice(i, 1);
+                        return;
                     }
                 }
                 else if(l === listener) {

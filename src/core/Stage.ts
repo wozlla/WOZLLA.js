@@ -11,6 +11,7 @@ module WOZLLA {
         public static ID:string = 'WOZLLAStage';
 
         get viewRectTransform():RectTransform { return this._viewRectTransform; }
+        get rootTransform():Transform { return this._rootTransform; }
 
         _rootTransform:Transform;
         _viewRectTransform:RectTransform;

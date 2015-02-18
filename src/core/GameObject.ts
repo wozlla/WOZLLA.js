@@ -239,6 +239,7 @@ module WOZLLA {
         _mask:Mask;
 
         _data:any;
+        _interactiveRect:WOZLLA.math.Rectangle;
 
         /**
          * new a GameObject
@@ -308,7 +309,7 @@ module WOZLLA {
             if(this._z === value) return;
             this._z = value;
             if(sort) {
-                this._children.sort(comparator);
+                this.sortChildren();
             }
         }
 
@@ -330,7 +331,7 @@ module WOZLLA {
             }));
             this._children.push(child);
             if(sort) {
-                this._children.sort(comparator);
+                this.sortChildren();
             }
             child._parent = this;
             child.setBubbleParent(this);
@@ -685,6 +686,12 @@ module WOZLLA {
             var found, localP, child;
             var childrenArr;
             if(!this._active || !this._visible) return null;
+            if(this._interactiveRect) {
+                localP = this.transform.globalToLocal(x, y);
+                if(!this._interactiveRect.containsXY(localP.x, localP.y)) {
+                    return null;
+                }
+            }
             childrenArr = this._children;
             if(childrenArr.length > 0) {
                 for(var i=childrenArr.length-1; i>=0; i--) {
@@ -697,7 +704,9 @@ module WOZLLA {
             }
 
             if(!touchable || this._touchable) {
-                localP = this.transform.globalToLocal(x, y);
+                if(!localP) {
+                    localP = this.transform.globalToLocal(x, y);
+                }
                 if(this.testHit(localP.x, localP.y)) {
                     return this;
                 }

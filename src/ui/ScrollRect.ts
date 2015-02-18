@@ -1,4 +1,5 @@
 /// <reference path="../core/Component.ts"/>
+/// <reference path="../component/PropertyConverter.ts"/>
 /// <reference path="../math/MathUtils.ts"/>
 module WOZLLA.ui {
 
@@ -38,6 +39,10 @@ module WOZLLA.ui {
 
         get momentumEnabled():boolean { return this._momentumEnabled; }
         set momentumEnabled(value:boolean) { this._momentumEnabled = value; }
+
+        set interactiveRect(value:WOZLLA.math.Rectangle) {
+            this._gameObject._interactiveRect = value;
+        }
 
         public optimizeList:boolean = false;
 
@@ -177,7 +182,9 @@ module WOZLLA.ui {
         }
 
         protected clearAllTweens() {
-            this._contentGameObject.rectTransform.clearTweens();
+            if(this._contentGameObject) {
+                this._contentGameObject.rectTransform.clearTweens();
+            }
             if (this._values.momentumXTween) {
                 this._values.momentumXTween.setPaused(true);
                 this._values.momentumXTween = null;
@@ -385,6 +392,11 @@ module WOZLLA.ui {
             name: 'content',
             type: 'string',
             defaultValue: ''
+        }, {
+            name: 'interactiveRect',
+            type: 'rect',
+            defaultValue: [0, 0, 0, 0],
+            convert: component.PropertyConverter.array2rect
         }, {
             name: 'bufferBackEnabled',
             type: 'boolean',

@@ -209,13 +209,11 @@ module WOZLLA {
             if(parentTransform && this._relative) {
                 worldMatrix.applyMatrix(parentTransform.worldMatrix);
             } else {
-//                worldMatrix.identity();
-//                parentTransform = Director.getInstance().getStage().transform;
                 // if this is the transform of stage
                 if(this === parentTransform) {
                     worldMatrix.identity();
                 } else {
-                    worldMatrix.applyMatrix(parentTransform.worldMatrix);
+                    worldMatrix.applyMatrix(this.getRootMatrix());
                 }
             }
 
@@ -281,6 +279,10 @@ module WOZLLA {
 
         clearTweens() {
             return WOZLLA.utils.Tween.removeTweens(this);
+        }
+
+        protected getRootMatrix() {
+            return Director.getInstance().stage.rootTransform.worldMatrix;
         }
 
     }

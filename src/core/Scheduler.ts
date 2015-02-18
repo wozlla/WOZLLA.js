@@ -75,6 +75,9 @@ module WOZLLA {
          */
         removeSchedule(id) {
             delete this._schedules[id];
+            if(this._lastSchedules) {
+                delete this._lastSchedules[id];
+            }
         }
 
         /**

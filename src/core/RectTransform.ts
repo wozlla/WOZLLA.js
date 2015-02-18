@@ -236,6 +236,9 @@ module WOZLLA {
             this._bottom = rectTransform.bottom || 0;
             this._px = rectTransform.px || 0;
             this._py = rectTransform.py || 0;
+            if(typeof rectTransform.relative !== 'undefined') {
+                this._relative = rectTransform.relative;
+            }
             this.dirty = true;
         }
 
@@ -282,6 +285,9 @@ module WOZLLA {
             super.transform(parentTransform);
         }
 
+        protected getRootMatrix() {
+            return Director.getInstance().stage.viewRectTransform.worldMatrix;
+        }
     }
 
 }

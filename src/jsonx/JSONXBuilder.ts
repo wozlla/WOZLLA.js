@@ -162,19 +162,20 @@ module WOZLLA.jsonx {
             function next() {
                 var childData = children[index++];
                 if(!childData) {
+                    gameObj.sortChildren();
                     callback(gameObj);
                     return;
                 }
                 if(childData.reference) {
                     me._newReferenceObject(childData, (child) => {
                         if(child) {
-                            gameObj.addChild(child);
+                            gameObj.addChild(child, false);
                         }
                         next();
                     });
                 } else {
                     me._newGameObject(childData, (child) => {
-                        gameObj.addChild(child);
+                        gameObj.addChild(child, false);
                         next();
                     });
                 }
