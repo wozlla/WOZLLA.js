@@ -145,12 +145,7 @@ module WOZLLA.component {
             }
             tw = this._texture.descriptor.width;
             th = this._texture.descriptor.height;
-            frame = this._textureFrame || {
-                x: 0,
-                y: 0,
-                width: tw,
-                height: th
-            };
+            frame = this._getTextureFrame();
             uvs = {};
             uvs.x0 = frame.x / tw;
             uvs.y0 = frame.y / th;
