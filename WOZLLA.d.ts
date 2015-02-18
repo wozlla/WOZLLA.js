@@ -520,6 +520,7 @@ declare module WOZLLA {
         };
         tween(override: boolean): any;
         clearTweens(): void;
+        protected getRootMatrix(): math.Matrix;
     }
 }
 declare module WOZLLA.utils {
@@ -658,6 +659,7 @@ declare module WOZLLA {
          * @param {WOZLLA.Transform} parentTransform
          */
         transform(parentTransform?: Transform): void;
+        protected getRootMatrix(): math.Matrix;
     }
 }
 declare module WOZLLA {
@@ -916,6 +918,7 @@ declare module WOZLLA {
         _behaviours: Behaviour[];
         _mask: Mask;
         _data: any;
+        _interactiveRect: WOZLLA.math.Rectangle;
         /**
          * new a GameObject
          * @method constructor
@@ -1090,6 +1093,7 @@ declare module WOZLLA {
     class Stage extends GameObject {
         static ID: string;
         viewRectTransform: RectTransform;
+        rootTransform: Transform;
         _rootTransform: Transform;
         _viewRectTransform: RectTransform;
         constructor();
@@ -1771,6 +1775,34 @@ declare module WOZLLA.assets {
         _loadSpriteAtlas(callback: (error: string, image?, spriteData?) => any): void;
     }
 }
+declare module WOZLLA {
+    /**
+     * Abstract base class for all behaviours, the {@link WOZLLA.Behaviour#update} function would be call
+     * by WOZLLA engine every frame when the gameObject is actived and the property enabled of this behaviour is true
+     * @class WOZLLA.Behaviour
+     * @extends WOZLLA.Component
+     * @abstract
+     */
+    class Behaviour extends Component {
+        /**
+         * enabled or disabled this behaviour
+         * @property {boolean} [enabled=true]
+         */
+        enabled: boolean;
+        /**
+         * call by Engine every frame
+         * @method update
+         */
+        update(): void;
+    }
+}
+declare module WOZLLA.component {
+    class LoopRotation extends Behaviour {
+        reverse: boolean;
+        speed: number;
+        update(): void;
+    }
+}
 declare module WOZLLA.math {
     /**
      * @class WOZLLA.math.Rectangle
@@ -2091,29 +2123,6 @@ declare module WOZLLA.component {
         private _initMaskQuadRenderer(renderer);
     }
 }
-declare module WOZLLA.math {
-    /**
-     * @class WOZLLA.math.Size
-     * a util class contains width and height properties
-     */
-    class Size {
-        width: number;
-        height: number;
-        /**
-         * @method constructor
-         * create a new instance of Size
-         * @member WOZLLA.math.Size
-         * @param {number} width
-         * @param {number} height
-         */
-        constructor(width: number, height: number);
-        /**
-         * get simple description of this object
-         * @returns {string}
-         */
-        toString(): string;
-    }
-}
 declare module WOZLLA.component {
     class CanvasRenderer extends QuadRenderer {
         canvasSize: WOZLLA.math.Size;
@@ -2262,6 +2271,36 @@ declare module WOZLLA.component {
 }
 declare module WOZLLA.component {
     /**
+     * @class WOZLLA.component.SpriteProgressRenderer
+     */
+    class SpriteProgressRenderer extends SpriteRenderer {
+        static HORIZONTAL: string;
+        static VERTICAL: string;
+        progress: number;
+        animateProgress: number;
+        animate: boolean;
+        speed: number;
+        direction: string;
+        _progress: number;
+        _tween: any;
+        _progressFrame: {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+        };
+        setProgress(progress: number): void;
+        destroy(): void;
+        _getTextureFrame(): {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+        };
+    }
+}
+declare module WOZLLA.component {
+    /**
      * @class WOZLLA.component.TilingSpriteRenderer
      */
     class TilingSpriteRenderer extends SpriteRenderer {
@@ -2363,27 +2402,6 @@ declare module WOZLLA.component {
         _updateQuadSize(): void;
         _updateQuadsVertices(): void;
         render(renderer: WOZLLA.renderer.IRenderer, flags: number): void;
-    }
-}
-declare module WOZLLA {
-    /**
-     * Abstract base class for all behaviours, the {@link WOZLLA.Behaviour#update} function would be call
-     * by WOZLLA engine every frame when the gameObject is actived and the property enabled of this behaviour is true
-     * @class WOZLLA.Behaviour
-     * @extends WOZLLA.Component
-     * @abstract
-     */
-    class Behaviour extends Component {
-        /**
-         * enabled or disabled this behaviour
-         * @property {boolean} [enabled=true]
-         */
-        enabled: boolean;
-        /**
-         * call by Engine every frame
-         * @method update
-         */
-        update(): void;
     }
 }
 declare module WOZLLA {
@@ -2507,6 +2525,29 @@ declare module WOZLLA.layout {
         update(): void;
         protected onChildAdd(e: any): void;
         protected onChildRemove(e: any): void;
+    }
+}
+declare module WOZLLA.math {
+    /**
+     * @class WOZLLA.math.Size
+     * a util class contains width and height properties
+     */
+    class Size {
+        width: number;
+        height: number;
+        /**
+         * @method constructor
+         * create a new instance of Size
+         * @member WOZLLA.math.Size
+         * @param {number} width
+         * @param {number} height
+         */
+        constructor(width: number, height: number);
+        /**
+         * get simple description of this object
+         * @returns {string}
+         */
+        toString(): string;
     }
 }
 declare module WOZLLA.layout {
@@ -2855,6 +2896,7 @@ declare module WOZLLA.ui {
         contentHeight: number;
         bufferBackEnabled: boolean;
         momentumEnabled: boolean;
+        interactiveRect: WOZLLA.math.Rectangle;
         optimizeList: boolean;
         _direction: string;
         _enabled: boolean;

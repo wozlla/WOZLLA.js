@@ -206,6 +206,7 @@ var WOZLLA;
                     if (scope) {
                         if (l.listener === listener && scope === l.scope) {
                             this._listeners.splice(i, 1);
+                            return;
                         }
                     }
                     else if (l === listener) {
@@ -1439,14 +1440,12 @@ var WOZLLA;
                 worldMatrix.applyMatrix(parentTransform.worldMatrix);
             }
             else {
-                //                worldMatrix.identity();
-                //                parentTransform = Director.getInstance().getStage().transform;
                 // if this is the transform of stage
                 if (this === parentTransform) {
                     worldMatrix.identity();
                 }
                 else {
-                    worldMatrix.applyMatrix(parentTransform.worldMatrix);
+                    worldMatrix.applyMatrix(this.getRootMatrix());
                 }
             }
             if (this.__local_matrix) {
@@ -1507,6 +1506,9 @@ var WOZLLA;
         };
         Transform.prototype.clearTweens = function () {
             return WOZLLA.utils.Tween.removeTweens(this);
+        };
+        Transform.prototype.getRootMatrix = function () {
+            return WOZLLA.Director.getInstance().stage.rootTransform.worldMatrix;
         };
         /**
          * @property {number} DEG_TO_RAD
@@ -1768,6 +1770,9 @@ var WOZLLA;
             this._bottom = rectTransform.bottom || 0;
             this._px = rectTransform.px || 0;
             this._py = rectTransform.py || 0;
+            if (typeof rectTransform.relative !== 'undefined') {
+                this._relative = rectTransform.relative;
+            }
             this.dirty = true;
         };
         RectTransform.prototype.superSet = function (transform) {
@@ -1815,6 +1820,9 @@ var WOZLLA;
                 this.y = p._height / 2 + this._py;
             }
             _super.prototype.transform.call(this, parentTransform);
+        };
+        RectTransform.prototype.getRootMatrix = function () {
+            return WOZLLA.Director.getInstance().stage.viewRectTransform.worldMatrix;
         };
         /**
          * vertical anchor mode
@@ -2480,7 +2488,7 @@ var WOZLLA;
                 return;
             this._z = value;
             if (sort) {
-                this._children.sort(comparator);
+                this.sortChildren();
             }
         };
         /**
@@ -2502,7 +2510,7 @@ var WOZLLA;
             }));
             this._children.push(child);
             if (sort) {
-                this._children.sort(comparator);
+                this.sortChildren();
             }
             child._parent = this;
             child.setBubbleParent(this);
@@ -2846,6 +2854,12 @@ var WOZLLA;
             var childrenArr;
             if (!this._active || !this._visible)
                 return null;
+            if (this._interactiveRect) {
+                localP = this.transform.globalToLocal(x, y);
+                if (!this._interactiveRect.containsXY(localP.x, localP.y)) {
+                    return null;
+                }
+            }
             childrenArr = this._children;
             if (childrenArr.length > 0) {
                 for (var i = childrenArr.length - 1; i >= 0; i--) {
@@ -2857,7 +2871,9 @@ var WOZLLA;
                 }
             }
             if (!touchable || this._touchable) {
-                localP = this.transform.globalToLocal(x, y);
+                if (!localP) {
+                    localP = this.transform.globalToLocal(x, y);
+                }
                 if (this.testHit(localP.x, localP.y)) {
                     return this;
                 }
@@ -3033,6 +3049,13 @@ var WOZLLA;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Stage.prototype, "rootTransform", {
+            get: function () {
+                return this._rootTransform;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Stage.prototype.visitStage = function (renderer) {
             _super.prototype.visit.call(this, renderer, this._rootTransform, WOZLLA.GameObject.MASK_VISIBLE);
         };
@@ -3165,6 +3188,9 @@ var WOZLLA;
          */
         Scheduler.prototype.removeSchedule = function (id) {
             delete this._schedules[id];
+            if (this._lastSchedules) {
+                delete this._lastSchedules[id];
+            }
         };
         /**
          * schedule the task to each frame
@@ -5223,6 +5249,71 @@ var WOZLLA;
         assets.SpriteAtlas = SpriteAtlas;
     })(assets = WOZLLA.assets || (WOZLLA.assets = {}));
 })(WOZLLA || (WOZLLA = {}));
+/// <reference path="Component.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    /**
+     * Abstract base class for all behaviours, the {@link WOZLLA.Behaviour#update} function would be call
+     * by WOZLLA engine every frame when the gameObject is actived and the property enabled of this behaviour is true
+     * @class WOZLLA.Behaviour
+     * @extends WOZLLA.Component
+     * @abstract
+     */
+    var Behaviour = (function (_super) {
+        __extends(Behaviour, _super);
+        function Behaviour() {
+            _super.apply(this, arguments);
+            /**
+             * enabled or disabled this behaviour
+             * @property {boolean} [enabled=true]
+             */
+            this.enabled = true;
+        }
+        /**
+         * call by Engine every frame
+         * @method update
+         */
+        Behaviour.prototype.update = function () {
+        };
+        return Behaviour;
+    })(WOZLLA.Component);
+    WOZLLA.Behaviour = Behaviour;
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="../../utils/Tween.ts"/>
+/// <reference path="../../core/Behaviour.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        var LoopRotation = (function (_super) {
+            __extends(LoopRotation, _super);
+            function LoopRotation() {
+                _super.apply(this, arguments);
+                this.reverse = false;
+                this.speed = 1.0;
+            }
+            LoopRotation.prototype.update = function () {
+                var reverse = this.reverse ? -1 : 1;
+                var speed = this.speed;
+                this.transform.rotation += speed / WOZLLA.Time.delta * reverse;
+            };
+            return LoopRotation;
+        })(WOZLLA.Behaviour);
+        component.LoopRotation = LoopRotation;
+        WOZLLA.Component.register(LoopRotation, {
+            name: "LoopRotation",
+            properties: [{
+                name: 'reverse',
+                type: 'boolean',
+                defaultValue: false
+            }, {
+                name: 'speed',
+                type: 'number',
+                defaultValue: 1.0
+            }]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
 var WOZLLA;
 (function (WOZLLA) {
     var math;
@@ -6124,12 +6215,7 @@ var WOZLLA;
                 }
                 tw = this._texture.descriptor.width;
                 th = this._texture.descriptor.height;
-                frame = this._textureFrame || {
-                    x: 0,
-                    y: 0,
-                    width: tw,
-                    height: th
-                };
+                frame = this._getTextureFrame();
                 uvs = {};
                 uvs.x0 = frame.x / tw;
                 uvs.y0 = frame.y / th;
@@ -6277,51 +6363,8 @@ var WOZLLA;
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
-var WOZLLA;
-(function (WOZLLA) {
-    var math;
-    (function (math) {
-        /**
-         * @class WOZLLA.math.Size
-         * a util class contains width and height properties
-         */
-        var Size = (function () {
-            /**
-             * @method constructor
-             * create a new instance of Size
-             * @member WOZLLA.math.Size
-             * @param {number} width
-             * @param {number} height
-             */
-            function Size(width, height) {
-                /**
-                 * @property {number} width
-                 * get or set width of this object
-                 * @member WOZLLA.math.Size
-                 */
-                this.width = width;
-                /**
-                 * @property {number} height
-                 * get or set height of this object
-                 * @member WOZLLA.math.Size
-                 */
-                this.height = height;
-            }
-            /**
-             * get simple description of this object
-             * @returns {string}
-             */
-            Size.prototype.toString = function () {
-                return 'Size[' + this.width + ',' + this.height + ']';
-            };
-            return Size;
-        })();
-        math.Size = Size;
-    })(math = WOZLLA.math || (WOZLLA.math = {}));
-})(WOZLLA || (WOZLLA = {}));
 /// <reference path="../../assets/GLTextureAsset.ts"/>
 /// <reference path="QuadRenderer.ts"/>
-/// <reference path="../../math/Size.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
     var component;
@@ -7501,6 +7544,127 @@ var WOZLLA;
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="SpriteRenderer.ts"/>
+/// <reference path="../../assets/proxy/SpriteAtlasProxy.ts"/>
+/// <reference path="../../assets/Sprite.ts"/>
+/// <reference path="../../assets/SpriteAtlas.ts"/>
+var WOZLLA;
+(function (WOZLLA) {
+    var component;
+    (function (component) {
+        /**
+         * @class WOZLLA.component.SpriteProgressRenderer
+         */
+        var SpriteProgressRenderer = (function (_super) {
+            __extends(SpriteProgressRenderer, _super);
+            function SpriteProgressRenderer() {
+                _super.apply(this, arguments);
+                this.animate = false;
+                this.speed = 1;
+                this.direction = SpriteProgressRenderer.HORIZONTAL;
+                this._progress = 100.0;
+                this._progressFrame = {
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0
+                };
+            }
+            Object.defineProperty(SpriteProgressRenderer.prototype, "progress", {
+                get: function () {
+                    return this._progress;
+                },
+                set: function (value) {
+                    if (this._progress === value)
+                        return;
+                    this._progress = value;
+                    this._textureUVS = null;
+                    this._quadVertexDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(SpriteProgressRenderer.prototype, "animateProgress", {
+                set: function (value) {
+                    this.setProgress(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            SpriteProgressRenderer.prototype.setProgress = function (progress) {
+                if (this.animate) {
+                    var delta = Math.abs(progress - this._progress);
+                    WOZLLA.utils.Tween.get(this).to({
+                        progress: progress
+                    }, 1000 / this.speed * delta / 100);
+                }
+                else {
+                    this.progress = progress;
+                    this._tween && this._tween.setPaused();
+                    this._tween = null;
+                }
+            };
+            SpriteProgressRenderer.prototype.destroy = function () {
+                this._tween && this._tween.setPaused();
+                this._tween = null;
+                _super.prototype.destroy.call(this);
+            };
+            SpriteProgressRenderer.prototype._getTextureFrame = function () {
+                var frame = _super.prototype._getTextureFrame.call(this);
+                var persentage = 0;
+                this._progressFrame.x = frame.x;
+                this._progressFrame.y = frame.y;
+                if (this._progress > 100) {
+                    persentage = this._progress % 100 / 100.0;
+                }
+                else {
+                    persentage = this._progress / 100.0;
+                }
+                if (this.direction === SpriteProgressRenderer.HORIZONTAL) {
+                    this._progressFrame.width = frame.width * persentage;
+                    this._progressFrame.height = frame.height;
+                }
+                else {
+                    this._progressFrame.width = frame.width;
+                    this._progressFrame.height = frame.height * persentage;
+                }
+                return this._progressFrame;
+            };
+            SpriteProgressRenderer.HORIZONTAL = 'horizontal';
+            SpriteProgressRenderer.VERTICAL = 'vertical';
+            return SpriteProgressRenderer;
+        })(component.SpriteRenderer);
+        component.SpriteProgressRenderer = SpriteProgressRenderer;
+        WOZLLA.Component.register(SpriteProgressRenderer, {
+            name: "SpriteProgressRenderer",
+            properties: [
+                WOZLLA.Component.extendConfig(component.SpriteRenderer),
+                {
+                    name: 'progress',
+                    type: 'number',
+                    defaultValue: 100.0
+                },
+                {
+                    name: 'animate',
+                    type: 'boolean',
+                    defaultValue: false
+                },
+                {
+                    name: 'speed',
+                    type: 'number',
+                    defaultValue: 1
+                },
+                {
+                    name: 'direction',
+                    type: 'string',
+                    editor: 'combobox',
+                    defaultValue: SpriteProgressRenderer.HORIZONTAL,
+                    data: [SpriteProgressRenderer.HORIZONTAL, SpriteProgressRenderer.VERTICAL]
+                }
+            ]
+        });
+    })(component = WOZLLA.component || (WOZLLA.component = {}));
+})(WOZLLA || (WOZLLA = {}));
+/// <reference path="SpriteRenderer.ts"/>
 /// <reference path="../PropertySnip.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
@@ -8457,36 +8621,6 @@ var WOZLLA;
         });
     })(component = WOZLLA.component || (WOZLLA.component = {}));
 })(WOZLLA || (WOZLLA = {}));
-/// <reference path="Component.ts"/>
-var WOZLLA;
-(function (WOZLLA) {
-    /**
-     * Abstract base class for all behaviours, the {@link WOZLLA.Behaviour#update} function would be call
-     * by WOZLLA engine every frame when the gameObject is actived and the property enabled of this behaviour is true
-     * @class WOZLLA.Behaviour
-     * @extends WOZLLA.Component
-     * @abstract
-     */
-    var Behaviour = (function (_super) {
-        __extends(Behaviour, _super);
-        function Behaviour() {
-            _super.apply(this, arguments);
-            /**
-             * enabled or disabled this behaviour
-             * @property {boolean} [enabled=true]
-             */
-            this.enabled = true;
-        }
-        /**
-         * call by Engine every frame
-         * @method update
-         */
-        Behaviour.prototype.update = function () {
-        };
-        return Behaviour;
-    })(WOZLLA.Component);
-    WOZLLA.Behaviour = Behaviour;
-})(WOZLLA || (WOZLLA = {}));
 /// <reference path="../event/Event.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
@@ -8930,20 +9064,21 @@ var WOZLLA;
                 function next() {
                     var childData = children[index++];
                     if (!childData) {
+                        gameObj.sortChildren();
                         callback(gameObj);
                         return;
                     }
                     if (childData.reference) {
                         me._newReferenceObject(childData, function (child) {
                             if (child) {
-                                gameObj.addChild(child);
+                                gameObj.addChild(child, false);
                             }
                             next();
                         });
                     }
                     else {
                         me._newGameObject(childData, function (child) {
-                            gameObj.addChild(child);
+                            gameObj.addChild(child, false);
                             next();
                         });
                     }
@@ -9066,6 +9201,48 @@ var WOZLLA;
         })(WOZLLA.Behaviour);
         layout.LayoutBase = LayoutBase;
     })(layout = WOZLLA.layout || (WOZLLA.layout = {}));
+})(WOZLLA || (WOZLLA = {}));
+var WOZLLA;
+(function (WOZLLA) {
+    var math;
+    (function (math) {
+        /**
+         * @class WOZLLA.math.Size
+         * a util class contains width and height properties
+         */
+        var Size = (function () {
+            /**
+             * @method constructor
+             * create a new instance of Size
+             * @member WOZLLA.math.Size
+             * @param {number} width
+             * @param {number} height
+             */
+            function Size(width, height) {
+                /**
+                 * @property {number} width
+                 * get or set width of this object
+                 * @member WOZLLA.math.Size
+                 */
+                this.width = width;
+                /**
+                 * @property {number} height
+                 * get or set height of this object
+                 * @member WOZLLA.math.Size
+                 */
+                this.height = height;
+            }
+            /**
+             * get simple description of this object
+             * @returns {string}
+             */
+            Size.prototype.toString = function () {
+                return 'Size[' + this.width + ',' + this.height + ']';
+            };
+            return Size;
+        })();
+        math.Size = Size;
+    })(math = WOZLLA.math || (WOZLLA.math = {}));
 })(WOZLLA || (WOZLLA = {}));
 var WOZLLA;
 (function (WOZLLA) {
@@ -9970,6 +10147,7 @@ var WOZLLA;
     })(ui = WOZLLA.ui || (WOZLLA.ui = {}));
 })(WOZLLA || (WOZLLA = {}));
 /// <reference path="../core/Component.ts"/>
+/// <reference path="../component/PropertyConverter.ts"/>
 /// <reference path="../math/MathUtils.ts"/>
 var WOZLLA;
 (function (WOZLLA) {
@@ -10083,6 +10261,13 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(ScrollRect.prototype, "interactiveRect", {
+                set: function (value) {
+                    this._gameObject._interactiveRect = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
             ScrollRect.prototype.listRequiredComponents = function () {
                 return [WOZLLA.RectTransform];
             };
@@ -10189,7 +10374,9 @@ var WOZLLA;
                 this._values.momentumY = 0;
             };
             ScrollRect.prototype.clearAllTweens = function () {
-                this._contentGameObject.rectTransform.clearTweens();
+                if (this._contentGameObject) {
+                    this._contentGameObject.rectTransform.clearTweens();
+                }
                 if (this._values.momentumXTween) {
                     this._values.momentumXTween.setPaused(true);
                     this._values.momentumXTween = null;
@@ -10389,6 +10576,11 @@ var WOZLLA;
                 name: 'content',
                 type: 'string',
                 defaultValue: ''
+            }, {
+                name: 'interactiveRect',
+                type: 'rect',
+                defaultValue: [0, 0, 0, 0],
+                convert: WOZLLA.component.PropertyConverter.array2rect
             }, {
                 name: 'bufferBackEnabled',
                 type: 'boolean',
