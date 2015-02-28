@@ -3339,7 +3339,7 @@ var WOZLLA;
             me.updateCanvasOffset();
             if (window['Hammer']) {
                 me.hammer = new Hammer.Manager(canvas);
-                me.hammer.add(new Hammer.Tap({ threshold: 100 }));
+                me.hammer.add(new Hammer.Tap({ threshold: 100, time: 5000 }));
                 me.hammer.add(new Hammer.Pan({ threshold: 5 }));
                 me.hammer.on(Touch.enabledGestures || 'hammer.input tap swipe panstart panmove panend pancancel', function (e) {
                     if (e.type === 'hammer.input' && !e.isFinal && !e.isFirst) {
@@ -7846,6 +7846,16 @@ var WOZLLA;
                 set: function (value) {
                     this._textStyle = value;
                     this._textDirty = true;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextRenderer.prototype, "color", {
+                get: function () {
+                    return this._textStyle.color;
+                },
+                set: function (value) {
+                    this._textStyle.color = value;
                 },
                 enumerable: true,
                 configurable: true

@@ -2326,6 +2326,7 @@ declare module WOZLLA.component {
         };
         text: string;
         textStyle: TextStyle;
+        color: string;
         textWidth: number;
         textHeight: number;
         _textDirty: boolean;
@@ -2491,11 +2492,11 @@ declare module WOZLLA.jsonx {
         private data;
         private err;
         private root;
-        private newCallback;
         private doLoad;
         private doInit;
-        private loadCallback;
         private async;
+        private loadCallback;
+        private newCallback;
         private uuidMap;
         getByUUID(uuid: any): any;
         setSync(): void;

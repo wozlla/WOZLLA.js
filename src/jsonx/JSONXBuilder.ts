@@ -27,11 +27,11 @@ module WOZLLA.jsonx {
         private data;
         private err;
         private root:WOZLLA.GameObject;
-        private newCallback:(root:WOZLLA.GameObject, done:Function) => void;
         private doLoad:boolean = false;
         private doInit:boolean = false;
-        private loadCallback:(root:WOZLLA.GameObject, done:Function) => void;
         private async:boolean = true;
+        private loadCallback:(root:WOZLLA.GameObject, done:Function) => void;
+        private newCallback:(root:WOZLLA.GameObject, done:Function) => void;
 
         private uuidMap:any = {};
 

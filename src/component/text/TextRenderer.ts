@@ -61,6 +61,13 @@ module WOZLLA.component {
             this._textDirty = true;
         }
 
+        get color():string {
+            return this._textStyle.color;
+        }
+        set color(value:string) {
+            this._textStyle.color = value;
+        }
+
         get textWidth():number { return this._canvasSize.width; }
         get textHeight():number { return this._canvasSize.height; }
 
