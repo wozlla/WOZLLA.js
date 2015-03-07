@@ -14,9 +14,9 @@ module WOZLLA.renderer {
         shaderManager:IShaderManager;
         textureManager:ITextureManager;
 
-        viewport:any;
-
         gl:any;
+        viewport:any;
+        projectionMatrix:Float32Array;
 
         addCommand(command:IRenderCommand):void;
         render():void;

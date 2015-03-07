@@ -315,8 +315,9 @@ declare module WOZLLA.renderer {
         materialManager: IMaterialManager;
         shaderManager: IShaderManager;
         textureManager: ITextureManager;
-        viewport: any;
         gl: any;
+        viewport: any;
+        projectionMatrix: Float32Array;
         addCommand(command: IRenderCommand): void;
         render(): void;
         flush(): void;
@@ -1395,6 +1396,7 @@ declare module WOZLLA.renderer {
         syncUniforms(gl: any, uniforms: {
             projection;
         }): void;
+        finish(gl: any): void;
     }
 }
 declare module WOZLLA.renderer.shader {
@@ -1410,6 +1412,7 @@ declare module WOZLLA.renderer.shader {
         syncUniforms(gl: any, uniforms: {
             projection;
         }): void;
+        finish(gl: any): void;
         _initLocaitions(gl: any): void;
         _activate(gl: any): void;
     }
@@ -1468,8 +1471,10 @@ declare module WOZLLA.renderer {
         textureManager: ITextureManager;
         gl: any;
         viewport: any;
+        projectionMatrix: Float32Array;
         _gl: any;
         _viewport: any;
+        _projectionMatrix: any;
         _layerManager: LayerManager;
         _materialManager: IMaterialManager;
         _shaderManager: IShaderManager;
@@ -1485,6 +1490,7 @@ declare module WOZLLA.renderer {
         };
         private _quadBatch;
         constructor(gl: any, viewport: any);
+        make2DProjection(width: any, height: any, depth: any): Float32Array;
         addCommand(command: IRenderCommand): void;
         render(): void;
         flush(): void;

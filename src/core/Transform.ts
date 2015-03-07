@@ -190,7 +190,7 @@ module WOZLLA {
             this._dirty = true;
         }
 
-        transform(parentTransform:Transform=null) {
+        transform(parentTransform:Transform=null):void {
             var cos, sin, r;
             var matrix;
             var worldMatrix = this.worldMatrix;

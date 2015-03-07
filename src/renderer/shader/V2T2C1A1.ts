@@ -53,6 +53,12 @@ module WOZLLA.renderer.shader {
             gl.uniform2f(this._locations.projectionVector, uniforms.projection.x, uniforms.projection.y);
         }
 
+        finish(gl) {
+            gl.disableVertexAttribArray(this._locations.aVertexPosition);
+            gl.disableVertexAttribArray(this._locations.aTextureCoord);
+            gl.disableVertexAttribArray(this._locations.aColor);
+        }
+
         _initLocaitions(gl) {
             var program = this._id;
             this._locations.uSampler = gl.getUniformLocation(program, 'uSampler');

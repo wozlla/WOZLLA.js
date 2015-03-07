@@ -151,7 +151,6 @@ module WOZLLA.jsonx {
                 });
             }
 
-            var createdChildCount = 0;
             var children:Array<any> = data.children;
             if(!children || children.length === 0) {
                 callback(gameObj);

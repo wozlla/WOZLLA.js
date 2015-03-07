@@ -3791,6 +3791,8 @@ var WOZLLA;
             };
             ShaderProgram.prototype.syncUniforms = function (gl, uniforms) {
             };
+            ShaderProgram.prototype.finish = function (gl) {
+            };
             return ShaderProgram;
         })();
         renderer.ShaderProgram = ShaderProgram;
@@ -3823,6 +3825,11 @@ var WOZLLA;
                 };
                 V2T2C1A1.prototype.syncUniforms = function (gl, uniforms) {
                     gl.uniform2f(this._locations.projectionVector, uniforms.projection.x, uniforms.projection.y);
+                };
+                V2T2C1A1.prototype.finish = function (gl) {
+                    gl.disableVertexAttribArray(this._locations.aVertexPosition);
+                    gl.disableVertexAttribArray(this._locations.aTextureCoord);
+                    gl.disableVertexAttribArray(this._locations.aColor);
                 };
                 V2T2C1A1.prototype._initLocaitions = function (gl) {
                     var program = this._id;
@@ -4072,6 +4079,7 @@ var WOZLLA;
                     x: viewport.width / 2,
                     y: -viewport.height / 2
                 };
+                this._projectionMatrix = this.make2DProjection(viewport.width, viewport.height, viewport.width);
                 gl.disable(gl.DEPTH_TEST);
                 gl.disable(gl.CULL_FACE);
                 gl.enable(gl.BLEND);
@@ -4118,6 +4126,34 @@ var WOZLLA;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(Renderer.prototype, "projectionMatrix", {
+                get: function () {
+                    return this._projectionMatrix;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Renderer.prototype.make2DProjection = function (width, height, depth) {
+                // Note: This matrix flips the Y axis so 0 is at the top.
+                return new Float32Array([
+                    2 / width,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -2 / height,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2 / depth,
+                    0,
+                    -1,
+                    1,
+                    0,
+                    1,
+                ]);
+            };
             Renderer.prototype.addCommand = function (command) {
                 var layer = command.layer;
                 var commandQueue = this._commandQueueMap[layer];
@@ -4159,6 +4195,8 @@ var WOZLLA;
                     if (command instanceof renderer.CustomCommand) {
                         customCommand = command;
                         customCommand.execute(_this);
+                        _this._usingMaterial = null;
+                        _this._usingTexture = null;
                     }
                     else {
                         quadCommand = command;
@@ -4169,9 +4207,9 @@ var WOZLLA;
                             _this.flush();
                             _this._quadBatch.fillQuad(quadCommand.quad);
                         }
+                        _this._usingMaterial = currentMaterial = _this._materialManager.getMaterial(command.materialId);
+                        _this._usingTexture = currentTexture = command.texture;
                     }
-                    _this._usingMaterial = currentMaterial = _this._materialManager.getMaterial(command.materialId);
-                    _this._usingTexture = currentTexture = command.texture;
                     lastCommand = command;
                     if (renderer.IRenderer.debugEnabled) {
                         _this.debug.renderSequence.push(command.layer + ':' + command.globalZ + ':' + command.flags);
@@ -4190,6 +4228,7 @@ var WOZLLA;
                     return;
                 }
                 gl = this._gl;
+                this._quadBatch.bindBuffer(gl);
                 shaderProgram = this._shaderManager.getShaderProgram(this._usingMaterial.shaderProgramId);
                 shaderProgram.useProgram(gl);
                 shaderProgram.syncUniforms(gl, this._uniforms);
@@ -4201,6 +4240,9 @@ var WOZLLA;
                 if (renderer.IRenderer.debugEnabled) {
                     this.debug.renderSequence.push('flush');
                 }
+                shaderProgram.finish(gl);
+                this._usingMaterial = null;
+                this._usingTexture = null;
             };
             Renderer.prototype._clearCommands = function () {
                 var commandQueueMap = this._commandQueueMap;
@@ -4349,6 +4391,10 @@ var WOZLLA;
                 }
                 this._curVertexIndex += quad.renderCount * quad.type.size;
                 this._curBatchSize += quad.renderCount;
+            };
+            QuadBatch.prototype.bindBuffer = function (gl) {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
             };
             QuadBatch.prototype.flush = function (gl) {
                 if (this._curBatchSize === 0) {
@@ -9064,7 +9110,6 @@ var WOZLLA;
                         gameObj.addComponent(_this._newComponent(compData, gameObj));
                     });
                 }
-                var createdChildCount = 0;
                 var children = data.children;
                 if (!children || children.length === 0) {
                     callback(gameObj);

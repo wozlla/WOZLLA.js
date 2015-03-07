@@ -16,9 +16,11 @@ module WOZLLA.renderer {
 
         get gl():any { return this._gl; }
         get viewport():any { return this._viewport; }
+        get projectionMatrix():Float32Array { return this._projectionMatrix; }
 
         _gl;
         _viewport;
+        _projectionMatrix;
         _layerManager:LayerManager;
         _materialManager:IMaterialManager;
         _shaderManager:IShaderManager;
@@ -63,9 +65,21 @@ module WOZLLA.renderer {
                 y: -viewport.height/2
             };
 
+            this._projectionMatrix = this.make2DProjection(viewport.width, viewport.height, viewport.width);
+
             gl.disable(gl.DEPTH_TEST);
             gl.disable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
+        }
+
+        make2DProjection(width, height, depth) {
+            // Note: This matrix flips the Y axis so 0 is at the top.
+            return new Float32Array([
+                2 / width, 0, 0, 0,
+                0, -2 / height, 0, 0,
+                0, 0, 2 / depth, 0,
+                -1, 1, 0, 1,
+            ]);
         }
 
         addCommand(command:IRenderCommand) {
@@ -107,6 +121,8 @@ module WOZLLA.renderer {
                 if(command instanceof CustomCommand) {
                     customCommand = <CustomCommand>command;
                     customCommand.execute(this);
+                    this._usingMaterial = null;
+                    this._usingTexture = null;
                 } else {
                     quadCommand = <QuadCommand>command;
                     if(this._quadBatch.canFill(quadCommand.quad)) {
@@ -115,9 +131,10 @@ module WOZLLA.renderer {
                         this.flush();
                         this._quadBatch.fillQuad(quadCommand.quad);
                     }
+                    this._usingMaterial = currentMaterial = this._materialManager.getMaterial(command.materialId);
+                    this._usingTexture = currentTexture  = command.texture;
                 }
-                this._usingMaterial = currentMaterial = this._materialManager.getMaterial(command.materialId);
-                this._usingTexture = currentTexture  = command.texture;
+
                 lastCommand = command;
 
                 if(IRenderer.debugEnabled) {
@@ -139,6 +156,7 @@ module WOZLLA.renderer {
             }
 
             gl = this._gl;
+            this._quadBatch.bindBuffer(gl);
             shaderProgram = this._shaderManager.getShaderProgram(this._usingMaterial.shaderProgramId);
             shaderProgram.useProgram(gl);
             shaderProgram.syncUniforms(gl, this._uniforms);
@@ -151,6 +169,9 @@ module WOZLLA.renderer {
             if(IRenderer.debugEnabled) {
                 this.debug.renderSequence.push('flush');
             }
+            shaderProgram.finish(gl);
+            this._usingMaterial = null;
+            this._usingTexture = null;
         }
 
         _clearCommands() {
@@ -306,6 +327,11 @@ module WOZLLA.renderer {
             }
             this._curVertexIndex += quad.renderCount * quad.type.size;
             this._curBatchSize += quad.renderCount;
+        }
+
+        bindBuffer(gl) {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         }
 
         flush(gl):void {

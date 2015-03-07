@@ -27,6 +27,10 @@ module WOZLLA.renderer {
         syncUniforms(gl, uniforms:{projection}) {
 
         }
+
+        finish(gl) {
+
+        }
     }
 
 }
