@@ -41,14 +41,14 @@ Version 1.0 (Released)
 * Transform and Tween
 * Event System
 * Touch Input
-* Graphics: Sprite/NinePatch/Mask
+* Graphics: Sprite/NinePatch/Mask/Text/TilingSprite
 * Animation: DragonBones
 * UI widget: Button/CheckBox
 * Automatically Assets Management
+* Drag and Drop
 
 ## API References
 [API References](http://zzm2q.github.io/WOZLLA.js/docs/api/template.html)
-
 
 ## Change Logs
 
